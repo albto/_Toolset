@@ -1,0 +1,1 @@
+encryptScript "C:\Users\Alberto\Dropbox\[main access]\3ds_Scripts\ZeroCenterPivot\zero-center_pivot_unimover_v2.17.ms" version:0

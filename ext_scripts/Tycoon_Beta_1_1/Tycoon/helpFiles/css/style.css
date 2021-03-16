@@ -1,0 +1,119 @@
+body
+{
+	background:#121212;
+	font-family: 'Oswald', sans-serif;
+	color:#eead52;
+	line-height:30px;
+
+
+}
+
+p
+{
+	font-size: 35px;
+	
+}
+
+a
+{
+	text-decoration:none;
+	color:#008bd6; /*008bd6  406d94 */
+
+}
+
+p
+{
+	font-size: 13px;
+	
+}
+
+
+span
+{
+	color:#008bd6;
+	font-size: 22px;
+
+}
+.sub
+{
+	font-size:15px; 
+}
+
+.defaultSub
+{
+	color:white;
+	font-size: 15px;
+}
+
+.left
+{
+	display: block;
+	float: left;
+	font-size: 50px;
+}
+
+a
+{
+	text-decoration:none;
+	color:#008bd6; /*008bd6  406d94 */
+
+}
+
+.right
+{
+	display:block;
+	float:right;
+	font-size:30px;
+}
+
+
+
+#wrap
+{
+	width:100%;
+	margin:0 auto;
+}
+
+img
+{
+	width:100%;
+
+}
+
+#tut img:hover 
+{
+	opacity: 0.5
+}
+
+.item
+{
+	width:330px;
+	float:left;
+}
+
+.tut
+{
+	width:430px;
+	float:left;
+}
+
+}
+
+.itemHolder
+{
+float:left;
+width:100%;
+margin-bottom:50px
+
+}
+
+
+@media only screen and (max-width: 767px) {
+
+
+	.defaultSub
+	{
+		font-size:10px;
+	}
+
+}

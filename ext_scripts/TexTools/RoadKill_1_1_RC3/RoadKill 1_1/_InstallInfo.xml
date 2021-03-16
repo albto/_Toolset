@@ -1,0 +1,14 @@
+<App Desc="RoadKill UV Unwrapper (RC2)">
+	<Version Current="29" Required="0"/>
+
+	<Target Source="RoadKill1_1.exe"	Path="[ProgramFiles]\RoadKill" IncludeFolder="no"/>
+	<Target Source="RoadKill 1_1.doc"	Path="[ProgramFiles]\RoadKill" IncludeFolder="no"/>
+	<Target Source="RoadKill.mel"		Path="[ProgramFiles]\RoadKill" IncludeFolder="no"/>
+
+	<AddStartMenu Path="[ProgramFiles]\RoadKill\RoadKill1_1.exe" LinkName="RoadKill" LinkDesc="Roadkill UV unwrapper"/>
+	<AddStartMenu Path="[ProgramFiles]\RoadKill\RoadKill 1_1.doc" LinkName="RoadKill Documentation" LinkDesc="Roadkill UV unwrapper Documentation"/>
+
+	<Add EnvVar="PATH" Value="[ProgramFiles]\RoadKill"/>
+	<Add EnvVar="MAYA_SCRIPT_PATH" Value="[ProgramFiles]\RoadKill"/>
+
+</App>
