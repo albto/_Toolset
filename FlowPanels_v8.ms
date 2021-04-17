@@ -102,7 +102,7 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 	--------------------------------------------------------------------------------------------------------------------------------------
 		
 	--ROLLOUT CONTROLS
-	subRollout scriptBin width:(panFlowPan.width as float -10) pos:[5,5] height:(FPHeight.y)
+	subRollout subPanelsArray width:(panFlowPan.width as float -10) pos:[5,5]-- height:panFlowPan.height--(FPHeight.y)
 		
 	fn switchRolls openedRoll =
 	(
@@ -395,17 +395,32 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 			--record Tool Position
 			SetGlobalFPData is_RolledUpOnStart 4
 				
+			--roll up panels
+			for roll in rolls do 
+			(
+				if use_StateSaving then
+				(					
+					addSubRollout subPanelsArray roll rolledup:roll.AmIOpen
+				)
+				else
+				(
+					addSubRollout subPanelsArray roll rolledup:is_RolledUpOnStart
+				)
+			)
+				
 		)			
 		else
 		(
 			is_RolledUpOnStart = FP_Global_Settings[4]
+				
+			--roll up panels
+			for roll in rolls do 
+			(
+				addSubRollout subPanelsArray roll rolledup:is_RolledUpOnStart
+			)
+				
 		)
-		
-		--roll up panels
-		for roll in rolls do 
-		(
-			addSubRollout scriptBin roll rolledup:is_RolledUpOnStart
-		)
+	
 			
 		qx_fldr = set_exp_location
 			
@@ -420,13 +435,32 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 			--cui.registerDialogBar panFlowPan
 			registerRightClickMenu ToolSettingsMenu
 		)
-		
-		
+			
+		--set The Subrollout size 
+		subPanelsArray.width = panFlowPan.width
+		subPanelsArray.height = panFlowPan.height
+			
+			
 	)
 	
-	on panFlowPan resized FPHeight do
+	on panFlowPan resized theSize do
 	(
-		print FPHeight
+--  		FP_Tools_Size.x = theSize.x
+--  		FP_Tools_Size.y = theSize.y
+-- 		
+-- 		if theSize.x <= FP_Tools_Size.x then 
+-- 		(
+-- 			FP_Tools_Size.x = theSize.x
+-- 		)
+-- 		
+		subPanelsArray.height = theSize.y
+		subPanelsArray.width = theSize.x
+		
+		--record Tool Size
+		FP_Tools_Size = point2 260 300
+		SetGlobalFPData FP_Tools_Size 16
+		
+		print theSize
 		
 	)
 	
@@ -434,11 +468,10 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 	--ON CLOSE 
 	on panFlowPan close do
 	(
-			
-		toolSetClosePos = getdialogpos panFlowPan
-			
 		--record Tool Position
+		toolSetClosePos = getdialogpos panFlowPan
 		SetGlobalFPData toolSetClosePos 5
+			
 			
 		--save export location
 		set_exp_location = auto_FP_Settings[9]
@@ -465,10 +498,10 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 ---------------------------------------------------------------------------------------------------------------- // CreateU
 
 
-createdialog panFlowPan   width:260 menu:ToolSettingsMenu --height:(FPHeight.y) 
+createdialog panFlowPan   width:260 height:300 menu:ToolSettingsMenu pos:toolSetClosePos--height:(FPHeight.y) 
 
--- scriptBin = newRolloutFloater "Floater" 280 200 300 450
--- addRollout panFlowPan scriptBin
+-- subPanelsArray = newRolloutFloater "Floater" 280 200 300 450
+-- addRollout panFlowPan subPanelsArray
 
 cui.registerDialogBar panFlowPan style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow)  pos:toolSetClosePos lockHeight:false lockWidth:false autoLayoutOnResize:true --bgColor:[rRed,bBlu,gGre] 
 

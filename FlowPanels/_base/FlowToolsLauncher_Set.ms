@@ -1,23 +1,67 @@
 	
-	--
-	global mainFPFolder 
+	global launcherData = #()
+	----------------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------
+	global mainFPFolder
+		
+	----------------------------------------------------------------------------------------------------------------------------------
+	global str = getThisScriptFilename()
+	global imgfolder = getfilenamepath str
+		
+		
+	global launcherFolder = getfilenamepath str  
+	
+	global toolFolder = substituteString launcherFolder "\FlowPanels\_base" ""
+	
+		
+	----------------------------------------------------------------------------------------------------------------------------------
+		
+	----------------------------------------------------------------------------------------------------------------------------------
+	-- Auto-Load Lauincher Data on Start-up
+		
+	--this is redundant 
+	if (doesFileExist(toolFolder + "\FlowPanels\savedata\LauncherData.fp")) then	
+	(
+		ld = openfile (toolFolder + "\FlowPanels\savedata\LauncherData.fp") 
+		launcherData = execute (readLine ld)
+		close ld
+			
+	)	
+		
+	--if mainFPFolder == undefined then 
+-- 	(
+		if launcherData == undefined then
+		(
+			launcherData = #()
+			mainFPFolder = toolFolder
+		)
+		else
+		(
+			mainFPFolder = launcherData[1]
+		)
+-- 	)
+	
 
+		
+		
 	global FP_DataLocation 
 	global FP_BaseLocation 
 	global FP_RCLocation 
-	
-	global str = getThisScriptFilename()
-	sname = filenameFromPath str
-	ss1 = sname
-	ss2 = ""
-	imgfolder = substituteString str ss1 ss2
 		
+	--Set Tool Image file
 	bitmapBannerFile = (imgfolder + "banner.jpg")
-	
+		
+		
+		
+		
+		
+		
+		
+		
 	Try(cui.UnregisterDialogBar edt)catch()
 	try(destroydialog edt)catch()
-	
-
+		
+		
 	----------------------------------------------------------------------------------------------------------------------------------
 	rcMenu LauncherSettingsMenu
 	----------------------------------------------------------------------------------------------------------------------------------
@@ -35,11 +79,11 @@
 				menuItem itmRecorder "Remember Settings" 
 			)
 				
-			submenu "Floating Options"
+			submenu "Systems Setup"
 			(
-				menuItem itmDock "Dock Tool"
+				menuItem itmDock "Install Object Attributes"
 				separator sp3
-				menuItem myItem3 "Float Tool"		
+				menuItem myItem3 "Install Custom UI presets"		
 			)
 				
 			separator sp4
@@ -66,10 +110,11 @@
 		(
 			if queryBox "would you like to download tools directly?" title:"Download Option" beep:false then
 			(
-				ShellLaunch "https://uc7d949d250f3227616703095e0d.dl.dropboxusercontent.com/zip_download_get/AuMv0dJAM5urYgGr4dkCzspT87O0cglgH-4dQxJQF4qt7-RH-1GB0upEMmb02yq0dgTg_8eyWwhrZqVhMQHQRW6EscIWhWMGyKpgH3WnmWxu6A?_download_id=02910990778530253666624853181831137746482396977599943695749664991&_notify_domain=www.dropbox.com&dl=1" ""
+				ShellLaunch "https://github.com/albto/_Toolset/archive/master.zip" ""
 			)
-			else(
-				ShellLaunch "https://www.dropbox.com/sh/v7hfufcetg62r7x/AAC0U4g3vOUZp0id_F7g0Su5a?dl=0" ""
+			else
+			(
+				ShellLaunch "https://github.com/albto/_Toolset" ""
 			)
 		)
 		
@@ -78,6 +123,11 @@
 			filein (getThisScriptFilename() as string)
 		)
 			
+		on itmDock picked do 
+		(
+			filein (mainFPFolder + "\FlowFunctions\FlowObjectAttributes.ms")
+		)
+		
 	)
 
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -90,27 +140,102 @@
 			
 		Group "Status"
 		(
-			label lbl_title  ""					align:#center	height:20	--width:100
+			label lbl_title  ""					align:#center	height:20	
 		)
 			
 			
 		Group "Toolset"
 		(
-			edittext edt_find "" 				 	align:#center 			height:25 	width:315  	enalbed:false
-			button btn_find "Find" 					height:25 	width:75	across:4
-			button btn_lau "Launch"					height:25	width:75 	
-			button btn_clos "Close"					height:25	width:75
-			button btn_rest "Reset"					height:25	width:75
+			edittext edt_find "" 				 	align:#left 			height:20 	fieldwidth:280  	enalbed:false			multiline:false											 across:2
+			button btn_find "Find" 					align:#right height:20 	width:20	images:#("UVWUnwrapOption_24i.bmp", "UVWUnwrapOption_24i.bmp",30,7,8,1,1) 		ToolTip: "Find Toolset Folder"	
+			button btn_lau "Launch"					height:24	width:75 	across:4	--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,1,1,3,4) 				ToolTip: "Launch Toolset"
+			button btn_clos "Close"					height:24	width:75				--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,4,1,1,4) 				ToolTip: "Close Toolset"
+			button btn_rest "Reset"					height:24	width:75 				--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,3,1,1,4) 				ToolTip: "Reset Toolset"
+			button btn_empt "Empty"					height:24	width:75 				--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,3,1,1,4) 				ToolTip: "Reset Toolset"
 		)	
 			
 			
 		Group "Project Manager"
 		(
 			dropdownlist ddl_proj "" 			items:#()
-			button btn_crt "New"				width:60	height:24	across:3
-			button btn_open "Open"				width:60	height:24
-			button btn_edit	"Edit"				width:60	height:24
--- 			button btn_nxt	">>"				width:45	height:24
+			button btn_crt "New"				width:75	height:24	across:4
+			button btn_open "Open"				width:75	height:24
+			button btn_edit	"Edit"				width:75	height:24
+			button btn_swtc	"Switch"			width:75	height:24
+		)
+			
+			
+		--TICK-----------------------------------------------------------------------
+		-----------------------------------------------------------------------------
+		timer tick_LauncherUpdate "" 			interval:500
+			
+			
+		--Saves Flow Panels Global Settings
+		fn SaveLauncherData location = 
+		(		
+				
+			--save data
+			lauIni = createFile (location + "\FlowPanels\savedata\LauncherData.fp")
+				
+			format (with printAllElements on launcherData as string) to:lauIni
+			flush lauIni
+			close lauIni
+				
+		)
+				
+		--sets the Settings to be saved
+		fn SetLauncherData val intgr = 
+		(
+			launcherData[intgr] = val
+		)	
+			
+		--update status 
+		fn UpdateToolsetStatus = 
+		(
+			if panFlowPan != undefined then 
+			(
+				if panFlowPan.inDialog then 
+				(
+					lbl_title.text = ":Toolset is Active:"
+						
+				)
+				else if not panFlowPan.inDialog then 
+				(
+					if mainFPFolder != undefined then
+					(
+							
+						if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
+						(
+							lbl_title.text = "Toolset Ready to Launch!"
+						)
+						else
+						(
+							lbl_title.text = "::WARNING::Toolset not Found::"
+						)
+					)
+				)				
+				else
+				(
+					lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"	
+						
+					--deactivate 'close' button 
+					btn_clos.enabled = false
+						
+				)
+			)
+			else 
+			(
+					lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"	
+						
+					--deactivate 'close' button 
+					btn_clos.enabled = false
+			)
+		)
+			
+		on tick_LauncherUpdate tick do 
+		(
+			--update status 
+			UpdateToolsetStatus()
 		)
 			
 		on btn_crt pressed do 
@@ -134,48 +259,77 @@
 			
 		on btn_find pressed do 
 		(
-				
-			mainFPFolder  = getSavePath  caption:"Open A Test File:" filename:(GetDir #scripts)
-			
-			if mainFPFolder != undefined then 
+			try 
 			(
-							
-				edt_find.text = mainFPFolder--filenameFromPath mainFPFolder
-				edt_find.tooltip = mainFPFolder
-			)
-			else 
-			(
-				mainFPFolder = GetDir (#scripts)
-			)	
-				
-			if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
-			(
-				--set locations
-				FP_DataLocation	= (mainFPFolder + "\FlowPanels\_base\FlowSaveData.ms")
-				FP_BaseLocation = (mainFPFolder + "\FlowPanels\_base\FlowToolsBase.ms")
-				FP_RCLocation 	= (mainFPFolder + "\FlowPanels\_base\FlowRCMenu.ms")
+				str = (GetDir #scripts)
 					
-				--lau_scripts.items = scptsData.keys			
-				lbl_title.text = "Toolset Ready to Launch!"
+				mainFPFolder  = getSavePath  caption:"Open A Test File:" filename:str
+					
+					
+				if mainFPFolder != undefined then 
+				(
+						
+					edt_find.text = filenameFromPath mainFPFolder
+					edt_find.tooltip = mainFPFolder
+						
+				)
+				else 
+				(
+					if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
+					(
+
+					)
+					else
+					(
+						mainFPFolder = GetDir (#scripts)
+					)
+				)	
+					
+				if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
+				(
+					--set locations
+					FP_DataLocation	= (mainFPFolder + "\FlowPanels\_base\FlowSaveData.ms")
+					FP_BaseLocation = (mainFPFolder + "\FlowPanels\_base\FlowToolsBase.ms")
+					FP_RCLocation 	= (mainFPFolder + "\FlowPanels\_base\FlowRCMenu.ms")
+						
+					edt_find.enabled = true
+					btn_lau.enabled = true
+						
+					bitmapBannerFile = (imgfolder + "banner.jpg")
+					bitmapBannerUi.filename = bitmapBannerFile
+						
+					edt_find.text += " -- { Toolset Found }"
+						
+					--set array
+					SetLauncherData mainFPFolder 1
+						
+					print launcherData	
+				)
+				else
+				(
+						
+					edt_find.enabled = false
+					btn_lau.enabled = false
+						
+					bitmapBannerFile = (imgfolder + "banner_fail.jpg")
+					bitmapBannerUi.filename = bitmapBannerFile
+						
+					edt_find.text += " -- { wrong folder } -- { No Toolset }"			
+						
+					--set array
+					SetLauncherData mainFPFolder 1
+						
+					print launcherData
+				)	
+					
+			--update status 
+			UpdateToolsetStatus()
 				
-				edt_find.enabled = true
-				btn_lau.enabled = true
-				
-				bitmapBannerFile = (imgfolder + "banner.jpg")
-				bitmapBannerUi.filename = bitmapBannerFile
+			--save 'mainFPFolder' 
+			SaveLauncherData toolFolder	
 				
 			)
-			else
-			(
-				lbl_title.text = "::WARNING::Toolset not Found::"
-				
-				edt_find.enabled = false
-				btn_lau.enabled = false
-				
-				bitmapBannerFile = (imgfolder + "banner_fail.jpg")
-				bitmapBannerUi.filename = bitmapBannerFile
-				
-			)
+			catch()
 		)
 			
 		--------------------------------------------------------------------------------------------------------------------------------------
@@ -198,21 +352,33 @@
 				else
 				(				
 					lbl_title.text = "::WARNING::Unable to Launch::"
-					
-					
+						
 				)
+					
+				--update status 
+				UpdateToolsetStatus() 
+					
+				--save 'mainFPFolder' 
+				SaveLauncherData toolFolder	
+					
 			)
 			catch()
-		)
-			
+				
+			)				
+				
 		--------------------------------------------------------------------------------------------------------------------------------------
 			
 		on btn_clos pressed do 
 		(
 			Try (cui.unRegisterDialogBar panFlowPan) catch()
 			Try (destroydialog panFlowPan) catch()
-			
+				
 			btn_clos.enabled = false
+				
+			--update status 
+			UpdateToolsetStatus()
+				
+				
 		)
 			
 		--------------------------------------------------------------------------------------------------------------------------------------
@@ -302,6 +468,10 @@
 			(
 				messagebox "No Risk, No Rewards!..." title:"Flow Warnings!"
 			)
+				
+			--update status 
+			UpdateToolsetStatus()
+				
 		)
 		
 			
@@ -310,18 +480,6 @@
 			
 		on edt open do 
 		(
-			if pnaFlowPan != undefined then
-			(
-				
-				if panFlowPan.inDialog then 
-				(
-					
-				)
-				else
-				(
-					btn_clos.enabled = false
-				)
-			)
 				
 			--clean-up string name 
 			(
@@ -339,45 +497,74 @@
 			if mainFPFolder != undefined then
 			(
 					
-				edt_find.text = mainFPFolder --filenameFromPath mainFPFolder
+				edt_find.text = filenameFromPath mainFPFolder
 				edt_find.tooltip = mainFPFolder
 					
 				if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
 				(
-					lbl_title.text = "Toolset Ready to Launch!"
 					
 					edt_find.enabled = true
 					btn_lau.enabled = true
-					
+						
+					edt_find.text += " -- { Toolset Found }"
+						
 					--set image
 					bitmapBannerFile = (imgfolder + "banner.jpg")
 					bitmapBannerUi.filename = bitmapBannerFile
+						
 				)
 				else
 				(
-					lbl_title.text = "::WARNING::Toolset not Found::"
 						
 					edt_find.enabled = false
 					btn_lau.enabled = false
 						
+					edt_find.text += " -- { wrong folder } -- { No Toolset }"
+						
 					--set image
 					bitmapBannerFile = (imgfolder + "banner_fail.jpg")
 					bitmapBannerUi.filename = bitmapBannerFile
+						
 				)
+					
 			)	
 			else
 			(
 				lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"
+					
+				if launcherData == undefined then
+				(		
+					launcherData = #()
+					mainFPFolder = toolFolder
+				)
+				else
+				(
+					mainFPFolder = launcherData[1]
+				)
 			)	
 				
-			cui.registerDialogBar edt style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true --bgColor:[rRed,bBlu,gGre] 
+			--update status 
+			UpdateToolsetStatus()				
 				
 		)
-
+				
+		on edt resized theSize do
+		(
+			--edt.width 	= theSize.x
+			--edt.height 	= theSize.y
+			
+		)
+		
+		on edt close do 
+		(
+			--save 'mainFPFolder' 
+			SaveLauncherData toolFolder	
+		)
+		
 	)
 
-	createDialog edt menu:LauncherSettingsMenu width:340 height:300 
+	createDialog edt menu:LauncherSettingsMenu width:335 height:320 
 	
-	
+	cui.registerDialogBar edt style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true --bgColor:[rRed,bBlu,gGre] 
 
 	

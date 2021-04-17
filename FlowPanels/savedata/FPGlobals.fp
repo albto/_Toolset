@@ -1,1 +1,1 @@
-#(true, true, true, true, [41,106], false, true, true, true, false, false, false, false, true, false)
+#(true, true, true, true, [44,133], false, true, true, true, false, false, false, false, true, false, [260,300])

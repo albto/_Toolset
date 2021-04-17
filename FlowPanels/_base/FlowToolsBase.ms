@@ -2,21 +2,7 @@
 	--------------------------------------------------------------------------------------------------------------------------------------
 	--------------------------------------------------------------------------------------------------- // GLOBAL SETTINGS
 	--------------------------------------------------------------------------------------------------------------------------------------
-	-------------------------------------------------------------------------------------------------------------------------------------
 
-
-	--------------------------------------------------------------------------------------------------------------------------------------
-
-	persistent global toolSetClosePos
-	global FPHeight = Point2 0 1150 
-
-	------------------------------------------------------------------------------------------------------------- 
-	--resets all settings from last session and distributes them to 
-	--the parameters set in memory intgrs.	--LOAD settings
-	------------------------------------------------------------------------------------------------------------- 
-
-	global useGlobalDotNam = (sysInfo.username as string)
-		
 	--------------------------------------------------------------------------------------------------------------------------------------
 	--------------------------------------------------------------------------------------------------------------- // FUNCTIONS
 
@@ -175,8 +161,8 @@
 		if classOf roExample == RolloutClass do DestroyDialog roExample
 			
 		-- Get banner bitmap file from 3dsMax folder
-		rootDir = getDir #maxRoot
-		bitmapBannerFile = (rootDir  + "scripts\\SendToSubstance\\banner.jpg")
+		--rootDir = getDir #maxRoot
+		bitmapBannerFile = (mainFPFolder + "\\FlowPanels\\_base\\SendToSubstance\\banner.jpg")
 			
 		-- Set default Substance Painter path
 		defaultSubstancePainterPath = "C:\\Program Files\\Allegorithmic\\Substance Painter"

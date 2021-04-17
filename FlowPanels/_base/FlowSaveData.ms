@@ -34,14 +34,14 @@ global savedProjectData = #()
 		
 --------------------------------------------------------------------------------------------------------------------------------------
 -- Scripts Launch Preset Locations on Start-up
-if doesFileExist(mainFPFolder + "\FlowPanels\savedata\ScriptsLocations.fp") then
-(
-	scpts = openfile (mainFPFolder + "\FlowPanels\savedata\ScriptsLocations.fp") mode:"r"
-	scptsData = execute (readLine scpts)
-	close scpts
-)
-else
-	scptsData = Dictionary()
+	if doesFileExist(mainFPFolder + "\FlowPanels\savedata\ScriptsLocations.fp") then
+	(
+		scpts = openfile (mainFPFolder + "\FlowPanels\savedata\ScriptsLocations.fp") mode:"r"
+		scptsData = execute (readLine scpts)
+		close scpts
+	)
+	else
+		scptsData = Dictionary()
 
 --------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------- // GLOBAL TOOL VARIABLES
@@ -55,6 +55,23 @@ global use_SettingsRecorder
 global use_AutoDocking
 global use_AutoCollapse
 global is_RolledUpOnStart
+global use_StateSaving
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+persistent global toolSetClosePos
+global FP_Tools_Size
+
+------------------------------------------------------------------------------------------------------------- 
+--resets all settings from last session and distributes them to 
+--the parameters set in memory intgrs.	--LOAD settings
+------------------------------------------------------------------------------------------------------------- 
+
+global useGlobalDotNam = (sysInfo.username as string)
+		
 
 --------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------- // RECORDER VARIABLES
@@ -123,8 +140,8 @@ if doesFileExist (mainFPFolder + "\FlowPanels\savedata\FPGlobals.fp")  then
 )
 else
 (
-	------------------------01    02	03	  04       05      06    07    08    09    10    11    12    13    14    15
-	FP_Global_Settings = #(true, true, true, true, [400,100], true, true, true, true, true, true, true, true, true, true)		
+	------------------------01    02	03	  04       05      06    07    08    09    10    11    12    13    14    15		16
+	FP_Global_Settings = #(true, true, true, true, [400,100], true, true, true, true, true, true, true, true, true, true, point2 260 300)		
 )
 
 
@@ -140,24 +157,26 @@ is_RolledUpOnStart 		= FP_Global_Settings[4]
 --remember position on close
 toolSetClosePos 		= FP_Global_Settings[5]
 
-pOrgActive = FP_Global_Settings[6]
-pCrtActive = FP_Global_Settings[7]
-pModActive = FP_Global_Settings[8]
-pNorActive = FP_Global_Settings[9]
-pPaiActive = FP_Global_Settings[10]
-pSubActive = FP_Global_Settings[11]
-pExpActive = FP_Global_Settings[12]
-pImpActive = FP_Global_Settings[13]
-pVieActive = FP_Global_Settings[14]
-pPreActive = FP_Global_Settings[15]
+pOrgActive 				= FP_Global_Settings[6]
+pCrtActive 				= FP_Global_Settings[7]
+pModActive 				= FP_Global_Settings[8]
+pNorActive 				= FP_Global_Settings[9]
+pPaiActive 				= FP_Global_Settings[10]
+pSubActive 				= FP_Global_Settings[11]
+pExpActive 				= FP_Global_Settings[12]
+pImpActive 				= FP_Global_Settings[13]
+pVieActive 				= FP_Global_Settings[14]
+pPreActive 				= FP_Global_Settings[15]
 	
+--remember toolset size
+FP_Tools_Size 			= FP_Global_Settings[16]
 
 ----------------------------------------------------------------------------------------------------------------------------------
 		
-global autoDockVal = use_AutoDocking
-global SetautoRecorderOn = use_SettingsRecorder
-global autoColPanels = use_AutoCollapse
-global autoRolPanels = is_RolledUpOnStart
+global autoDockVal 			= use_AutoDocking
+global SetautoRecorderOn 	= use_SettingsRecorder
+global autoColPanels 		= use_AutoCollapse
+global autoRolPanels 		= is_RolledUpOnStart
 		
 
 ------------------------------------------------------------------------------------------------------------- 
@@ -176,10 +195,6 @@ if (use_SettingsRecorder == true) then
 	else 
 	(
 		auto_FP_Settings = #(false,false,false,false,false,false,".","msh","", false, 1, "", #(), 0, 1, 1.0, "", false, false, false, "", false, false)
-		
--- 		auto_FP_Settings = #(set_noprompt_exp, set_fbx_typ_checked, set_obj_typ_checked, set_autoType_checked, 
--- 			set_use_ObjNam_checked, set_Unity_Y_Up_checked, set_typ_string, set_prefixText, set_exp_location, set_renamObjs, set_list_last_sel, set_last_import_loc, 
--- 			set_import_array, set_import_file_type, set_imp_list_last_sel, set_primScale, set_Unit_Type, set_M_UT, set_CM_UT, set_INCH_UT, set_lastExp_Fldr, set_bat_exp, set_bypass_nam)
 	)
 )
 else 
@@ -216,7 +231,6 @@ else
 	set_lastExp_Fldr		= auto_FP_Settings[21]
 	set_bat_exp				= auto_FP_Settings[22]
 	set_bypass_nam			= auto_FP_Settings[23]
-
 
 ------------------------------------------------------------------------------------------------------------- 
 ------------------------------------------------------------------------------------------------------------- 
