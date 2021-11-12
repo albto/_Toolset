@@ -14,6 +14,7 @@
 	global toolFolder = substituteString launcherFolder "\FlowPanels\_base" ""
 	
 		
+	global strMyFolder = ""
 	----------------------------------------------------------------------------------------------------------------------------------
 		
 	----------------------------------------------------------------------------------------------------------------------------------
@@ -160,8 +161,24 @@
 			dropdownlist ddl_proj "" 			items:#()
 			button btn_crt "New"				width:75	height:24	across:4
 			button btn_open "Open"				width:75	height:24
-			button btn_edit	"Edit"				width:75	height:24
+			button btn_edit	"Refresh"				width:75	height:24
 			button btn_swtc	"Switch"			width:75	height:24
+		)
+		
+		Group "Level Manager"
+		(			
+			listbox lst_areas ""		
+		)
+		
+		Group "Level Filters"
+		(			
+			checkbutton chk_art "_Art" 			width:75	height:24	across:4
+			checkbutton chk_dsn "_Design"		width:75	height:24
+			checkbutton chk_inst "_Inst"		width:75	height:24
+			checkbutton chk_veh "_Vehicle"		width:75	height:24
+-- 			checkbutton chk_art "_Art"			
+-- 			checkbutton chk_art "_Art"
+				
 		)
 			
 			
@@ -169,7 +186,77 @@
 		-----------------------------------------------------------------------------
 		timer tick_LauncherUpdate "" 			interval:500
 			
+		
+		fn GetProjectLevels = 
+		(
+			strMyFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
 			
+			levels = getFiles((strMyFolder as string + "\\*.max"))
+				
+			dir_array = GetDirectories (strMyFolder +"\scenes\Areas\\*")
+			for d in dir_array do
+			(
+				join dir_array (GetDirectories (d+"\\*"))
+			)
+				
+			newLevels = #()
+			cleanArr = #()
+				
+			--finds .mxp files and then filters out the sub-folder location 
+			for f in dir_array do
+			(
+				join newLevels (getFiles (f+ "\\*.max"))
+					
+				for i in newLevels do 
+				(
+					str = filenameFromPath i
+					appendIfUnique cleanArr str as string 
+				)
+					
+				levels = cleanArr
+					
+			)
+				
+			lst_areas.items = levels
+				
+		)
+			
+		--Reload Projects ListBoxControl
+		fn ReloadProjectList = 
+		(
+			pth = "G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects" --pathConfig.removePathLeaf (pathConfig.getCurrentProjectFolderPath())
+				
+			files = getFiles((pth as string + "\\*.mxp"))
+				
+			dir_array = GetDirectories (pth +"\\*")
+			for d in dir_array do
+			(
+				join dir_array (GetDirectories (d+"\\*"))
+			)
+				
+			newFiles = #()
+			cleanArr = #()
+				
+			--finds .mxp files and then filters out the sub-folder location 
+			for f in dir_array do
+			(
+				join newFiles (getFiles (f+ "\\*.mxp"))
+					
+				for i in newFiles do 
+				(
+					str = getFilenamePath i
+					appendIfUnique cleanArr str as string 
+				)
+					
+				files = cleanArr
+					
+			)
+				
+			--updates list ui
+			ddl_proj.items = files					
+				
+		)
+		
 		--Saves Flow Panels Global Settings
 		fn SaveLauncherData location = 
 		(		
@@ -236,23 +323,83 @@
 		(
 			--update status 
 			UpdateToolsetStatus()
+-- 			
+-- 			--Reload Projects List
+-- 			ReloadProjectList()			
+			
 		)
 			
+		
+		on ddl_proj selected i do 
+		(
+			--get Project levels and filter types 
+			GetProjectLevels()
+				
+		)
+		
 		on btn_crt pressed do 
 		(
-			local folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)
 				
-			if folder != undefined then
+			if (folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
 			(
-				macros.run "Tools" "CreateDefaultProject" 
-				
-				print folder
+				--macros.run "Tools" "CreateDefaultProject" 
 				pathConfig.doProjectSetupStepsUsingDirectory folder  
 				pathConfig.setCurrentProjectFolder folder
+				
+				--Reload Projects List
+				ReloadProjectList()
 				
 			)
 				
 		)
+		
+		on btn_edit pressed do 
+		(
+			--Reload Projects List
+			ReloadProjectList()
+		)
+		
+		on btn_swtc pressed do 
+		(
+			--pathconfig.SaveTo(strMyFolder)
+				
+			pathconfig.setCurrentProjectFolder strMyFolder
+			resetMaxFile() 
+				
+			--pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
+				
+-- 			doesFolderExist = doesFileExist strMyFolder allowDirectory:true
+-- 			if(doesFolderExist and pathconfig.IsProjectFolder(strMyFolder)) then 
+-- 			(
+-- 				-----------------------------------------------
+-- 				-- backup the current config paths settings in the current working folder 
+-- 				-- to not lose possible modifications that might have been done
+-- 				-- before switching the working folder
+-- 				-----------------------------------------------
+-- 				pathconfig.SaveTo(pathconfig.getCurrentProjectFolderPath())
+
+-- 				pathconfig.setCurrentProjectFolder strMyFolder
+-- 				pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
+-- 				
+-- 				resetMaxFile 
+-- 					
+-- 					
+-- 				--arStrFnames = getfiles (strMyFolder + "\\*.mxp")
+-- 			)
+			
+-- 			if (strMyFolder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
+-- 			(
+-- 				macros.run "Tools" "SetProjectFolder" 
+-- 				
+-- 				print strMyFolder
+-- 				pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
+-- 				pathConfig.setCurrentProjectFolder strMyFolder
+-- 				resetMaxFile 
+-- 				
+-- 			)
+				
+		)
+		
 			
 		--------------------------------------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------------------------------------------------------------
@@ -481,17 +628,13 @@
 		on edt open do 
 		(
 				
-			--clean-up string name 
-			(
-				pth = pathConfig.getCurrentProjectFolderPath()
-				str = filenameFromPath pth 
-				ss1 = ".mxp"
-				ss2 = ""
+			--Reload Projects List
+			ReloadProjectList()
 				
-				str = substituteString str ss1 ss2 
+			ddl_proj.selected = ddl_proj.items[1]
 				
-				ddl_proj.items = #(str)
-			)
+			--get Project levels and filter types 
+			GetProjectLevels()
 				
 				
 			if mainFPFolder != undefined then
@@ -563,7 +706,7 @@
 		
 	)
 
-	createDialog edt menu:LauncherSettingsMenu width:335 height:320 
+	createDialog edt menu:LauncherSettingsMenu width:335 height:510 
 	
 	cui.registerDialogBar edt style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true --bgColor:[rRed,bBlu,gGre] 
 
