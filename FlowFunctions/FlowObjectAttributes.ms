@@ -26,7 +26,8 @@ toolTip:"Set Unity Attributes"
 			Generate_Prefab_Asset 	type:#boolean ui:chk_IsPrefab 
 			Tags					type:#integer ui:ddl_Tags 
 			GameLayers				type:#integer ui:ddl_Lyrs 
-			ObjectAttributes		type:#integer ui:ddl_ObjT 
+			ObjectAttributes		type:#integer ui:ddl_oAtr 
+			ObjectTypes				type:#integer ui:ddl_ObjT 
 			Mesh_Compression		type:#integer ui:ddl_MshComp		
 			Generate_Colliders 		type:#boolean ui:chk_Cols 	
 			Generate_Lightmaps 		type:#boolean ui:chk_Lmaps 	
@@ -50,8 +51,8 @@ toolTip:"Set Unity Attributes"
 			local externalMod = #("", "", "", "")
 			local GameTags = #("Untagged", "Respawn", "Finish", "EditorOnly", "Camera", "Player", "Game Controller", "Shootable", "Enemy", "Vehicle", "Avatar", "Muzzle")
 			local Layers = #("Default", "TransparentFX", "Ignore Raycast", "Water", "UI", "Player", "Camera", "Interactible", "Movement","Vehicle","Walls")
-			local ObjectTypes = #("Structure", "Interior - Wall", "Interior - Ceiling", "Vehicle", "Prop", "Decal", "Dynamic", "Shadow Only", "Mesh Collider")
-			local ObjectAttributes = #("Damageable", "Hackable", "Interactable")
+			local ObjectTypes = #("Structure", "Exterior", "Interior", "Prop", "Vehicle", "Vertex Anim", "Character", "Light")
+			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable")
 			local MeshComp = #("Off", "Low", "Medium", "High")
 			local NormalsType = #("Import", "Calculate", "None")
 			local MaterialsMode = #("None", "Standard", "Import Via Description")
@@ -62,7 +63,7 @@ toolTip:"Set Unity Attributes"
 				checkbox chk_IsPrefab " Generate Prefab Asset" 	checked:Generate_Prefab_Asset
 				dropdownlist ddl_Tags "Tag:"					items:GameTags	
 				dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
-				dropdownList ddl_ObjT "Object Type:" 			items:ObjectTypes
+				dropdownList ddl_ObjT "ObjectType:" 			items:ObjectTypes
 			)
 			
 			Group "Gameplay Settings:"
@@ -116,6 +117,7 @@ toolTip:"Set Unity Attributes"
 					SetObjectSettings 13 ddl_Nmls.selection	
 					SetObjectSettings 14 ddl_MCM.selection	
 					SetObjectSettings 15 ddl_MLoc.selection	
+					SetObjectSettings 16 ddl_oAtr.selection	
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
@@ -222,7 +224,7 @@ toolTip:"Set Unity Attributes"
 			--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 				
 			--Save Settings -- 
-			dropdownList ddl_prst "Presets:"	items: #("Structure", "Vehicle", "Prop", "Decal", "Dynamic", "Shadow Only")
+			dropdownList ddl_prst "Presets:"	items: ObjectTypes
 			button btn_save "Save"	width:60	across:2
 			button btn_load "Load"	width:60
 				

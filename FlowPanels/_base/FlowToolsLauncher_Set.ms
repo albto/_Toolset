@@ -694,7 +694,7 @@
 		--Areas List -- when double clicked 
 		on lst_areas selected i do 
 		(
-			print lst_areas.items[i]
+			--print lst_areas.items[i]
 		)
 			
 			
