@@ -1,7 +1,7 @@
 
-macroScript IBGUnityAttributes
+macroScript IBGUnityAttributesAdd
 category:"FlowAttributes"
-toolTip:"Set Unity Attributes"
+toolTip:"Add Unity Attributes"
 (
 	
 	m = EmptyModifier()
@@ -23,6 +23,7 @@ toolTip:"Set Unity Attributes"
 				
 		parameters Param0 rollout:General
 		(
+			Preserve_Hierarchy 		type:#boolean ui:chk_preHier 
 			Generate_Prefab_Asset 	type:#boolean ui:chk_IsPrefab 
 			Tags					type:#integer ui:ddl_Tags 
 			GameLayers				type:#integer ui:ddl_Lyrs 
@@ -51,16 +52,28 @@ toolTip:"Set Unity Attributes"
 			local externalMod = #("", "", "", "")
 			local GameTags = #("Untagged", "Respawn", "Finish", "EditorOnly", "Camera", "Player", "Game Controller", "Shootable", "Enemy", "Vehicle", "Avatar", "Muzzle")
 			local Layers = #("Default", "TransparentFX", "Ignore Raycast", "Water", "UI", "Player", "Camera", "Interactible", "Movement","Vehicle","Walls")
-			local ObjectTypes = #("Structure", "Exterior", "Interior", "Prop", "Vehicle", "Vertex Anim", "Character", "Light")
-			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable")
+			local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
+			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Dummy")
 			local MeshComp = #("Off", "Low", "Medium", "High")
 			local NormalsType = #("Import", "Calculate", "None")
 			local MaterialsMode = #("None", "Standard", "Import Via Description")
-			local MaterialsLoc = #("Import (Legacy)", "Use Embedded")
+			local MaterialsLoc = #("External", "InPrefab")
 				
+			Group "Properties:"
+			(
+				checkbox chk_preHier "Preserve Hierarchy" 		checked:Preserve_Hierarchy
+				checkbox chk_SortHier "Sort Hierarchy" 			checked:false
+				checkbox chk_IsPrefab "Create Prefab" 			checked:Generate_Prefab_Asset
+					
+				checkbox chk_fileUnits "UseFileUnits" 			checked:false
+				spinner spn_filScale "File Scale"				range:[0, 1000, 1]
+				
+				checkbox chk_BakeXform "Bake Axis Conversion" 			checked:false
+					
+			)
+			
 			Group "Identification:"
 			(
-				checkbox chk_IsPrefab " Generate Prefab Asset" 	checked:Generate_Prefab_Asset
 				dropdownlist ddl_Tags "Tag:"					items:GameTags	
 				dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
 				dropdownList ddl_ObjT "ObjectType:" 			items:ObjectTypes
@@ -76,6 +89,10 @@ toolTip:"Set Unity Attributes"
 				dropdownlist ddl_MshComp "Mesh Compression:" 	items:MeshComp
 				checkbox chk_Cols "Generate Colliders" 			checked:Generate_Colliders
 				checkbox chk_Lmaps "Generate Lightmaps" 		checked:Generate_Lightmaps
+				
+				checkbox chk_KeepQads "Keep Quads" 				checked:false
+				checkbox chk_SwapChn "Swap Channels" 			checked:false
+				
 				checkbox chk_Amin "Import Animation" 			checked:Import_Animation
 				checkbox chk_Blnd "Import BlendShapes" 			checked:Import_BlendShapes
 				checkbox chk_Cams "Import Cameras" 				checked:Import_Cameras
@@ -118,6 +135,7 @@ toolTip:"Set Unity Attributes"
 					SetObjectSettings 14 ddl_MCM.selection	
 					SetObjectSettings 15 ddl_MLoc.selection	
 					SetObjectSettings 16 ddl_oAtr.selection	
+					SetObjectSettings 17 Preserve_Hierarchy	
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
@@ -148,6 +166,8 @@ toolTip:"Set Unity Attributes"
 					ddl_Nmls.selection 		= obs[13]
 					ddl_MCM.selection 		= obs[14]
 					ddl_MLoc.selection 		= obs[15]
+					ddl_oAtr.selection		= obs[16]
+					chk_preHier.checked 	= obs[17]
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
@@ -162,6 +182,7 @@ toolTip:"Set Unity Attributes"
 				try (LoadObjectSettings()) catch
 				(  
 					print "Brand New Object Detected - Applying Default Settings"
+					chk_preHier.checked		= false
 					chk_IsPrefab.checked 	= false
 					ddl_Tags.selection 		= 1
 					ddl_Lyrs.selection 		= 1
@@ -187,6 +208,11 @@ toolTip:"Set Unity Attributes"
 	-- 			addFunction "Mal_Modifiers" externalMod --Adding all the external modifiers
 	-- 			ddl_Tags.selection = findItem ddl_Tags.items Tags
 	-- 			UICaptionChange General 2 "Test"
+			)
+			on chk_preHier changed state do
+			(
+				Preserve_Hierarchy = state
+				print state
 			)
 				
 			on chk_IsPrefab changed state do
@@ -257,4 +283,46 @@ toolTip:"Set Unity Attributes"
 
 	modPanel.addModToSelection (m) ui:on
 	for i in selection as array do custAttributes.add i.modifiers[1] UnityAttributes --add the attribute in the first modifier
+		
 )
+
+
+
+macroScript IBGUnityAttributesDelete
+category:"FlowAttributes"
+toolTip:"Delete Unity Attributes"
+(
+		
+	m = EmptyModifier()
+	m.name = "Unity Attributes"	
+		
+	mdf = modpanel.getCurrentObject()
+		
+	for i in selection as array do 
+	(
+		--Removes Attributes Modifier
+		custAttributes.delete i UnityAttributes baseObject:true --add the attribute in the first modifier
+			
+		--checks to remove active attributes before being applied to object	
+		if( (classOf mdf) == (classof m)) then
+		(
+			try (deleteModifier i 1 ) catch()
+		)
+			
+		for i in selection as Array do 
+		(
+				
+			--set settings	
+			fps = #()
+			
+			--record settings	
+			setUserPropVal i "Unity Attributes" fps 
+				
+		)
+		
+		
+		
+	)
+	
+)
+
