@@ -1,4 +1,7 @@
 
+-----------------------------------------------------------------------------------------------------------
+
+
 macroScript IBGUnityAttributesAdd
 category:"FlowAttributes"
 toolTip:"Add Unity Attributes"
@@ -39,18 +42,24 @@ toolTip:"Add Unity Attributes"
 			Import_Visibility		type:#boolean ui:chk_Visi	
 			NormalsImport			type:#integer ui:ddl_Nmls 		
 			MaterialCreationMode	type:#integer ui:ddl_MCM	
-			MaterialLocation		type:#integer ui:ddl_MLoc			
-				
+			MaterialLocation		type:#integer ui:ddl_MLoc	
+			fileScale				type:#integer ui:spn_filScale 
+			BakeXformConversion     type:#boolean ui:chk_BakeXform
+			UseFileUnits 			type:#boolean ui:chk_fileUnits
+			SortHierarchy			type:#boolean ui:chk_SortHier 
+			KeepQuads 				type:#boolean ui:chk_KeepQads  
+			SwapChannels			type:#boolean ui:chk_SwapChn   
+			
 		)--end Param1
-
-		
+			
 		Rollout General "Unity Attributes"
 		(
 			--Presets
 			
 			local externalFn = #("", "", "")
 			local externalMod = #("", "", "", "")
-			local GameTags = #("Untagged", "Respawn", "Finish", "EditorOnly", "Camera", "Player", "Game Controller", "Shootable", "Enemy", "Vehicle", "Avatar", "Muzzle")
+			local GameTags = #("Untagged", "Respawn", "Finish", "EditorOnly", "Camera", "Player", "Game Controller", "Shootable", "Enemy", "Vehicle", "Avatar", "Muzzle", "CM_Camera",
+				"CM_Vehicle", "CM_FPS_Cam", "Doorway", "Sensor", "Weapon")
 			local Layers = #("Default", "TransparentFX", "Ignore Raycast", "Water", "UI", "Player", "Camera", "Interactible", "Movement","Vehicle","Walls")
 			local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
 			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Dummy")
@@ -62,13 +71,13 @@ toolTip:"Add Unity Attributes"
 			Group "Properties:"
 			(
 				checkbox chk_preHier "Preserve Hierarchy" 		checked:Preserve_Hierarchy
-				checkbox chk_SortHier "Sort Hierarchy" 			checked:false
+				checkbox chk_SortHier "Sort Hierarchy" 			checked:SortHierarchy
 				checkbox chk_IsPrefab "Create Prefab" 			checked:Generate_Prefab_Asset
 					
-				checkbox chk_fileUnits "UseFileUnits" 			checked:false
-				spinner spn_filScale "File Scale"				range:[0, 1000, 1]
+				checkbox chk_fileUnits "Use File Units" 		checked:UseFileUnits
+				spinner spn_filScale "File Scale"				range:[0, 1000, fileScale]	type:#integer
 				
-				checkbox chk_BakeXform "Bake Axis Conversion" 			checked:false
+				checkbox chk_BakeXform "Bake Axis Conversion" 	checked:BakeXformConversion
 					
 			)
 			
@@ -90,21 +99,57 @@ toolTip:"Add Unity Attributes"
 				checkbox chk_Cols "Generate Colliders" 			checked:Generate_Colliders
 				checkbox chk_Lmaps "Generate Lightmaps" 		checked:Generate_Lightmaps
 				
-				checkbox chk_KeepQads "Keep Quads" 				checked:false
-				checkbox chk_SwapChn "Swap Channels" 			checked:false
+				checkbox chk_KeepQads "Keep Quads" 				checked:KeepQuads
+				checkbox chk_SwapChn "Swap Channels" 			checked:SwapChannels			
 				
 				checkbox chk_Amin "Import Animation" 			checked:Import_Animation
 				checkbox chk_Blnd "Import BlendShapes" 			checked:Import_BlendShapes
 				checkbox chk_Cams "Import Cameras" 				checked:Import_Cameras
 				checkbox chk_Lght "Import Lights" 				checked:Import_Lights
 				checkbox chk_Visi "Import Visibility" 			checked:Import_Visibility
-				dropdownlist ddl_Nmls "NormalsImport:"			items:NormalsType	
+				dropdownlist ddl_Nmls "Normals Import:"			items:NormalsType	
 				dropdownlist ddl_MCM "Material Creation Mode:"	items:MaterialsMode
 				dropdownlist ddl_MLoc "Material Location"		items:MaterialsLoc
 			)	
 				
 			--write to file
 			local fps = #()
+				
+				
+			---------------------------------------------------------------------------------
+			--FUNCTIONS -- PRESETS
+			---------------------------------------------------------------------------------
+			fn DefaultUnityAttrPreset = 
+			(
+				chk_preHier.checked		= false
+				chk_IsPrefab.checked 	= false
+				ddl_Tags.selection 		= 1
+				ddl_Lyrs.selection 		= 1
+				ddl_ObjT.selection		= 1
+				ddl_MshComp.selection	= 1
+				chk_Cols.checked		= false
+				chk_Lmaps.checked 		= false
+				chk_Amin.checked 		= false
+				chk_Blnd.checked 		= false
+				chk_Cams.checked 		= false
+				chk_Lght.checked 		= false
+				chk_Visi.checked 		= false
+				ddl_Nmls.selection 		= 1
+				ddl_MCM.selection 		= 1
+				ddl_MLoc.selection 		= 1
+				ddl_oAtr.selection		= 1
+				chk_preHier.checked 	= false
+				spn_filScale.value 		= 1
+				chk_BakeXform.checked	= false
+				chk_fileUnits.checked	= false
+				chk_SortHier.checked	= false
+				chk_KeepQads.checked	= false
+				chk_SwapChn.checked		= false
+			)
+				
+			
+			---------------------------------------------------------------------------------
+				
 				
 			--sets the Settings to be saved
 			fn SetObjectSettings i val= 
@@ -136,6 +181,13 @@ toolTip:"Add Unity Attributes"
 					SetObjectSettings 15 ddl_MLoc.selection	
 					SetObjectSettings 16 ddl_oAtr.selection	
 					SetObjectSettings 17 Preserve_Hierarchy	
+					SetObjectSettings 18  fileScale				
+					SetObjectSettings 19  BakeXformConversion     
+					SetObjectSettings 20  UseFileUnits 			
+					SetObjectSettings 21  SortHierarchy			
+					SetObjectSettings 22  KeepQuads 				
+					SetObjectSettings 23  SwapChannels			
+						
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
@@ -168,7 +220,13 @@ toolTip:"Add Unity Attributes"
 					ddl_MLoc.selection 		= obs[15]
 					ddl_oAtr.selection		= obs[16]
 					chk_preHier.checked 	= obs[17]
-						
+					spn_filScale.value 		= obs[18]
+					chk_BakeXform.checked	= obs[19]
+					chk_fileUnits.checked	= obs[20]
+					chk_SortHier.checked	= obs[21]
+					chk_KeepQads.checked	= obs[22]
+					chk_SwapChn.checked		= obs[23]
+					
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
 						
@@ -198,6 +256,14 @@ toolTip:"Add Unity Attributes"
 					ddl_Nmls.selection 		= 1
 					ddl_MCM.selection 		= 1
 					ddl_MLoc.selection 		= 1
+					ddl_oAtr.selection		= 1
+					chk_preHier.checked 	= false
+					spn_filScale.value 		= 1
+					chk_BakeXform.checked	= false
+					chk_fileUnits.checked	= false
+					chk_SortHier.checked	= false
+					chk_KeepQads.checked	= false
+					chk_SwapChn.checked		= false
 					
 					--Save Settings Applied
 					SaveObjectSettings()
@@ -325,4 +391,47 @@ toolTip:"Delete Unity Attributes"
 	)
 	
 )
+
+macroScript IBGUnityAttributesClear
+category:"FlowAttributes"
+toolTip:"Clear Unity Attributes"
+(
+		
+	m = EmptyModifier()
+	m.name = "Unity Attributes"	
+		
+	mdf = modpanel.getCurrentObject()
+		
+	for i in selection as array do 
+	(
+		--Removes Attributes Modifier
+		custAttributes.delete i UnityAttributes baseObject:true
+			
+		--checks to remove active attributes before being applied to object	
+		if( (classOf mdf) == (classof m)) then
+		(
+			try (deleteModifier i 1 ) catch()
+		)
+			
+-- 		for i in selection as Array do 
+-- 		(
+-- 				
+-- 			--set settings	
+-- 			fps = #()
+-- 			
+-- 			--record settings	
+-- 			setUserPropVal i "Unity Attributes" fps 
+-- 				
+-- 		)
+		
+		
+		
+	)
+	
+)
+
+
+
+
+
 
