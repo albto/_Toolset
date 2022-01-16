@@ -46,6 +46,7 @@ toolTip:"Add Unity Attributes"
 			fileScale				type:#integer ui:spn_filScale 
 			BakeXformConversion     type:#boolean ui:chk_BakeXform
 			UseFileUnits 			type:#boolean ui:chk_fileUnits
+			UseFileScale 			type:#boolean ui:chk_fileScale
 			SortHierarchy			type:#boolean ui:chk_SortHier 
 			KeepQuads 				type:#boolean ui:chk_KeepQads  
 			SwapChannels			type:#boolean ui:chk_SwapChn   
@@ -65,7 +66,7 @@ toolTip:"Add Unity Attributes"
 			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Dummy")
 			local MeshComp = #("Off", "Low", "Medium", "High")
 			local NormalsType = #("Import", "Calculate", "None")
-			local MaterialsMode = #("None", "Standard", "Import Via Description")
+			local MaterialsMode = #("None", "Standard (Legacy)", "Import Via Description")
 			local MaterialsLoc = #("External", "InPrefab")
 				
 			Group "Properties:"
@@ -75,6 +76,7 @@ toolTip:"Add Unity Attributes"
 				checkbox chk_IsPrefab "Create Prefab" 			checked:Generate_Prefab_Asset
 					
 				checkbox chk_fileUnits "Use File Units" 		checked:UseFileUnits
+				checkbox chk_fileScale "Use File Scale" 		checked:UseFileScale
 				spinner spn_filScale "File Scale"				range:[0, 1000, fileScale]	type:#integer
 				
 				checkbox chk_BakeXform "Bake Axis Conversion" 	checked:BakeXformConversion
@@ -91,6 +93,7 @@ toolTip:"Add Unity Attributes"
 			Group "Gameplay Settings:"
 			(
 				dropdownList ddl_oAtr "ObjectAttributes:"		items:ObjectAttributes
+				dropdownList ddl_ObjC "ObjectComponent:" 		items:ObjectTypes
 			)
 			
 			Group "Settings:"
@@ -142,6 +145,7 @@ toolTip:"Add Unity Attributes"
 				spn_filScale.value 		= 1
 				chk_BakeXform.checked	= false
 				chk_fileUnits.checked	= false
+				chk_fileScale.checked	= false
 				chk_SortHier.checked	= false
 				chk_KeepQads.checked	= false
 				chk_SwapChn.checked		= false
@@ -181,13 +185,13 @@ toolTip:"Add Unity Attributes"
 					SetObjectSettings 15 ddl_MLoc.selection	
 					SetObjectSettings 16 ddl_oAtr.selection	
 					SetObjectSettings 17 Preserve_Hierarchy	
-					SetObjectSettings 18  fileScale				
-					SetObjectSettings 19  BakeXformConversion     
-					SetObjectSettings 20  UseFileUnits 			
-					SetObjectSettings 21  SortHierarchy			
-					SetObjectSettings 22  KeepQuads 				
-					SetObjectSettings 23  SwapChannels			
-						
+					SetObjectSettings 18 fileScale				
+					SetObjectSettings 19 BakeXformConversion     
+					SetObjectSettings 20 UseFileUnits 			
+					SetObjectSettings 21 SortHierarchy			
+					SetObjectSettings 22 KeepQuads 				
+					SetObjectSettings 23 SwapChannels			
+					SetObjectSettings 24 UseFileScale 		
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
@@ -226,6 +230,7 @@ toolTip:"Add Unity Attributes"
 					chk_SortHier.checked	= obs[21]
 					chk_KeepQads.checked	= obs[22]
 					chk_SwapChn.checked		= obs[23]
+					chk_fileScale.checked	= obs[24]
 					
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
@@ -261,6 +266,7 @@ toolTip:"Add Unity Attributes"
 					spn_filScale.value 		= 1
 					chk_BakeXform.checked	= false
 					chk_fileUnits.checked	= false
+					chk_fileScale.checked 	= false
 					chk_SortHier.checked	= false
 					chk_KeepQads.checked	= false
 					chk_SwapChn.checked		= false
