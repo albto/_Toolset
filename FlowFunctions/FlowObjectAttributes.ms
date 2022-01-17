@@ -43,6 +43,8 @@ toolTip:"Add Unity Attributes"
 			NormalsImport			type:#integer ui:ddl_Nmls 		
 			MaterialCreationMode	type:#integer ui:ddl_MCM	
 			MaterialLocation		type:#integer ui:ddl_MLoc	
+			MaterialName 			type:#integer ui:ddl_MNam
+			MaterialSearch			type:#integer ui:ddl_MSea
 			fileScale				type:#integer ui:spn_filScale 
 			BakeXformConversion     type:#boolean ui:chk_BakeXform
 			UseFileUnits 			type:#boolean ui:chk_fileUnits
@@ -63,11 +65,14 @@ toolTip:"Add Unity Attributes"
 				"CM_Vehicle", "CM_FPS_Cam", "Doorway", "Sensor", "Weapon")
 			local Layers = #("Default", "TransparentFX", "Ignore Raycast", "Water", "UI", "Player", "Camera", "Interactible", "Movement","Vehicle","Walls")
 			local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
-			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Dummy")
+			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Snapable", "ProcGenAsset", "Dummy")
+			
 			local MeshComp = #("Off", "Low", "Medium", "High")
 			local NormalsType = #("Import", "Calculate", "None")
 			local MaterialsMode = #("None", "Standard (Legacy)", "Import Via Description")
 			local MaterialsLoc = #("External", "InPrefab")
+			local MaterialsNam = #("BasedOnTexture", "BasedOnMaterial", "BasedOnModel")
+			local MaterialsSea = #("Local", "Recursive-Up", "Everywhere")
 				
 			Group "Properties:"
 			(
@@ -88,6 +93,7 @@ toolTip:"Add Unity Attributes"
 				dropdownlist ddl_Tags "Tag:"					items:GameTags	
 				dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
 				dropdownList ddl_ObjT "ObjectType:" 			items:ObjectTypes
+				edittext edt_subFolder "Category:"				text:"None"
 			)
 			
 			Group "Gameplay Settings:"
@@ -113,6 +119,8 @@ toolTip:"Add Unity Attributes"
 				dropdownlist ddl_Nmls "Normals Import:"			items:NormalsType	
 				dropdownlist ddl_MCM "Material Creation Mode:"	items:MaterialsMode
 				dropdownlist ddl_MLoc "Material Location"		items:MaterialsLoc
+				dropdownlist ddl_MNam "Material Name"			items:MaterialsNam
+				dropdownlist ddl_MSea "Material Search"			items:MaterialsSea
 			)	
 				
 			--write to file
@@ -140,6 +148,8 @@ toolTip:"Add Unity Attributes"
 				ddl_Nmls.selection 		= 1
 				ddl_MCM.selection 		= 1
 				ddl_MLoc.selection 		= 1
+				ddl_MNam.selection		= 1
+				ddl_MSea.selection 		= 1
 				ddl_oAtr.selection		= 1
 				chk_preHier.checked 	= false
 				spn_filScale.value 		= 1
@@ -191,7 +201,9 @@ toolTip:"Add Unity Attributes"
 					SetObjectSettings 21 SortHierarchy			
 					SetObjectSettings 22 KeepQuads 				
 					SetObjectSettings 23 SwapChannels			
-					SetObjectSettings 24 UseFileScale 		
+					SetObjectSettings 24 UseFileScale 	
+					SetObjectSettings 25 MaterialName 	
+					SetObjectSettings 26 MaterialSearch 	
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
@@ -231,6 +243,8 @@ toolTip:"Add Unity Attributes"
 					chk_KeepQads.checked	= obs[22]
 					chk_SwapChn.checked		= obs[23]
 					chk_fileScale.checked	= obs[24]
+					ddl_MNam.selection		= obs[25]
+					ddl_MSea.selection 		= obs[26]
 					
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
@@ -261,6 +275,8 @@ toolTip:"Add Unity Attributes"
 					ddl_Nmls.selection 		= 1
 					ddl_MCM.selection 		= 1
 					ddl_MLoc.selection 		= 1
+					ddl_MNam.selection		= 1
+					ddl_MSea.selection 		= 1
 					ddl_oAtr.selection		= 1
 					chk_preHier.checked 	= false
 					spn_filScale.value 		= 1
@@ -419,19 +435,6 @@ toolTip:"Clear Unity Attributes"
 			try (deleteModifier i 1 ) catch()
 		)
 			
--- 		for i in selection as Array do 
--- 		(
--- 				
--- 			--set settings	
--- 			fps = #()
--- 			
--- 			--record settings	
--- 			setUserPropVal i "Unity Attributes" fps 
--- 				
--- 		)
-		
-		
-		
 	)
 	
 )
