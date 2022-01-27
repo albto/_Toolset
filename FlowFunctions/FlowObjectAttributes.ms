@@ -1,3 +1,9 @@
+			xmlDoc = dotNetObject "System.xml.xmlDocument"
+				
+			
+				
+
+-----------------------------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -6,6 +12,10 @@ macroScript IBGUnityAttributesAdd
 category:"FlowAttributes"
 toolTip:"Add Unity Attributes"
 (
+	
+	global GameTags = #()
+	global Layers = #() 
+	
 	
 	m = EmptyModifier()
 	m.name = "Unity Attributes"
@@ -31,6 +41,7 @@ toolTip:"Add Unity Attributes"
 			Tags					type:#integer ui:ddl_Tags 
 			GameLayers				type:#integer ui:ddl_Lyrs 
 			ObjectAttributes		type:#integer ui:ddl_oAtr 
+			ProcGenType				type:#integer ui:ddl_procTyp 
 			ObjectTypes				type:#integer ui:ddl_ObjT 
 			Mesh_Compression		type:#integer ui:ddl_MshComp		
 			Generate_Colliders 		type:#boolean ui:chk_Cols 	
@@ -52,6 +63,9 @@ toolTip:"Add Unity Attributes"
 			SortHierarchy			type:#boolean ui:chk_SortHier 
 			KeepQuads 				type:#boolean ui:chk_KeepQads  
 			SwapChannels			type:#boolean ui:chk_SwapChn   
+			Category 				type:#string ui:edt_subFolder
+			
+			
 			
 		)--end Param1
 			
@@ -61,18 +75,25 @@ toolTip:"Add Unity Attributes"
 			
 			local externalFn = #("", "", "")
 			local externalMod = #("", "", "", "")
-			local GameTags = #("Untagged", "Respawn", "Finish", "EditorOnly", "Camera", "Player", "Game Controller", "Shootable", "Enemy", "Vehicle", "Avatar", "Muzzle", "CM_Camera",
-				"CM_Vehicle", "CM_FPS_Cam", "Doorway", "Sensor", "Weapon")
-			local Layers = #("Default", "TransparentFX", "Ignore Raycast", "Water", "UI", "Player", "Camera", "Interactible", "Movement","Vehicle","Walls")
 			local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
 			local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Snapable", "ProcGenAsset", "Dummy")
-			
+			local ProcGenType = #("None","StartRoom", "Hallway", "BossRoom", "Room", "EndRoom") 
 			local MeshComp = #("Off", "Low", "Medium", "High")
 			local NormalsType = #("Import", "Calculate", "None")
 			local MaterialsMode = #("None", "Standard (Legacy)", "Import Via Description")
 			local MaterialsLoc = #("External", "InPrefab")
 			local MaterialsNam = #("BasedOnTexture", "BasedOnMaterial", "BasedOnModel")
 			local MaterialsSea = #("Local", "Recursive-Up", "Everywhere")
+			local CategoryName = "None"
+				
+				
+			-----------------------------------------------------------------------------------------------------------
+				
+			-----------------------------------------------------------------------------------------------------------	
+				
+				
+				
+				
 				
 			Group "Properties:"
 			(
@@ -92,14 +113,15 @@ toolTip:"Add Unity Attributes"
 			(
 				dropdownlist ddl_Tags "Tag:"					items:GameTags	
 				dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
-				dropdownList ddl_ObjT "ObjectType:" 			items:ObjectTypes
-				edittext edt_subFolder "Category:"				text:"None"
+				dropdownList ddl_ObjT "Object Type:" 			items:ObjectTypes
+				edittext 	 edt_subFolder "Category:"			text:CategoryName	labelOnTop:true
 			)
 			
 			Group "Gameplay Settings:"
 			(
-				dropdownList ddl_oAtr "ObjectAttributes:"		items:ObjectAttributes
-				dropdownList ddl_ObjC "ObjectComponent:" 		items:ObjectTypes
+				dropdownList ddl_oAtr "Object Attributes:"		items:ObjectAttributes
+				dropdownList ddl_procTyp "ProcGen Type:"		items:ProcGenType		enabled:false
+				dropdownList ddl_ObjC "Object Component:" 		items:ObjectTypes
 			)
 			
 			Group "Settings:"
@@ -129,42 +151,80 @@ toolTip:"Add Unity Attributes"
 				
 			---------------------------------------------------------------------------------
 			--FUNCTIONS -- PRESETS
-			---------------------------------------------------------------------------------
-			fn DefaultUnityAttrPreset = 
-			(
-				chk_preHier.checked		= false
-				chk_IsPrefab.checked 	= false
-				ddl_Tags.selection 		= 1
-				ddl_Lyrs.selection 		= 1
-				ddl_ObjT.selection		= 1
-				ddl_MshComp.selection	= 1
-				chk_Cols.checked		= false
-				chk_Lmaps.checked 		= false
-				chk_Amin.checked 		= false
-				chk_Blnd.checked 		= false
-				chk_Cams.checked 		= false
-				chk_Lght.checked 		= false
-				chk_Visi.checked 		= false
-				ddl_Nmls.selection 		= 1
-				ddl_MCM.selection 		= 1
-				ddl_MLoc.selection 		= 1
-				ddl_MNam.selection		= 1
-				ddl_MSea.selection 		= 1
-				ddl_oAtr.selection		= 1
-				chk_preHier.checked 	= false
-				spn_filScale.value 		= 1
-				chk_BakeXform.checked	= false
-				chk_fileUnits.checked	= false
-				chk_fileScale.checked	= false
-				chk_SortHier.checked	= false
-				chk_KeepQads.checked	= false
-				chk_SwapChn.checked		= false
-			)
-				
+			---------------------------------------------------------------------------------	
 			
 			---------------------------------------------------------------------------------
 				
+			
+			-----------------------------------------------------------------------------------------------------------
+			-- Gather Data from XML file -- Unity Data Hook-up 
+			-----------------------------------------------------------------------------------------------------------
 				
+			-- location = @""
+			fn LoadTagDataFromXml root = 
+			(
+				childNodes=root.childNodes
+					
+				for i = 0 to childNodes.Count-1 do 
+				(
+					ele = childNodes.ItemOf[i]
+					eleName = ele.getAttribute "name"
+						
+					if eleName == "Tags" then
+					(
+						eleChildren = ele.childNodes
+							
+						for i = 0 to eleChildren.count-1 do 
+						(
+							child = eleChildren.ItemOf[i]
+							
+							print (child.getAttribute "name")
+							GameTags[i+1] = (child.getAttribute "name")
+						)
+					)
+						
+				)
+					
+				--pass data
+				ddl_Tags.items = GameTags
+				
+					
+			)
+			
+			
+			
+			
+			
+			fn LoadLayerDataFromXml root = 
+			(
+				childNodes=root.childNodes
+					
+				for i = 0 to childNodes.Count-1 do 
+				(
+					ele = childNodes.ItemOf[i]
+					eleName = ele.getAttribute "name"
+						
+					if eleName == "Layers" then
+					(
+						eleChildren = ele.childNodes
+							
+						for i = 0 to eleChildren.count-1 do 
+						(
+							child = eleChildren.ItemOf[i]
+							
+							--print (child.getAttribute "name")
+							Layers[i+1] = (child.getAttribute "name")
+						)
+					)
+						
+				)
+			
+				ddl_Lyrs.items = Layers
+				
+				--showProperties childNodes
+				
+			)
+			
 			--sets the Settings to be saved
 			fn SetObjectSettings i val= 
 			(
@@ -202,8 +262,10 @@ toolTip:"Add Unity Attributes"
 					SetObjectSettings 22 KeepQuads 				
 					SetObjectSettings 23 SwapChannels			
 					SetObjectSettings 24 UseFileScale 	
-					SetObjectSettings 25 MaterialName 	
-					SetObjectSettings 26 MaterialSearch 	
+					SetObjectSettings 25 ddl_MNam.selection 	
+					SetObjectSettings 26 ddl_MSea.selection 
+					SetObjectSettings 27 ddl_procTyp.selection
+					SetObjectSettings 28 edt_subFolder.text
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
@@ -245,6 +307,8 @@ toolTip:"Add Unity Attributes"
 					chk_fileScale.checked	= obs[24]
 					ddl_MNam.selection		= obs[25]
 					ddl_MSea.selection 		= obs[26]
+					ddl_procTyp.selection	= obs[27]
+					edt_subFolder.text		= obs[28]
 					
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
@@ -255,8 +319,20 @@ toolTip:"Add Unity Attributes"
 				
 			on General open do
 			(
+
 				--Load Settings
-				try (LoadObjectSettings()) catch
+				try 
+				(
+					--load XML
+					xmlDoc.load @"D:\Projects\Project3D\Assets\Resources\Layers\UnityLayers.xml"
+					
+					--Load data 
+					LoadTagDataFromXml xmlDoc.DocumentElement name:"Tags"
+					LoadLayerDataFromXml xmlDoc.DocumentElement name:"Layers"
+					
+					LoadObjectSettings()
+				) 
+				catch
 				(  
 					print "Brand New Object Detected - Applying Default Settings"
 					chk_preHier.checked		= false
@@ -286,10 +362,12 @@ toolTip:"Add Unity Attributes"
 					chk_SortHier.checked	= false
 					chk_KeepQads.checked	= false
 					chk_SwapChn.checked		= false
-					
+					ddl_procTyp.selection 	= 1
+					edt_subFolder.text		= "None"
+						
 					--Save Settings Applied
 					SaveObjectSettings()
-					
+						
 				)
 				
 	-- 			addFunction "Mal_Functions" externalFn --Adding all the external function
@@ -325,12 +403,28 @@ toolTip:"Add Unity Attributes"
 			)
 			on ddl_oAtr selected val do 
 			(
+				if val == 6 then
+				(
+					ddl_procTyp.enabled = true
+				)
+				else(ddl_procTyp.enabled = false)
+					
 				ObjectAttributes = val 
 			)	
 				
 			on ddl_MshComp selected val do 
 			(
 				Mesh_Compression = val
+			)
+			
+			on edt_subFolder entered val do
+			(
+				CategoryName = val
+			)
+			
+			on edt_subFolder entered val do
+			(
+				CategoryName = val
 			)
 			
 			--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

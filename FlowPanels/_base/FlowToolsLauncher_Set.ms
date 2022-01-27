@@ -1,8 +1,13 @@
 	
+	
+	
+	
+	
+
 	global launcherData = #()
 	----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------
-	global mainFPFolder
+	global mainFPFolder = getThisScriptFilename()
 		
 	----------------------------------------------------------------------------------------------------------------------------------
 	global str = getThisScriptFilename()
@@ -28,26 +33,27 @@
 		close ld
 			
 	)	
-		
-	--if mainFPFolder == undefined then 
--- 	(
-		if launcherData == undefined then
-		(
-			launcherData = #()
-			mainFPFolder = toolFolder
-		)
-		else
-		(
-			mainFPFolder = launcherData[1]
-		)
--- 	)
 	
-
-		
+	print (	 "Launcher Data - " + launcherdata as string)
+	
+	if launcherData != undefined then
+	(
+		--grab data
+		mainFPFolder = launcherData[1]
+	)
+	
 	global FP_DataLocation 
 	global FP_BaseLocation 
 	global FP_RCLocation 
 		
+	--set locations
+	FP_DataLocation	= (mainFPFolder + "\FlowPanels\_base\FlowSaveData.ms")
+	FP_BaseLocation = (mainFPFolder + "\FlowPanels\_base\FlowToolsBase.ms")
+	FP_RCLocation 	= (mainFPFolder + "\FlowPanels\_base\FlowRCMenu.ms")
+	
+	
+	
+	
 	--Set Tool Image file
 	bitmapBannerFile = (imgfolder + "banner.jpg")
 		
@@ -136,10 +142,7 @@
 	
 	rollout edt "Launcher"
 	(
-					
-		
 			
-		
 		local newArr = #()
 		local levels = #()
 		local newLevels = #()
@@ -191,7 +194,6 @@
 			
 		Group "Directory Viewer"
 		(		
-				
 			dropdownList ddl_folder "Categories" 					across:2
 			dropdownList ddl_subfol "Levels" 			
 						
@@ -200,7 +202,6 @@
 			checkbutton chk_dsn "_Design"		width:75	height:24
 			checkbutton chk_inst "_Inst"		width:75	height:24
 			checkbutton chk_veh "_Vehicle"		width:75	height:24
-				
 		)
 			
 		Group "XRef Scenes"
@@ -212,8 +213,6 @@
 			button btn_rmv_ref "Remove"				align:#right 
 			button btn_upd_ref "Update"				--align:#right
 		)
-
-
 			
 			
 		--TICK-----------------------------------------------------------------------
@@ -499,7 +498,7 @@
 			ddl_proj.items = files					
 				
 		)
-		
+			
 		--Saves Flow Panels Global Settings
 		fn SaveLauncherData location = 
 		(		
@@ -512,7 +511,7 @@
 			close lauIni
 				
 		)
-				
+			
 		--sets the Settings to be saved
 		fn SetLauncherData val intgr = 
 		(
@@ -549,7 +548,7 @@
 					lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"	
 						
 					--deactivate 'close' button 
-					btn_clos.enabled = false
+					
 						
 				)
 			)
@@ -557,8 +556,21 @@
 			(
 					lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"	
 						
-					--deactivate 'close' button 
-					btn_clos.enabled = false
+					if mainFPFolder != undefined then
+					(
+							
+						if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
+						(
+							lbl_title.text = "Toolset Ready to Launch!"
+						)
+						else
+						(
+							lbl_title.text = "::WARNING::Toolset not Found::"
+						)
+					)
+				
+-- 					--deactivate 'close' button 
+-- 					btn_clos.enabled = false
 			)
 		)
 		
@@ -1012,9 +1024,13 @@
 		on btn_lau pressed do 
 		(
 			try 
-			(
+			(	
+				--update status 
+				UpdateToolsetStatus() 
+					
 				if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
 				(
+					print (mainFPFolder + "\FlowPanels_v8.ms")
 						
 					filein (mainFPFolder + "\FlowFunctions\FlowAttributes.ms")
 					filein (mainFPFolder + "\FlowFunctions\FlowCreator.ms")
@@ -1027,19 +1043,17 @@
 				else
 				(				
 					lbl_title.text = "::WARNING::Unable to Launch::"
+					btn_clos.enabled = false
 						
-				)
-					
-				--update status 
-				UpdateToolsetStatus() 
-					
+				)					
 				--save 'mainFPFolder' 
 				SaveLauncherData toolFolder	
 					
+				
 			)
 			catch()
 				
-			)				
+		)					
 				
 		--------------------------------------------------------------------------------------------------------------------------------------
 			
@@ -1150,11 +1164,17 @@
 		)
 		
 			
+		on btn_empt pressed do 
+		(
+			ShellLaunch "Unity3d.exe" ""
+			
+		)
 		--------------------------------------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------------------------------------------------------------
 			
 		on edt open do 
 		(
+						
 			callbacks.addScript #filePostOpenProcess  " edt.UpdateXrefsList()" id:#MXSHelp
 			arr = #()
 			
@@ -1181,7 +1201,6 @@
 				
 			--get Project levels and filter types 
 			GetProjectLevels()
-				
 				
 			if mainFPFolder != undefined then
 			(
@@ -1221,15 +1240,8 @@
 			(
 				lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"
 					
-				if launcherData == undefined then
-				(		
-					launcherData = #()
-					mainFPFolder = toolFolder
-				)
-				else
-				(
-					mainFPFolder = launcherData[1]
-				)
+				--grab data
+				mainFPFolder = launcherData[1] 
 			)	
 				
 			--update status 
