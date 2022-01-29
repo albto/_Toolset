@@ -1,7 +1,5 @@
-			xmlDoc = dotNetObject "System.xml.xmlDocument"
-				
-			
-				
+
+
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -11,16 +9,15 @@
 macroScript IBGUnityAttributesAdd
 category:"FlowAttributes"
 toolTip:"Add Unity Attributes"
-(
-	
-	global GameTags = #()
-	global Layers = #() 
-	
-	
+(				
+	global flowCore 	
+	filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
+	--load unity layers xml file
+	flowIns = flowCore()
+		
 	m = EmptyModifier()
 	m.name = "Unity Attributes"
-	
-	
+		
 	for i in selection as array do 
 	(
 		mdf = modpanel.getCurrentObject()
@@ -69,10 +66,13 @@ toolTip:"Add Unity Attributes"
 			
 		)--end Param1
 			
-		Rollout General "Unity Attributes"
-		(
-			--Presets
 			
+			
+		Rollout General "Unity Attributes"
+		(	
+				
+			--Presets
+				
 			local externalFn = #("", "", "")
 			local externalMod = #("", "", "", "")
 			local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
@@ -85,14 +85,23 @@ toolTip:"Add Unity Attributes"
 			local MaterialsNam = #("BasedOnTexture", "BasedOnMaterial", "BasedOnModel")
 			local MaterialsSea = #("Local", "Recursive-Up", "Everywhere")
 			local CategoryName = "None"
+			local GameTags = #()
+			local Layers = #() 
 				
-				
+			--write to file
+			local fps = #()
+			local obs = #()	
 			-----------------------------------------------------------------------------------------------------------
 				
 			-----------------------------------------------------------------------------------------------------------	
 				
+			--Save Settings -- 
+			dropdownList ddl_prst "Presets:"	items: ObjectTypes
+			button btn_save "Save"	width:50	height:20	across:3
+			button btn_updt "Update"	width:50	height:20	
+			button btn_load "Load"	width:50	height:20
 				
-				
+			--------------------------------------------------------------------------------------	
 				
 				
 			Group "Properties:"
@@ -145,10 +154,6 @@ toolTip:"Add Unity Attributes"
 				dropdownlist ddl_MSea "Material Search"			items:MaterialsSea
 			)	
 				
-			--write to file
-			local fps = #()
-				
-				
 			---------------------------------------------------------------------------------
 			--FUNCTIONS -- PRESETS
 			---------------------------------------------------------------------------------	
@@ -163,6 +168,7 @@ toolTip:"Add Unity Attributes"
 			-- location = @""
 			fn LoadTagDataFromXml root = 
 			(
+				GameTags = #()
 				childNodes=root.childNodes
 					
 				for i = 0 to childNodes.Count-1 do 
@@ -178,7 +184,7 @@ toolTip:"Add Unity Attributes"
 						(
 							child = eleChildren.ItemOf[i]
 							
-							print (child.getAttribute "name")
+							--print (child.getAttribute "name")
 							GameTags[i+1] = (child.getAttribute "name")
 						)
 					)
@@ -187,16 +193,13 @@ toolTip:"Add Unity Attributes"
 					
 				--pass data
 				ddl_Tags.items = GameTags
-				
+				obs[30] = GameTags
 					
 			)
-			
-			
-			
-			
-			
+				
 			fn LoadLayerDataFromXml root = 
 			(
+				Layers = #()
 				childNodes=root.childNodes
 					
 				for i = 0 to childNodes.Count-1 do 
@@ -218,13 +221,30 @@ toolTip:"Add Unity Attributes"
 					)
 						
 				)
-			
+					
 				ddl_Lyrs.items = Layers
+				obs[29] = Layers
 				
 				--showProperties childNodes
 				
 			)
 			
+			fn ImportDataFromUnity = 
+			(
+				--load unity layers xml file
+				filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
+				flowIns = flowCore()
+				flowIns.LoadXml()
+					
+				--Load data 
+				LoadLayerDataFromXml flowIns.xmlDoc.DocumentElement name:"Layers"
+					
+				--Load data 
+				LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
+				
+			)
+
+				
 			--sets the Settings to be saved
 			fn SetObjectSettings i val= 
 			(
@@ -233,6 +253,10 @@ toolTip:"Add Unity Attributes"
 				
 			fn SaveObjectSettings =
 			(
+				--load data from unity xml 
+				ImportDataFromUnity()
+				
+				
 				--Save Settings
 				for i in selection as Array do 
 				(
@@ -266,19 +290,34 @@ toolTip:"Add Unity Attributes"
 					SetObjectSettings 26 ddl_MSea.selection 
 					SetObjectSettings 27 ddl_procTyp.selection
 					SetObjectSettings 28 edt_subFolder.text
+					SetObjectSettings 29 Layers
+ 					SetObjectSettings 30 GameTags
+						
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" fps 
 						
+					for i = 1 to fps.count do
+					(
+						print ("SavedSetttings -["+((i*01) as string) +"] = { "+fps[i] as string + " }" )
+						
+						if (classof fps[i]) == array then(
+							print ("["+i as string +"]" + " is an aray")
+							print ("["+i as string +"]'s" + " count = " + fps[i].count as string)
+						)
+						
+					)
 				)
 			)
+				
+
 				
 			fn LoadObjectSettings =
 			(
 				
 				for i in selection as array do 
 				(
-					local obs = execute (getUserPropVal i "Unity Attributes" asString:true)
+					obs = execute (getUserPropVal i "Unity Attributes" asString:true)
 						
 					--Load Settings 
 					chk_IsPrefab.checked 	= obs[1]
@@ -309,7 +348,33 @@ toolTip:"Add Unity Attributes"
 					ddl_MSea.selection 		= obs[26]
 					ddl_procTyp.selection	= obs[27]
 					edt_subFolder.text		= obs[28]
-					
+						
+					if (classOf obs[29]) == array then
+					(
+						print "is array"
+						if obs[29].count > 0 then 
+						(
+							print "taking settings from array - layers"
+							print (obs[29] as string)
+							Layers = obs[29]
+							ddl_Lyrs.items = Layers
+						)
+					)
+						
+					if (classOf obs[30]) == array then 
+					(
+						print "is array"
+						if obs[30].count > 0 then 
+						(
+							print "taking settings from array - tags"
+							print (obs[30] as string)							
+							GameTags = obs[30]
+							ddl_Tags.items = GameTags
+						)
+					)
+						
+					--ImportDataFromUnity()
+						
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
 						
@@ -318,29 +383,23 @@ toolTip:"Add Unity Attributes"
 			)
 				
 			on General open do
-			(
+			(		
 
 				--Load Settings
 				try 
-				(
-					--load XML
-					xmlDoc.load @"D:\Projects\Project3D\Assets\Resources\Layers\UnityLayers.xml"
-					
-					--Load data 
-					LoadTagDataFromXml xmlDoc.DocumentElement name:"Tags"
-					LoadLayerDataFromXml xmlDoc.DocumentElement name:"Layers"
-					
-					LoadObjectSettings()
+				(	
+					--load tool settings
+					LoadObjectSettings()	
 				) 
 				catch
 				(  
 					print "Brand New Object Detected - Applying Default Settings"
-					chk_preHier.checked		= false
+					chk_preHier.checked		= true
 					chk_IsPrefab.checked 	= false
 					ddl_Tags.selection 		= 1
 					ddl_Lyrs.selection 		= 1
 					ddl_ObjT.selection		= 1
-					ddl_MshComp.selection	= 1
+					ddl_MshComp.selection	= 2
 					chk_Cols.checked		= false
 					chk_Lmaps.checked 		= false
 					chk_Amin.checked 		= false
@@ -349,32 +408,30 @@ toolTip:"Add Unity Attributes"
 					chk_Lght.checked 		= false
 					chk_Visi.checked 		= false
 					ddl_Nmls.selection 		= 1
-					ddl_MCM.selection 		= 1
-					ddl_MLoc.selection 		= 1
+					ddl_MCM.selection 		= 2
+					ddl_MLoc.selection 		= 2
 					ddl_MNam.selection		= 1
-					ddl_MSea.selection 		= 1
+					ddl_MSea.selection 		= 2
 					ddl_oAtr.selection		= 1
 					chk_preHier.checked 	= false
 					spn_filScale.value 		= 1
-					chk_BakeXform.checked	= false
+					chk_BakeXform.checked	= true
 					chk_fileUnits.checked	= false
-					chk_fileScale.checked 	= false
-					chk_SortHier.checked	= false
+					chk_fileScale.checked 	= true
+					chk_SortHier.checked	= true
 					chk_KeepQads.checked	= false
 					chk_SwapChn.checked		= false
 					ddl_procTyp.selection 	= 1
 					edt_subFolder.text		= "None"
 						
+						
 					--Save Settings Applied
 					SaveObjectSettings()
 						
 				)
-				
-	-- 			addFunction "Mal_Functions" externalFn --Adding all the external function
-	-- 			addFunction "Mal_Modifiers" externalMod --Adding all the external modifiers
-	-- 			ddl_Tags.selection = findItem ddl_Tags.items Tags
-	-- 			UICaptionChange General 2 "Test"
+					
 			)
+			
 			on chk_preHier changed state do
 			(
 				Preserve_Hierarchy = state
@@ -394,7 +451,7 @@ toolTip:"Add Unity Attributes"
 			
 			on ddl_Lyrs selected val do 
 			(
-				Layers = val 
+				GameLayers = val 
 			)
 			
 			on ddl_ObjT selected val do 
@@ -426,33 +483,28 @@ toolTip:"Add Unity Attributes"
 			(
 				CategoryName = val
 			)
-			
-			--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-				
-			--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-				
-			--Save Settings -- 
-			dropdownList ddl_prst "Presets:"	items: ObjectTypes
-			button btn_save "Save"	width:60	across:2
-			button btn_load "Load"	width:60
-				
-			--------------------------------------------------------------------------------------
 				
 			on btn_save pressed do
 			(
 				--Save Settings 
 				SaveObjectSettings()
-				
 			)
 				
+			on btn_updt pressed do
+			(
+				--load data from unity xml 
+				ImportDataFromUnity()
+					
+				--Save Settings 
+				SaveObjectSettings()
+			)
 			on btn_load pressed do
 			(
 				--Set Unity Attributes
 				LoadObjectSettings()
-				
 			)
 				
-			--------------------------------------------------------------------------------------9
+			--------------------------------------------------------------------------------------
 				
 			--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 				
@@ -461,11 +513,12 @@ toolTip:"Add Unity Attributes"
 		
 		
 	)--end posAttribs
-
+	
 
 	modPanel.addModToSelection (m) ui:on
 	for i in selection as array do custAttributes.add i.modifiers[1] UnityAttributes --add the attribute in the first modifier
 		
+
 )
 
 
