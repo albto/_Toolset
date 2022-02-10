@@ -14,6 +14,7 @@
 			button btn_selset "Selection Sets" 	width:80 height: 20 				align:#center
 		)
 			
+
 		group "Organize Layers:"
 		(
 			CheckButton chk_autLay "Auto-Organize Layers" 				width:180 height: 30	checked:true

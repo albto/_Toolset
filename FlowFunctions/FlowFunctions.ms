@@ -25,8 +25,6 @@
 	global 	UvShllGrps 	 = "UVIslandsToSmoothing"
 		
 	global 	GetChildren	 = "SelectChildren"
-
-		
 		
 	global  cull_tog 	 = true
 	

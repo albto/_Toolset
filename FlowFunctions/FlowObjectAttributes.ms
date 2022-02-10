@@ -1,6 +1,3 @@
-
-
-
 -----------------------------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------------------------
@@ -20,11 +17,12 @@ toolTip:"Add Unity Attributes"
 		
 	for i in selection as array do 
 	(
-		mdf = modpanel.getCurrentObject()
-		
+		--filter modifier
+		mdf = i.modifiers[#Unity_Attributes]
+			
 		if( (classOf mdf) == (classof m)) then
 		(
-			try (deleteModifier i 1 ) catch()
+			try (deleteModifier i mdf ) catch()
 		)
 	)
 
@@ -72,7 +70,6 @@ toolTip:"Add Unity Attributes"
 		(	
 				
 			--Presets
-				
 			local externalFn = #("", "", "")
 			local externalMod = #("", "", "", "")
 			local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
@@ -97,9 +94,11 @@ toolTip:"Add Unity Attributes"
 				
 			--Save Settings -- 
 			dropdownList ddl_prst "Presets:"	items: ObjectTypes
-			button btn_save "Save"	width:50	height:20	across:3
-			button btn_updt "Update"	width:50	height:20	
-			button btn_load "Load"	width:50	height:20
+			button btn_save "Save"		width:40	height:20	align:#left	across:3
+			button btn_updt "Update"	width:50	height:20	align:#center
+			button btn_load "Load"		width:40	height:20	align:#right
+			
+			button btn_clrs "Save and Clear" 			width:140	height:20	align:#center
 				
 			--------------------------------------------------------------------------------------	
 				
@@ -279,7 +278,7 @@ toolTip:"Add Unity Attributes"
 					SetObjectSettings 15 ddl_MLoc.selection	
 					SetObjectSettings 16 ddl_oAtr.selection	
 					SetObjectSettings 17 Preserve_Hierarchy	
-					SetObjectSettings 18 fileScale				
+					SetObjectSettings 18 (fileScale)				
 					SetObjectSettings 19 BakeXformConversion     
 					SetObjectSettings 20 UseFileUnits 			
 					SetObjectSettings 21 SortHierarchy			
@@ -299,7 +298,7 @@ toolTip:"Add Unity Attributes"
 						
 					for i = 1 to fps.count do
 					(
-						print ("SavedSetttings -["+((i*01) as string) +"] = { "+fps[i] as string + " }" )
+						--print ("SavedSetttings -[" + ((i) as string) + "] = { " + fps[i] as string + " }" )
 						
 						if (classof fps[i]) == array then(
 							print ("["+i as string +"]" + " is an aray")
@@ -351,11 +350,10 @@ toolTip:"Add Unity Attributes"
 						
 					if (classOf obs[29]) == array then
 					(
-						print "is array"
 						if obs[29].count > 0 then 
 						(
-							print "taking settings from array - layers"
-							print (obs[29] as string)
+							--print "Loading from Memory  - layers"
+							--print (obs[29] as string)
 							Layers = obs[29]
 							ddl_Lyrs.items = Layers
 						)
@@ -363,11 +361,10 @@ toolTip:"Add Unity Attributes"
 						
 					if (classOf obs[30]) == array then 
 					(
-						print "is array"
 						if obs[30].count > 0 then 
 						(
-							print "taking settings from array - tags"
-							print (obs[30] as string)							
+							--print "Loading from Memory - tags"
+							--print (obs[30] as string)							
 							GameTags = obs[30]
 							ddl_Tags.items = GameTags
 						)
@@ -393,7 +390,8 @@ toolTip:"Add Unity Attributes"
 				) 
 				catch
 				(  
-					print "Brand New Object Detected - Applying Default Settings"
+					--print "Brand New Object Detected - Applying Default Settings"
+					
 					chk_preHier.checked		= true
 					chk_IsPrefab.checked 	= false
 					ddl_Tags.selection 		= 1
@@ -435,13 +433,13 @@ toolTip:"Add Unity Attributes"
 			on chk_preHier changed state do
 			(
 				Preserve_Hierarchy = state
-				print state
+				--print state
 			)
 				
 			on chk_IsPrefab changed state do
 			(
 				Generate_Prefab_Asset = state
-				print state
+				--print state
 			)
 				
 			on ddl_Tags selected val do
@@ -458,6 +456,7 @@ toolTip:"Add Unity Attributes"
 			(
 				ObjectTypes = val 
 			)
+			
 			on ddl_oAtr selected val do 
 			(
 				if val == 6 then
@@ -468,7 +467,12 @@ toolTip:"Add Unity Attributes"
 					
 				ObjectAttributes = val 
 			)	
-				
+			
+			on spn_filScale changed val do 
+			(
+				fileScale = val+1		
+			)
+			
 			on ddl_MshComp selected val do 
 			(
 				Mesh_Compression = val
@@ -488,6 +492,15 @@ toolTip:"Add Unity Attributes"
 			(
 				--Save Settings 
 				SaveObjectSettings()
+			)
+			
+			on btn_clrs pressed do 
+			(
+				--Save Settings 
+				SaveObjectSettings()
+				
+				macros.run "FlowAttributes" "IBGUnityAttributesClear"
+				
 			)
 				
 			on btn_updt pressed do
@@ -516,8 +529,12 @@ toolTip:"Add Unity Attributes"
 	
 
 	modPanel.addModToSelection (m) ui:on
-	for i in selection as array do custAttributes.add i.modifiers[1] UnityAttributes --add the attribute in the first modifier
+	for i in selection as array do 
+	(
+		--add the attribute in the first modifier
+		custAttributes.add i.modifiers[1] UnityAttributes 
 		
+	)
 
 )
 
@@ -531,32 +548,38 @@ toolTip:"Delete Unity Attributes"
 	m = EmptyModifier()
 	m.name = "Unity Attributes"	
 		
-	mdf = modpanel.getCurrentObject()
 		
 	for i in selection as array do 
 	(
+		--filter modifier
+		mdf = i.modifiers[#Unity_Attributes]
+		
 		--Removes Attributes Modifier
 		custAttributes.delete i UnityAttributes baseObject:true --add the attribute in the first modifier
 			
 		--checks to remove active attributes before being applied to object	
 		if( (classOf mdf) == (classof m)) then
 		(
-			try (deleteModifier i 1 ) catch()
-		)
+			index = modPanel.getModifierIndex i mdf
 			
-		for i in selection as Array do 
+			try (deleteModifier i (index) ) catch()
+		)
+		else
 		(
-				
-			--set settings	
-			fps = #()
-			
-			--record settings	
-			setUserPropVal i "Unity Attributes" fps 
-				
+			continue
 		)
+			
+	)
 		
+	for o in selection as Array do 
+	(
+			
+		--set settings	
+		fps = #()
 		
-		
+		--record settings	
+		setUserPropVal o "Unity Attributes" fps 
+			
 	)
 	
 )
@@ -569,22 +592,42 @@ toolTip:"Clear Unity Attributes"
 	m = EmptyModifier()
 	m.name = "Unity Attributes"	
 		
-	mdf = modpanel.getCurrentObject()
-		
 	for i in selection as array do 
 	(
+		--filter modifier
+		mdf = i.modifiers[#Unity_Attributes]
+		
 		--Removes Attributes Modifier
-		custAttributes.delete i UnityAttributes baseObject:true
+		custAttributes.delete i UnityAttributes baseObject:true --add the attribute in the first modifier
 			
 		--checks to remove active attributes before being applied to object	
 		if( (classOf mdf) == (classof m)) then
 		(
-			try (deleteModifier i 1 ) catch()
+			index = modPanel.getModifierIndex i mdf
+			
+			try (deleteModifier i (index) ) catch()
+		)
+		else
+		(
+			continue
 		)
 			
 	)
 	
 )
+
+macroScript IBGUnityAttributesHelper
+category:"FlowAttributes"
+toolTip:"Unity Attributes Helper"
+(
+	global FlowAttEditor 	
+	filein (@"H:\GitHub\_Packages\_Toolset\FlowPanels\_base\FlowObjectAttributesEditor.ms")
+		
+
+	
+)
+
+
 
 
 
