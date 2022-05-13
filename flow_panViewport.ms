@@ -1,7 +1,15 @@
 	--------------------------------------------------------------------------------------------------------------------------------	
 	--//////////////////////////////////////////////////////////////////////////////////////// VIEWPORT SETTINGS
 	--------------------------------------------------------------------------------------------------------------------------------		
-			
+		Group "Viewport Filters"
+		(
+			checkbutton btn_filGeo "Geometry" 		width:32 height: 32 align:#align_topcleft images:#("Extended_24i.bmp", "Extended_24i.bmp",12,10,10,1,1 ) ToolTip:"Toggle Geometry Visibility" across:6
+			checkbutton btn_filSha "Shapes" 		width:32 height: 32 align:#align_topcleft images:#("Splines_24i.bmp", "Splines_24i.bmp",11,10,10,1,1 ) ToolTip:"Toggle Shapes Visibility" 
+			checkbutton btn_filLig "Lights" 		width:32 height: 32 align:#align_topcleft images:#("Lights_24i.bmp", "Lights_24i.bmp",7,3,3,1,1 ) ToolTip:"Toggle Lights Visibility" 
+			checkbutton btn_filHel "Helpers" 		width:32 height: 32 align:#align_topcleft images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,1,1,1,1 ) ToolTip:"Toggle Helpers Visibility" 
+			checkbutton btn_filBon "Bones" 			width:32 height: 32 align:#align_topcleft images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,2,2,1,1 ) ToolTip:"Toggle Bones Visibility" 
+			button btn_filNon "Bones" 				width:32 height: 32 align:#align_topcleft images: #("UVWUnwrapView_24i.bmp", "UVWUnwrapView_24a.bmp",27,8,6,1,1) ToolTip:"Disable All Filters" 
+		)
 		Group "Viewport Settings" 
 		(
 			label FOVpre "Field of View Presets:" 		align:#left
@@ -15,6 +23,104 @@
 			checkbutton btn_vie_edg "Wires"  	width:50
 			checkbox btn_vie_shad_tg "Shadows" 	checked:true triState:2 across: 2
 			checkbox btn_vie_amb_tg "Occlusion" checked:true triState:2
+		)
+	--------------------------------------------------------------------------------------------------------------------------------LOCALS
+		
+		local viewFilterButtons = #(btn_filGeo,btn_filSha,btn_filLig,btn_filHel,btn_filBon)
+		local viewFilterBtnBaseImgs = #()
+		
+		
+	--------------------------------------------------------------------------------------------------------------------------------FILTERS 
+		
+		fn setViewFilterButtonStates = 
+		(
+			case hideByCategory.geometry of 
+			(
+				false:
+				(
+					btn_filGeo.images = #("Extended_24i.bmp", "Extended_24i.bmp",12,10,10,1,1 )
+				)
+				true:
+				(
+					btn_filGeo.images = #("UVWUnwrapView_24i.bmp", "UVWUnwrapView_24a.bmp",27,14,14,1,1)
+				)				
+			)
+			case hideByCategory.shapes of 
+			(
+				false:
+				(
+					btn_filSha.images = #("Splines_24i.bmp", "Splines_24i.bmp",11,10,10,1,1 )
+				)
+				true:
+				(
+					btn_filSha.images = #("UVWUnwrapView_24i.bmp", "UVWUnwrapView_24a.bmp",27,14,14,1,1)
+				)				
+			)
+			case hideByCategory.lights of 
+			(
+				false:
+				(
+					btn_filLig.images = #("Lights_24i.bmp", "Lights_24i.bmp",7,3,3,1,1 )
+				)
+				true:
+				(
+					btn_filLig.images = #("UVWUnwrapView_24i.bmp", "UVWUnwrapView_24a.bmp",27,14,14,1,1)
+				)				
+			)
+			case hideByCategory.helpers of 
+			(
+				false:
+				(
+					btn_filHel.images = #("Helpers_24i.bmp", "Helpers_24i.bmp",6,1,1,1,1 )
+				)
+				true:
+				(
+					btn_filHel.images = #("UVWUnwrapView_24i.bmp", "UVWUnwrapView_24a.bmp",27,14,14,1,1)
+				)				
+			)
+			case hideByCategory.bones of 
+			(
+				false:
+				(
+					btn_filBon.images = #("Helpers_24i.bmp", "Helpers_24i.bmp",6,2,2,1,1 )
+				)
+				true:
+				(
+					btn_filBon.images = #("UVWUnwrapView_24i.bmp", "UVWUnwrapView_24a.bmp",27,14,14,1,1)
+				)				
+			)
+		)
+		
+		
+		
+		on btn_filGeo changed state do 
+		(
+			hideByCategory.geometry = state
+		)
+		on btn_filSha changed state do 
+		(
+			hideByCategory.shapes = state
+
+		)
+		on btn_filLig changed state do 
+		(
+			hideByCategory.lights = state
+			
+		)
+		on btn_filHel changed state do 
+		(
+			hideByCategory.helpers = state
+		)
+		on btn_filBon changed state do 
+		(
+			hideByCategory.bones = state
+		)
+		on btn_filNon pressed do 
+		(
+			hideByCategory.none()			
+			
+			for i in viewFilterButtons do i.checked = false
+			
 		)
 			
 	--------------------------------------------------------------------------------------------------------------------------------FIELD OF VIEW PRESETS
@@ -144,7 +250,8 @@
 			set_persviewextent.range = [0,1000,gridPrefs.perspViewGridExtents]
 			fov.range = [25,200,viewport.GetFOV()]
 			
-			
+			--set viewport filter button states 
+			setViewFilterButtonStates()
 		)
 			
 		on getPresetSpace tick do 
@@ -346,8 +453,14 @@
 			
 		on panViewport rolledUp open do 
 		(
+							btn_filGeo.checked = hideByCategory.geometry()
+				btn_filGeo.state = hideByCategory.geometry()
+				
+				
 			if open do 
 			(
+				
+
 				--AutoCollapse
 				if use_AutoCollapse == true do 
 				(

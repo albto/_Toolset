@@ -218,21 +218,16 @@
 		--Filter levels list
 		fn LevelFilter arr1 arr2 i = 
 		(
-			
 			for val in arr2 where matchpattern val pattern:i do 
 			(
 				--filter level name 
 				str = filenameFromPath val 
-				
-				
-				
+					
 				--adding to new array
 				appendIfUnique arr1 str as string 
 				appendIfUnique levels val
-				
-				
-			)
-				
+					
+			)		
 		)
 			
 		--Reload sub folders list

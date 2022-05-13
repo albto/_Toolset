@@ -1,1 +1,1 @@
-#(false, true, false, false, true, false, ".FBX", "msh", "D:/Projects/Project3D/Assets/Art/Geometry", true, 1, "C:/Users/albto/OneDrive/Desktop", #(), "", 1, 1.0, "#Centimeters", false, true, false, "D:/Projects/Project3D/Assets/Art/Geometry", true, true)
+#(false, true, false, false, true, false, ".FBX", "msh", "D:/Projects/Project3D/Assets/Art/Geometry", true, 1, "D:/Projects/Project3D/Assets/Art/Geometry", #(), "", 1, 0.6, "#Meters", true, false, false, "D:/Projects/Project3D/Assets/Art/Geometry", true, true)

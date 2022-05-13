@@ -64,16 +64,16 @@
 		)
 		Group "Objects List:"
 		(
-			listbox lst_focObj ""								width:190 	height:17	across:2		
-			listbox lst_objAtt " Attributes Reader:"			width:220	height:16 	align:#center	labelontop:true	
+			listbox lst_focObj ""									width:190 	height:17	across:2		
+			listbox lst_objAtt " Attributes Reader:"				width:220	height:16 	align:#center	labelontop:true	
 				
-			edittext edt_refLst ""								width:96	height:18	pos:[10,435]	across:3	align:#left		enabled:false	text:"  { ObjectType }"	
-			button btn_selObj "Refresh List"					width:93	height:30	pos:[109,425]
-			edittext edt_name ""								width:215	height:25								align:#right
+			edittext edt_refLst ""									width:96	height:18	pos:[10,435]	across:3	align:#left		enabled:false	text:"  { ObjectType }"	
+			button btn_selObj "Refresh List"						width:93	height:30	pos:[109,425]
+			edittext edt_name ""									width:215	height:25								align:#right
 					
-			colorpicker pck_wirClr "" 							width:96	height:10 	align:#right pos:[10,424]	modal:false	across:3
-			checkbutton chk_test "Auto-Load Attributes"			width:120	height:18   align:#right pos:[315,190] 	checked:true
-			button btn_stats "Show Attributes"					width:160	height:25 	align:#right pos:[275,460]
+			colorpicker pck_wirClr "" 								width:96	height:10 	align:#right pos:[10,424]	modal:false	across:3
+			checkbutton chk_test "Auto-Load Attributes"				width:120	height:18   align:#right pos:[315,190] 	checked:true
+			button btn_stats "Show Attributes"						width:160	height:25 	align:#right pos:[275,460]
 		)
 		Group "Attributes Initialtion Settings:"
 		(		
@@ -85,17 +85,16 @@
 			button chk_cnvrt "Convert-Type"							width:105	height:25		align:#center 	
 			button chk_cnAtt "Convert-Attribute"					width:105	height:25		align:#right 	
 			button chk_cnTag "Convert-Tag"							width:105	height:25		align:#right 	
-			checkbutton chk_onNew "Init w/ Attributes"				width:105	height:24		align:#left 		checked:true	across:3
+			checkbutton chk_onNew "Init w/ Settings"				width:105	height:24		align:#left 		checked:true	across:3
 			checkbutton chk_lowt "Init and Prep"					width:105	height:24		align:#left 		checked:true
 			checkbutton chk_flpr "EMPTY BUTTON"						width:105	height:24		align:#right
 		)	
 		Group "Attributes Setter:"
 		(
-			button btn_prcObj "Process Selected"				width:135	height:25	across:3
-			button btn_addObj "Add to Selected"					width:135	height:25	--across:2
-			button btn_genObj "Add to Scene Objects"			width:135	height:25	
-			button btn_rmvObj "Remove from Selected"			width:180	height:25	across:2
-			button btn_kilObj "Remove from Scene Objects"		width:180	height:25	
+			button btn_addObj "Add to Selected"					width:32 height: 32 align:#align_topcleft images:#("PhysX_Main_24i.bmp","PhysX_Main_241.bmp",33,1,2,1,1,true,false  ) ToolTip:"Add to Selected" across:4
+			button btn_genObj "Add to Scene Objects"			width:32 height: 32 align:#align_topcleft images:#("PhysX_Main_24i.bmp","PhysX_Main_241.bmp",33,30,2,1,1,true,false  ) ToolTip:"Add to Scene Objects" 
+			button btn_rmvObj "Remove from Selected"			width:32 height: 32 align:#align_topcleft images:#("ViewportNavigationControls_24i.bmp","ViewportNavigationControls_24i.bmp",46,5,6,3,3,true,false  ) ToolTip:"Remove from Selected"
+			button btn_kilObj "Remove from Scene Objects"		width:32 height: 32 align:#align_topcleft images:#("ViewportNavigationControls_24i.bmp","ViewportNavigationControls_24i.bmp",46,7,8,3,3,true,false  ) ToolTip:"Remove from Scene Objects"
 		)
 			
 		------------------------------------------------------------------------------------------------
@@ -190,16 +189,27 @@
 			
 		)
 			
-		fn SelectObjectsBy i objAttr objFilter o:0 = 
+		fn SelectObjectsBy objAttr objFilter = 
 		(	
-			if objAttr == objFilter then 
-			(	
-				o += 1
-					
-				print i.name
-				list[o] = i.name as string 
+			for i in geometry do 
+			(
 				
-				lst_focObj.items = list
+				if i.modifiers[#Unity_Attributes] != undefined then 
+				(
+					
+					if objAttr == objFilter then 
+					(	
+						o+=1
+							
+						print ("objAttr = " + objAttr as string)
+						print ("objFilter = " + objFilter as string)
+						list[o] = i.name as string 
+						
+						lst_focObj.items = list
+						
+					)
+					
+				)
 				
 			)
 		)
@@ -211,7 +221,6 @@
 		(
 			list = #()
 			o = 0
-			
 			--clear selection before selecting more?? - check here
 			--clearSelection()
 			lst_focObj.items = #()
@@ -225,7 +234,6 @@
 						(
 							o += 1
 								
--- 							print i.name
 							list[o] = i.name as string 
 								
 						)
@@ -233,11 +241,18 @@
 				)
 				2:(	
 					print "Layers"	
+					list = #()
 					for i in geometry do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
 						(
-							SelectObjectsBy i i.modifiers[#Unity_Attributes].gameData.GameLayers ddl_filLay.selection 
+							if i.modifiers[#Unity_Attributes].gameData.GameLayers == ddl_filLay.selection then 
+							(	
+								o+=1
+									
+								list[o] = i.name as string 
+								lst_focObj.items = list
+							)
 						)
 					)
 				)
@@ -247,11 +262,35 @@
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
 						(
-							SelectObjectsBy i i.modifiers[#Unity_Attributes].gameData.ObjectTypes ddl_filObj.selection 
+							if i.modifiers[#Unity_Attributes].gameData.ObjectTypes == ddl_filObj.selection then 
+							(	
+								o+=1
+									
+								list[o] = i.name as string 
+								lst_focObj.items = list
+							)
+						)
+						
+					)
+				)
+				4:(	print "Attr"	)		
+				5:
+				(
+					print "Tags"
+					for i in geometry do 
+					(						
+						if i.modifiers[#Unity_Attributes] != undefined then 
+						(
+							if i.modifiers[#Unity_Attributes].gameData.Tags == ddl_filTag.selection then 
+							(	
+								o+=1
+									
+								list[o] = i.name as string 
+								lst_focObj.items = list
+							)
 						)
 					)
 				)
-				4:(	print "Attr"	)				
 				default:
 				(
 					print"..."	
@@ -372,42 +411,39 @@
 		on btn_addObj pressed do 
 		(
 				
-			for i in selection as Array do 
+-- 			for i in selection as Array do 
+-- 			(
+-- 				if (classof i) == EditablePolyMesh then 
+-- 				(										
+-- 						
+
+-- 						
+-- 				)
+-- 			)	
+			macros.run FlowAttributes FlowAddAtt
+			
+			--check if they want to use init w/ type 
+			if chk_onNew.checked then 
 			(
-				if (classof i) == EditablePolyMesh then 
-				(										
+				obs = #() 				
+				for o in selection as array do 
+				(
 						
-					macros.run FlowAttributes FlowAddAtt
+					o.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_iniTyp.selection
+						
+					obs = execute (getUserPropVal o "Unity Attributes" asString:true)	
 					
-					--check if they want to use init w/ type 
-					if chk_onNew.checked then 
-					(
-						obs = #() 				
-						for o in selection as array do 
-						(
-								
-							o.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_iniTyp.selection
-								
-							obs = execute (getUserPropVal o "Unity Attributes" asString:true)	
-							
-							--changed setting
-							obs[4] = ddl_iniTyp.selection
-								
-							--record settings	
-							setUserPropVal o "Unity Attributes" obs 
-								
-							--set object wirecolor 
-							o.wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
-								
-						)
-							
+					--changed setting
+					obs[4] = ddl_iniTyp.selection
 						
-							
-					)
+					--record settings	
+					setUserPropVal o "Unity Attributes" obs 
 						
-				)
-			)	
-				
+					--set object wirecolor 
+					o.wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
+						
+				)	
+			)
 			if selection.count >= 1 then
 			(
 				--refresh list 
@@ -514,17 +550,17 @@
 				(
 					--disable all filters
 					objFilters[i].enabled = false
-					objBtns[i].enabled = false
+					--objBtns[i].enabled = false
 					--set active filter
 					objFilters[chk_filObj.state].enabled = true
-					objBtns[chk_filObj.state].enabled = true
+					--objBtns[chk_filObj.state].enabled = true
 					continue
 				)
 				else
 				(
 					--enable all filters
 					objFilters[i].enabled = true
-					objBtns[i].enabled = true
+					--objBtns[i].enabled = true
 				)
 			)
 				
@@ -550,6 +586,24 @@
 			
 		--Object type list - selected 
 		on ddl_filObj selected i do 
+		(
+			--refresh list 
+			RefreshAttributeObjectsList()
+			--selected item 
+			SelectedItem lst_focObj.Selection
+		)
+			
+		--Object Layer list - selected 
+		on ddl_filLay selected i do 
+		(
+			--refresh list 
+			RefreshAttributeObjectsList()
+			--selected item 
+			SelectedItem lst_focObj.Selection
+		)
+			
+		--Object Tag list - selected 
+		on ddl_filTag selected i do 
 		(
 			--refresh list 
 			RefreshAttributeObjectsList()
@@ -585,6 +639,22 @@
 				2:
 				(
 					print "Layers"
+					for i in objects do 
+					(
+						if i.modifiers[#Unity_Attributes] != undefined then 
+						(
+							if i.modifiers[#Unity_Attributes].gameData.GameLayers == ddl_filLay.selection then 
+							(	
+								selectmore i
+							)
+						)
+						else 
+						(	
+							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
 				)
 				3:
 				(
@@ -608,9 +678,29 @@
 					
 				)
 				4:(print "Attr")
+				5:
+				(
+					print "Tag"
+					for i in objects do 
+					(
+						if i.modifiers[#Unity_Attributes] != undefined then 
+						(
+							if i.modifiers[#Unity_Attributes].gameData.Tags == ddl_filTag.selection then 
+							(	
+								selectmore i
+							)
+						)
+						else 
+						(	
+							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
+					
+				)
 			)
 		)
-		
 			
 		--isolate list
 		on btn_isoObj pressed do 
@@ -699,17 +789,138 @@
 		
 	rollout srl_Materials "Materials"
 	(
-		button btn "test"
-	)
 		
-	
+		Group "MatLib Directory Helper:"
+		(
+			
+			button btn_crt_mtlb "Save"							width:70 	height:22	across:2 							--offset:[90,0]
+			button btn_open_mtlb "Open" 						width:70 	height:22										--offset:[22,0]
+		)
+		
+		Group "MatLib Presets: "
+		(
+			
+			edittext edt_mtlb_name "New Preset Name:"	 	width:260 	height:20 		across:2				
+			button btn_mtlb_prst "Create New Library Preset"																offset:[28,0]	
+			label lbl_mtlb_list "Available Material Libraries" 							across:4							offset:[10,0]
+			dropdownList ddl_mtlb_list ""	labelontop:false items:#("Environments", "Characters", "Vehicles", "Misc")		offset:[25,0]
+			button btn_sel_mtlb "Load Library"																				offset:[20,0]
+			button btn_sav_mtlb "Save Library"																				offset:[10,0]		
+			
+			listbox lst_crnt_mtlb "Current Loaded Libraries:"		across:3
+			listbox lst_mtlb_mats "Library Materials:"
+			bitmap bmp_img "test"  offset:[01, 15]
+			edittext edt_mat_name "Material Name:" 
+			spinner spn_uv_ctrl "UVs Scaler"   range:[0, 1000, 100]
+		)
+		Group "Material Toolkit:"
+		(
+			button btn_comb_mats "Create Combined MultiMat"		height:25
+		)
+		
+		
+		on spn_uv_ctrl changed val do 
+		(
+			undo on 
+			
+			
+			for i in selection as array do 
+			(			
+				uvMod = i.modifiers[#Unwrap_uvw]
+				uvMod2 = uvMod.unwrap2
+				uvMod2.ScaleSelectedCenter (spn_uv_ctrl.value) 0 
+			)
+			
+
+			
+		)		
+		
+		on spn_uv_ctrl entered do 
+		(
+			spn_uv_ctrl.value = 100
+		)	
+		
+		on btn_crt_mtlb pressed do 
+		(
+			FileSaveAsMatLib()
+		)
+		
+		on btn_open_mtlb pressed do 
+		(
+			FileOpenMatLib()
+		)
+			
+		on btn_comb_mats pressed do 
+		(
+			--create combined multi-mat
+			objMats = for i in selection as array where i.mat != undefined collect i.mat
+			print objMats.count
+			
+				
+			if objMats.count > 1 then 
+			(
+				
+				mm = Multimaterial numsubs:objMats.count 
+				
+				for o = 1 to objMats.count do 
+				(
+					mm[o] = objMats[o]				
+				)
+				
+				viewNode = sme.GetView (sme.activeView)
+				sme.SetMtlInParamEditor mm
+				newMat = copy (sme.GetMtlInParamEditor())
+				newMat.name = "_Combined_Mat_Test"
+				
+				matPos = [20,20]
+				viewnode.createnode newMat &matPos
+					
+				for s in selection do 
+				(
+					s.mat = newMat
+				)
+				print "created new multimaterial"
+					
+			)
+			else(
+				print "only has one material"
+			)
+				
+		)
+			
+		on btn_sel_mtlb pressed do 
+		(
+			
+		)
+			
+		on lst_crnt_mtlb selected item do 
+		(
+			print ("selected " + lst_crnt_mtlb.selected )
+			
+			a = currentMaterialLibrary
+			
+			print (a.count as string + " - Materials") 
+			
+		)
+			
+		on srl_materials open do 
+		(
+			print "OPEN"
+			
+			arr = #(currentMaterialLibrary as string)
+				
+			lst_crnt_mtlb.items = arr
+		)
+			
+	)		
+		
 	rollout uiPan "Flow Attributes-Object Editors" width:400 height:800
 	(
 		
 		Group "Panel Controls:"
 		(					
-			checkbutton btn_stats "Attributes-Object Helper" 			checked:true		height:25	across:2
-			checkbutton btn_mats "Attributes-Object Materials Pallette"	checked:false		height:25
+			checkbutton btn_stats "Attributes-Object Helper" 			checked:false		height:25	across:2
+			checkbutton btn_mats "Attributes-Object Materials Pallette"	checked:true		height:25
 		)
 			
 		---------------------------------------------------------------
@@ -724,8 +935,7 @@
 				RemoveRollout srl_Stats theNewFloater	
 			)	
 		)
-		
-		
+			
 		on btn_stats changed state do 
 		(
 			ActivateObjectHelper state
@@ -749,7 +959,26 @@
 		on uiPan open do 
 		(
 			--open object helper at start -- ??
-			--ActivateObjectHelper btn_stats.checked
+			if btn_stats.checked then
+			(
+				AddRollout srl_Stats theNewFloater	
+			)
+			else 
+			(
+				RemoveRollout srl_Stats theNewFloater	
+			)	
+			
+			if btn_mats.checked then
+			(
+				AddRollout srl_Materials theNewFloater
+			)
+			else 
+			(
+				RemoveRollout srl_Materials	theNewFloater
+			)	
+			
+			
+			
 			
 		)		
 		
@@ -759,7 +988,7 @@
 	--add rollouts
 	addRollout uiPan theNewFloater
 	
-	AddRollout srl_Stats theNewFloater
+	--AddRollout srl_Stats theNewFloater
 -- 	RemoveRollout srl_Stats theNewFloater
 	
 	
