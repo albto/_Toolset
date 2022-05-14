@@ -120,7 +120,15 @@
 -- 	)
 		
 		
+-- 		modPanel.addModToSelection (Unwrap_UVW() )
+		
 		uvMod = $.modifiers[#Unwrap_UVW]
+			
+			
+		
+-- 		uvMod.unwrap4.flattenMapByMatID  45.0 0.002 false 0 false true 
+		
+			
 			
 -- 		--collapse to code
 -- 		for obj in selection do
@@ -147,6 +155,7 @@
 		FaceArr = for f=1 to uvMod.numberPolygons() collect f 
 		FaceElements = #()
 			
+-- 			
 -- 		while FaceArr.count > 0 do 
 -- 		(
 -- 			uvMod.selectFaces #{FaceArr[1]}
@@ -157,26 +166,42 @@
 -- 			for faceId in currElement do deleteItem FaceArr (findItem FaceArr faceId) 
 -- 				
 -- 		)	
+-- 		
+		if not FaceArr.isEmpty do
+		(
+			while not FaceArr.isEmpty do
+			(
+				uv.selectFaces #{(FaceArr as array)[1]}
+				uv.SelectElement()
+				elem01faces = uv.getSelectedFaces()
+				append uvIslands elem01faces
+				allFaces = allFaces-elem01faces
+			)
+		)
 		
-		for i = 1 to FaceArr.count do 
-		(		
-			uvMod.selectFaces #{FaceArr[i]}
-	 		uvMod.faceToVertSelect()
-	-- 		subObjectLevel = 1
-			uvMod.snapPivot	1
+		for i = 1 to uvIslands.count do 
+		(			
+			uvMod.selectFaces #{uvIslands[i]}
+-- 	 		uvMod.faceToVertSelect()
+-- 	 		subObjectLevel = 1
+-- 			uvMod.snapPivot	1
 			
 			if bb[3] > bb[1] and bb[2] > bb[1] then
 			(
 				print("walls")
-				uvMod.moveSelected ([bb[2]/2 + bb[2]*i-(bb[2]),bb[3]/2,0] - uvMod.getSelCenter())
+				uvMod.moveSelected ([bb[2]/2,bb[3]/2,0] - uvMod.getSelCenter())
 			)				
 			else 
 			(
 				print("floor")
-				uvMod.moveSelected ([bb[1]/2 + bb[1]*i-(bb[2]),bb[1]/2,0] - uvMod.getSelCenter())
+				uvMod.moveSelected ([bb[1]/2,bb[1]/2,0] - uvMod.getSelCenter())
 			)
-			
-		)
+				
+		)		
+		
+		
+		
+		
 		uvMod.Edit()
 		
 -- 	fn getUnwrapElements myMod =
@@ -205,9 +230,7 @@
 	
 	--uvMod.unwrap6.GroupGetTexelDensity()
 		
-		
-	--uvMod.unwrap4.flattenMapByMatID  45.0 0.002 false 0 false true 
-		
+	
 	--uvMod.pack 1 0.01 false false false
 	
 	
@@ -239,10 +262,100 @@
 -- 			uvMod.unwrap6.flattenMapNoParams() 
 -- 			uvMod.unwrap6.packNoParams() 
 	
-	
-	
-	
-	
+-- 	--Move Selected UVs to [0,0,0]
+-- 	uvIslands = #()
+-- 	uv = modpanel.getcurrentobject()
+-- 	if classof (uv) == Unwrap_UVW then
+-- 	(
+-- 		uvIslands = #()
+-- 		subObjLevel = uv.getTVsubobjectMode()
+-- 		case subObjLevel of
+-- 		(
+-- 			1: 
+-- 			(
+-- 				allVerts = uv.getSelectedVertices()
+-- 				if not allVerts.isEmpty do
+-- 				(
+-- 					while not allVerts.isEmpty do
+-- 					(				
+-- 						uv.selectVertices #{(allVerts as array)[1]}
+-- 						uv.SelectElement()
+-- 						elem01verts = uv.getSelectedVertices()
+-- 						append uvIslands elem01verts
+-- 						allVerts = allVerts-elem01verts
+-- 					)
+-- 				)
+-- 			)
+-- 			2:
+-- 			(
+-- 				allEdges = uv.getSelectedEdges()
+-- 				if not allEdges.isEmpty do
+-- 				(
+-- 					while not allEdges.isEmpty do
+-- 					(
+-- 						uv.selectEdges #{(allEdges as array)[1]}
+-- 						uv.SelectElement()
+-- 						elem01verts = uv.getSelectedEdges()
+-- 						append uvIslands elem01verts
+-- 						allEdges = allEdges-elem01verts
+-- 					)
+-- 				)
+-- 			)
+-- 			3:
+-- 			(
+-- 				allFaces = uv.getSelectedFaces()
+-- 				if not allFaces.isEmpty do
+-- 				(
+-- 					while not allFaces.isEmpty do
+-- 					(
+-- 						uv.selectFaces #{(allFaces as array)[1]}
+-- 						uv.SelectElement()
+-- 						elem01faces = uv.getSelectedFaces()
+-- 						append uvIslands elem01faces
+-- 						allFaces = allFaces-elem01faces
+-- 					)
+-- 				)
+-- 			)
+-- 		)	
+-- 		if uvIslands.count != 0 do with undo "UVs to [0,0,0]" on
+-- 		(
+-- 			case subObjLevel of 
+-- 			(
+-- 				1: 
+-- 				(
+-- 					for i=1 to uvIslands.count do
+-- 					(
+-- 						uv.selectVertices uvIslands[i]
+-- 						uv.moveSelected ([0,0,0] - uv.getSelCenter())
+-- 					)
+-- 				)
+-- 				2: 
+-- 				(
+-- 					for i=1 to uvIslands.count do
+-- 					(
+-- 						uv.selectEdges uvIslands[i]
+-- 						uv.moveSelected ([0,0,0] - uv.getSelCenter())
+-- 					)
+-- 				)
+-- 				3: 
+-- 				(
+-- 					for i=1 to uvIslands.count do
+-- 					(
+-- 						uv.selectFaces uvIslands[i]
+-- 						uv.moveSelected ([0,0,0] - uv.getSelCenter())
+-- 					)
+-- 				)
+-- 			)
+-- 		)
+
+-- 	)
+-- 	else
+-- 	(
+-- 		messagebox "Open the \"Edit UVWs\" window!" title:"miauu Script Error!!!"
+-- 		chkbtn_holdSelection.state = false
+-- 	)
+-- 	
+-- 	
 	
 	
 	
