@@ -621,10 +621,14 @@ category:"FlowAttributes"
 toolTip:"Unity Attributes Helper"
 (
 	global FlowAttEditor 	
-	filein (@"H:\GitHub\_Packages\_Toolset\FlowPanels\_base\FlowObjectAttributesEditor.ms")
-		
-
 	
+	sysFolder = sysInfo.windowsdir
+	subS = substituteString sysFolder "WINDOWS" ("Users\\" + sysInfo.username as string)
+	sysFolder = (subS + "\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms")
+		
+		
+	filein sysFolder
+			
 )
 
 

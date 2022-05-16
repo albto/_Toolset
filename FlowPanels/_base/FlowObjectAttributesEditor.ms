@@ -3,10 +3,10 @@
 -- 	callbacks.removeScripts id:#FAO_
 -- 	--Add a new callback script which will call --callbacks.notificationParam() before selected nodes are deleted --and thus will print the deleted objects to the Listener:
 -- 	callbacks.addScript #nodeCreated " AutoLayer()" id:#MXSHelp
-	global flowCore 	
-	filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
-	--load unity layers xml file
-	flowIns = flowCore()
+-- 	global flowCore 	
+-- 	filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
+-- 	--load unity layers xml file
+-- 	flowIns = flowCore()
 	
 	
 	try(closeRolloutFloater theNewFloater) catch()
@@ -19,7 +19,6 @@
 	
 	global 	FlowAddAtt      = "IBGUnityAttributesAdd"
 	global 	FlowRmvAtt 		= "IBGUnityAttributesDelete"
-
 		
 	ObjectTypes = #("Characters", "Exteriors", "Interiors", 
 	"Lights", "Props", "Structures", "Terrain", 
@@ -36,7 +35,6 @@
 	LayersList = #()
 	TagsList = #()
 	AttrList = #()
-	
 		
 	rollout srl_Stats "Attributes-Object Helper"
 	(
@@ -793,58 +791,118 @@
 		Group "MatLib Directory Helper:"
 		(
 			
-			button btn_crt_mtlb "Save"							width:70 	height:22	across:2 							--offset:[90,0]
-			button btn_open_mtlb "Open" 						width:70 	height:22										--offset:[22,0]
+			button btn_crt_mtlb "Save"							width:70 	height:22		across:2 							--offset:[90,0]
+			button btn_open_mtlb "Open" 						width:70 	height:22											--offset:[22,0]
 		)
 		
 		Group "MatLib Presets: "
 		(
+			edittext 	edt_mtlb_name "New Preset Name:"	 	width:260 	height:20 		across:2				
+			button 		btn_mtlb_prst "Create New Library Preset"							enabled:false						offset:[28,0]	
+			label 		lbl_mtlb_list "MatLib Presets: " 									across:4							offset:[-14,0]
+			dropdownList ddl_mtlb_list ""						width:172					labelontop:false 					offset:[-20,0]
+			button 		btn_sel_mtlb "Load Library"																				offset:[35,0]
+			button 		btn_sav_mtlb "Save Library"																				offset:[10,0]		
 			
-			edittext edt_mtlb_name "New Preset Name:"	 	width:260 	height:20 		across:2				
-			button btn_mtlb_prst "Create New Library Preset"																offset:[28,0]	
-			label lbl_mtlb_list "Available Material Libraries" 							across:4							offset:[10,0]
-			dropdownList ddl_mtlb_list ""	labelontop:false items:#("Environments", "Characters", "Vehicles", "Misc")		offset:[25,0]
-			button btn_sel_mtlb "Load Library"																				offset:[20,0]
-			button btn_sav_mtlb "Save Library"																				offset:[10,0]		
-			
-			listbox lst_crnt_mtlb "Current Loaded Libraries:"		across:3
-			listbox lst_mtlb_mats "Library Materials:"
-			bitmap bmp_img "test"  offset:[01, 15]
-			edittext edt_mat_name "Material Name:" 
-			spinner spn_uv_ctrl "UVs Scaler"   range:[0, 1000, 100]
+			listbox 	lst_crnt_mtlb "Current Loaded Libraries:"		across:3
+			listbox 	lst_mtlb_mats "Library Materials:"
+			bitmap 		bmp_img "test"  offset:[01, 15]
+			edittext 	edt_mat_name "Material Name:" 			
+			spinner 	spn_uv_ctrl "UVs Scaler"   range:[0, 1000, 100]
 		)
+			
 		Group "Material Toolkit:"
 		(
-			button btn_comb_mats "Create Combined MultiMat"		height:25
+			button 		btn_comb_mats "Create Combined MultiMat"				height:25 	across:2
+			button 		btn_apnd_mtl  "Add Selected Material to Current MatLib"		height:25
+			--timer 	tck_updt_mtlb ""		interval:100
+			
 		)
+		----------------------------------------------------------------------------------------------------------
 		
+-- 		on tck_updt_mtlb tick do 
+-- 		(
+-- 			--print "tick" 
+-- 			
+-- 			
+-- 		)
 		
+		--refresh list of custom material libraries
+		fn LoadCustomMLs = 
+		(
+			mtlbDir = getdir #matlib 
+			files = getfiles (mtlbDir + "\\*.mat")
+			fileNames = #()
+			for i = 1 to files.count do 
+			(
+				fileNames[i] = filenameFromPath (files[i])
+				
+				str = substituteString fileNames[i] ".mat" ""
+				fileNames[i] = str
+			)
+			
+			if files.count > 0 then 
+			(
+				ddl_mtlb_list.items = fileNames 
+			)
+			
+		)
+			
+		----------------------------------------------------------------------------------------------------------
+			
+		on edt_mtlb_name changed txt do 
+		(
+			if txt.count > 0 then 
+			(
+				btn_mtlb_prst.enabled = true 
+			)
+			else(
+				btn_mtlb_prst.enabled = false
+			)
+		)
+			
+			
+		--create new preset 
+		on btn_mtlb_prst pressed do 
+		(
+			if edt_mtlb_name.text.count > 0 then 
+			(				
+				--save new preset to default matlib directory
+				libPath = getdir #matlib
+				saveMaterialLibrary ((libPath + "\\" + edt_mtlb_name.text) as string + ".mat")
+					
+				--load Material Libraries
+				LoadCustomMLs()	
+			)
+				
+			edt_mtlb_name.text = ""
+				
+		)
+			
+		--uv scalar spinner ui - on value change 
 		on spn_uv_ctrl changed val do 
 		(
 			undo on 
-			
-			
+				
 			for i in selection as array do 
 			(			
 				uvMod = i.modifiers[#Unwrap_uvw]
 				uvMod2 = uvMod.unwrap2
 				uvMod2.ScaleSelectedCenter (spn_uv_ctrl.value) 0 
 			)
-			
-
-			
+				
 		)		
-		
+			
 		on spn_uv_ctrl entered do 
 		(
 			spn_uv_ctrl.value = 100
 		)	
-		
+			
 		on btn_crt_mtlb pressed do 
 		(
 			FileSaveAsMatLib()
 		)
-		
+			
 		on btn_open_mtlb pressed do 
 		(
 			FileOpenMatLib()
@@ -887,32 +945,80 @@
 			)
 				
 		)
-			
+				
+				
 		on btn_sel_mtlb pressed do 
 		(
-			
+			--load the selected material library from the mtlb list 
+			lib = loadMaterialLibrary (ddl_mtlb_list.selected + ".mat") as string
+			print ("Loaded Library Successfully: " + lib)
+				
+			--object usable list 
+			loadedLib = currentMaterialLibrary
+				
+			--display current matlib's name 
+			arr = #( filenameFromPath ( getMatLibFileName() ) )
+			lst_crnt_mtlb.items = arr
+				
+			lst = #()
+			print loadedLib.count
+			if loadedLib.count > 0 then 
+			(
+				for i = 1 to loadedLib.count do 
+				(
+					lst[i] = loadedLib[i]
+				)			
+				
+				lst_mtlb_mats.items = lst
+				
+			)	
+				
 		)
 			
 		on lst_crnt_mtlb selected item do 
 		(
-			print ("selected " + lst_crnt_mtlb.selected )
 			
-			a = currentMaterialLibrary
+		)
 			
-			print (a.count as string + " - Materials") 
+			
+		on btn_apnd_mtl pressed do 
+		(
+				
+			sel = selection[1]		
+				
+			objMats = #()
+			objMats = for i in sel where i.mat != undefined collect i.mat
+				
+			print ("matLib name > " + lst_crnt_mtlb.items[1] as string)
+			
+			print ("selected mat name > " + objMats[1] as string)
+			
+			for i in selection do 
+			(
+				--append material test 
+				append (lst_crnt_mtlb.items[1] as string) (i.material as string)
+			)
+			--saveMaterialLibrary (lst_crnt_mtlb.items[1] as string)
+			
+			--load Material Libraries
+			LoadCustomMLs()	
 			
 		)
 			
 		on srl_materials open do 
 		(
-			print "OPEN"
-			
-			arr = #(currentMaterialLibrary as string)
+			--load Material Libraries
+			LoadCustomMLs()			
+				
+			--load current matlib
+			arr = #( filenameFromPath ( getMatLibFileName() ) )
 				
 			lst_crnt_mtlb.items = arr
+				
+				
 		)
 			
-	)		
+	)
 		
 	rollout uiPan "Flow Attributes-Object Editors" width:400 height:800
 	(
