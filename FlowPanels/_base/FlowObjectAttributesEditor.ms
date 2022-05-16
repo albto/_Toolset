@@ -768,16 +768,12 @@
 			ImportDataFromUnity()
 			try 
 			(
-				
-				
 				--refresh list 
 				RefreshAttributeObjectsList()
 					
 				--Select the object list default selection
 				SelectedItem lst_focObj.selection
-				
-				
-				
+					
 			)
 			catch(print "Trouble Loading Attribute-Objects List")
 		)
@@ -788,33 +784,43 @@
 	rollout srl_Materials "Materials"
 	(
 		
+		local selectedMat
+		
 		Group "MatLib Directory Helper:"
 		(
 			
-			button btn_crt_mtlb "Save"							width:70 	height:22		across:2 							--offset:[90,0]
-			button btn_open_mtlb "Open" 						width:70 	height:22											--offset:[22,0]
+			button btn_crt_mtlb "Save"												width:70 	height:22		across:2 							--offset:[90,0]
+			button btn_open_mtlb "Open" 											width:70 	height:22											--offset:[22,0]
 		)
 		
 		Group "MatLib Presets: "
 		(
-			edittext 	edt_mtlb_name "New Preset Name:"	 	width:260 	height:20 		across:2				
-			button 		btn_mtlb_prst "Create New Library Preset"							enabled:false						offset:[28,0]	
-			label 		lbl_mtlb_list "MatLib Presets: " 									across:4							offset:[-14,0]
-			dropdownList ddl_mtlb_list ""						width:172					labelontop:false 					offset:[-20,0]
-			button 		btn_sel_mtlb "Load Library"																				offset:[35,0]
-			button 		btn_sav_mtlb "Save Library"																				offset:[10,0]		
+			edittext 	edt_mtlb_name "New Preset Name:"	 						width:260 	height:20 		across:2				
+			button 		btn_mtlb_prst "Create New Library Preset"												enabled:false						offset:[28,0]	
+			label 		lbl_mtlb_list "MatLib Presets: " 														across:4							offset:[-14,0]
+			dropdownList ddl_mtlb_list ""											width:172					labelontop:false 					offset:[-20,0]
+			button 		btn_sel_mtlb "Load Library"																									offset:[35,0]
+			button 		btn_sav_mtlb "Save Library"																									offset:[10,0]		
 			
-			listbox 	lst_crnt_mtlb "Current Loaded Libraries:"		across:3
+			listbox 	lst_crnt_mtlb "Current Loaded Library:"													across:3
 			listbox 	lst_mtlb_mats "Library Materials:"
-			bitmap 		bmp_img "test"  offset:[01, 15]
+			bitmap 		bmp_img "test"  											bitmap:(bitmap 128 128 color:gray)								offset:[01, 15]		
+			
+			
+			button 		btn_mat_sme   "Edit Material in SME"													across:3							offset:[-20,0]
+			button 		btn_mat_opn   "Open Material in SME"																						offset:[-45,0]
+			radiobuttons rad_dbg_maps ""									columns:3		labels:#("alb", "rgh", "nml", "opa", "mtl")				offset:[-10,0]
+				
+			
 			edittext 	edt_mat_name "Material Name:" 			
 			spinner 	spn_uv_ctrl "UVs Scaler"   range:[0, 1000, 100]
 		)
 			
 		Group "Material Toolkit:"
 		(
-			button 		btn_comb_mats "Create Combined MultiMat"				height:25 	across:2
-			button 		btn_apnd_mtl  "Add Selected Material to Current MatLib"		height:25
+			checkbutton chk_mtlb_slnt "Open SME"									height:25 	across:3		checked:false   					offset:[-40,0]
+			button 		btn_comb_mats "Create Combined MultiMat"					height:25 														offset:[-70,0]
+			button 		btn_apnd_mtl  "Add Selected Material to Current MatLib"		height:25														offset:[-30,0]
 			--timer 	tck_updt_mtlb ""		interval:100
 			
 		)
@@ -827,6 +833,51 @@
 -- 			
 -- 		)
 		
+		--Load Library Buttton - function 
+		fn LoadSelectedLibraryFromList = 
+		(
+			if ddl_mtlb_list.items.count > 0 then 
+			(
+				if sme.isOpen() then 
+				(
+					sme.close()
+				)
+					
+				--load the selected material library from the mtlb list 
+				lib = loadMaterialLibrary (ddl_mtlb_list.selected + ".mat") as string
+				print ("Loaded Library Successfully: " + lib as string )
+					
+				--object usable list 
+				loadedLib = currentMaterialLibrary
+					
+				--display current matlib's name 
+				arr = #( filenameFromPath ( getMatLibFileName() ) )
+				lst_crnt_mtlb.items = arr
+					
+				lst = #()
+				lst_mtlb_mats.items = lst
+				print loadedLib.count
+				if loadedLib.count > 0 then 
+				(
+					for i = 1 to loadedLib.count do 
+					(
+						lst[i] = loadedLib[i] as string 
+					)			
+					
+					lst_mtlb_mats.items = lst
+					
+				)	
+					
+				if chk_mtlb_slnt.checked then 
+				(
+					sme.open()
+				)
+			)
+			else(
+				print "No Material Libraries Found"
+			)
+			
+		)
 		--refresh list of custom material libraries
 		fn LoadCustomMLs = 
 		(
@@ -905,7 +956,10 @@
 			
 		on btn_open_mtlb pressed do 
 		(
+			sme.close() 
 			FileOpenMatLib()
+			--sme.open()
+			
 		)
 			
 		on btn_comb_mats pressed do 
@@ -947,74 +1001,196 @@
 		)
 				
 				
+		--Load Selected Library from list 
 		on btn_sel_mtlb pressed do 
 		(
-			--load the selected material library from the mtlb list 
-			lib = loadMaterialLibrary (ddl_mtlb_list.selected + ".mat") as string
-			print ("Loaded Library Successfully: " + lib)
-				
-			--object usable list 
-			loadedLib = currentMaterialLibrary
-				
-			--display current matlib's name 
-			arr = #( filenameFromPath ( getMatLibFileName() ) )
-			lst_crnt_mtlb.items = arr
-				
-			lst = #()
-			print loadedLib.count
-			if loadedLib.count > 0 then 
-			(
-				for i = 1 to loadedLib.count do 
-				(
-					lst[i] = loadedLib[i]
-				)			
-				
-				lst_mtlb_mats.items = lst
-				
-			)	
-				
+			--Load Library
+			LoadSelectedLibraryFromList()
+			
+			b = (bitmap 128 128 color:gray)
+					print "No Albedo Found"
+					bmp_img.bitmap = b
+			
+		)	
+			
+		on btn_sav_mtlb pressed do 
+		(
+			--Save loaded Library
+			
+			a = loadTempMaterialLibrary (getMatLibFileName())
+			
+			saveTempMaterialLibrary a (lst_crnt_mtlb.items[1] as string)
 		)
 			
+		--On library list item selected 
 		on lst_crnt_mtlb selected item do 
 		(
 			
 		)
 			
+		--On materials list item selected 
+		on lst_mtlb_mats selected item do 
+		(
+			selectedMat = currentMaterialLibrary [item]
+			
+			if  selectedMat.base_color_map != undefined  then 
+			(
+				try
+				(				
+					if selectedMat.base_color_map.bitmap != undefined then 
+					(
+						bmp_img.filename = selectedMat.base_color_map.filename
+							
+						a = (bitmap 128 128 color:gray)
+						copy bmp_img a
+							
+						bmp_img.filename = a.filename
+						
+						print selectedMat
+					)	
+				)
+				catch
+				( 
+				)				
+				
+			)	
+			else
+			(
+				b = (bitmap 128 128 color:gray)
+				print "No Albedo Found"
+				bmp_img.bitmap = b
+			)			
+			
+			
+		)
+			
+		--edit material parameters
+		on btn_mat_sme pressed do 
+		(
+			if selectedMat != undefined then 
+			(
+				if not SME.isOpen() then 
+				(
+					sme.open()
+					sme.SetMtlInParamEditor selectedMat
+				)
+				else(
+					sme.SetMtlInParamEditor selectedMat
+				)
+			)
+		)
+			
+		--open/edit material in SME
+		on btn_mat_opn pressed do 
+		(
+			if selectedMat != undefined then 
+			(
+				local n
+				local curView = SME.getView SME.activeView  
+				
+				if not SME.isOpen() then 
+				(
+					sme.open()
+					nod = curView.CreateNode selectedMat [0,0]
+						
+					n = curView.GetNodeByRef selectedMat 
+					n.selected = true 
+						
+					print n.name 
+					sme.SetMtlInParamEditor selectedMat
+						
+				)
+				else
+				(
+					curView.CreateNode selectedMat [0,0]
+						
+					n = curView.GetNodeByRef selectedMat 
+					n.selected = true 
+						
+					sme.SetMtlInParamEditor selectedMat
+						
+				)
+			)
+		)
+		
 			
 		on btn_apnd_mtl pressed do 
 		(
-				
 			sel = selection[1]		
 				
+			lib = loadTempMaterialLibrary (lst_crnt_mtlb.items[1] as string)
+			
+			
 			objMats = #()
 			objMats = for i in sel where i.mat != undefined collect i.mat
 				
-			print ("matLib name > " + lst_crnt_mtlb.items[1] as string)
-			
+			print ("matLib name > " + lib[1] as string)
+-- 			
 			print ("selected mat name > " + objMats[1] as string)
-			
+-- 			
 			for i in selection do 
 			(
 				--append material test 
-				append (lst_crnt_mtlb.items[1] as string) (i.material as string)
+				append (lib) (objMats[1])
 			)
-			--saveMaterialLibrary (lst_crnt_mtlb.items[1] as string)
+			
+			saveTempMaterialLibrary lib (lst_crnt_mtlb.items[1] as string)
 			
 			--load Material Libraries
 			LoadCustomMLs()	
+			
+			--Load Library
+			LoadSelectedLibraryFromList()
 			
 		)
 			
 		on srl_materials open do 
 		(
 			--load Material Libraries
-			LoadCustomMLs()			
+			LoadCustomMLs()		
 				
 			--load current matlib
 			arr = #( filenameFromPath ( getMatLibFileName() ) )
 				
-			lst_crnt_mtlb.items = arr
+			--Load Library at start
+			if ddl_mtlb_list.items.count > 0 then 
+			(
+				if sme.isOpen() then 
+				(
+					sme.close()
+				)
+					
+				--object usable list 
+				loadedLib = currentMaterialLibrary
+					
+				--display current matlib's name 
+				arr = #( filenameFromPath ( getMatLibFileName() ) )
+				lst_crnt_mtlb.items = arr
+					
+				lst = #()
+				lst_mtlb_mats.items = lst
+				print loadedLib.count
+				if loadedLib.count > 0 then 
+				(
+					for i = 1 to loadedLib.count do 
+					(
+						lst[i] = loadedLib[i] as string 
+					)			
+					
+					lst_mtlb_mats.items = lst
+					
+				)	
+					
+				if chk_mtlb_slnt.checked then 
+				(
+					sme.open()
+				)
+			)
+			else(
+				print "No Material Libraries Found"
+			)
 				
+			lst_crnt_mtlb.items = arr
 				
 		)
 			

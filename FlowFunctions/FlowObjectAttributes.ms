@@ -622,13 +622,21 @@ toolTip:"Unity Attributes Helper"
 (
 	global FlowAttEditor 	
 	
+	--link to script here 
 	sysFolder = sysInfo.windowsdir
 	subS = substituteString sysFolder "WINDOWS" ("Users\\" + sysInfo.username as string)
-	sysFolder = (subS + "\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms")
-		
-		
+	
+	if (doesDirectoryExist (subS + "\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms") ) then
+	(
+		sysFolder = (subS + "\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms")
+	)
+	else
+	(
+		sysFolder = (subS + "\\OneDrive\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms")
+	)
+	
 	filein sysFolder
-			
+	
 )
 
 

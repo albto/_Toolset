@@ -213,7 +213,7 @@
 			
 		--TICK-----------------------------------------------------------------------
 		-----------------------------------------------------------------------------
-		timer tick_LauncherUpdate "" 			interval:1000
+		timer tick_LauncherUpdate "" 			interval:500
 			
 		--Filter levels list
 		fn LevelFilter arr1 arr2 i = 
@@ -233,10 +233,8 @@
 		--Reload sub folders list
 		fn GetProjectLevels = 
 		(
-			if  ddl_proj.items.count > 0 then 
-			(
-				strMyFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
-			)
+			strMyFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
+			
 			levels = getFiles((strMyFolder as string + "\\*.max"))
 				
 			newArr = #()
@@ -459,13 +457,8 @@
 		--Reload Projects ListBoxControl
 		fn ReloadProjectList = 
 		(
-			pth =  pathConfig.getCurrentProjectFolderPath() --"G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects" --pathConfig.removePathLeaf (pathConfig.getCurrentProjectFolderPath())
+			pth = "G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects" --pathConfig.removePathLeaf (pathConfig.getCurrentProjectFolderPath())
 				
-			--clean up Name 
-			str = substituteString pth "\\3ds Max 2023.mxp" "\\"
-			pth = str
-			
-			--print ("Path Location >> " + pth as string)
 			files = getFiles((pth as string + "\\*.mxp"))
 				
 			dir_array = GetDirectories (pth +"\\*")
@@ -474,9 +467,6 @@
 				join dir_array (GetDirectories (d+"\\*"))
 			)
 				
-			--updates list ui
-			ddl_proj.items = files
-				
 			newFiles = #()
 			cleanArr = #()
 				
@@ -484,19 +474,19 @@
 			for f in dir_array do
 			(
 				join newFiles (getFiles (f+ "\\*.mxp"))
-				--print ("newfiles " + newFiles as string	)
+					
 				for i in newFiles do 
 				(
 					str = getFilenamePath i
-					--print ("sub files >>> " + str as string )
 					appendIfUnique cleanArr str as string 
 				)
 					
-				files = cleanArr 
+				files = cleanArr
 					
 			)
 				
-
+			--updates list ui
+			ddl_proj.items = files					
 				
 		)
 			
@@ -627,10 +617,6 @@
 				else ( edt_dir_name.text = "...")
 			)
 			else (edt_dir_name.enabled = true )
-			
-			--update status 
-			UpdateToolsetStatus()	
-			
 		)
 			
 		on chk_sel_nam changed state do 
@@ -1043,9 +1029,6 @@
 					filein (mainFPFolder + "\FlowFunctions\FlowObjectAttributes.ms")
 					filein (mainFPFolder + "\FlowPanels_v8.ms")
 						
-					--reload tool 
-					--filein (getThisScriptFilename() as string)
-						
 					btn_clos.enabled = true
 				)
 				else
@@ -1205,11 +1188,7 @@
 			--Reload Projects List
 			ReloadProjectList()
 				
-			--print ("items are >> " + ddl_proj.items as string)
-			if  ddl_proj.items.count > 0 then 
-			(
-				ddl_proj.selected = ddl_proj.items[1]
-			)
+			ddl_proj.selected = ddl_proj.items[1]
 				
 			--get Project levels and filter types 
 			GetProjectLevels()
