@@ -803,26 +803,27 @@
 			button 		btn_sel_mtlb "Load Library"																									offset:[35,0]
 			button 		btn_sav_mtlb "Save Library"																									offset:[10,0]		
 			
-			listbox 	lst_crnt_mtlb "Current Loaded Library:"						height:2					across:3
+			listbox 	lst_crnt_mtlb "Current Loaded Library:"						height:2					across:3							offset:[-02, 00]
 			listbox 	lst_mtlb_mats "Library Materials:"							height:14
 			bitmap 		bmp_img "test"  											bitmap:(bitmap 128 128 color:gray)								offset:[01, 15]		
 			
 			
-			button 		btn_mat_sme   "Edit Material in SME"						width:138					across:4							offset:[-02,-160]
-			button 		btn_mat_opn   "Open Material in SME"						width:138														offset:[-103,-138]
-			button 		btn_mat_aply  "Apply Material to Selected"							width:138														offset:[-196,-116]
-			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[-10,-55]
+			button 		btn_mat_sme   "Edit Material in SME"						width:138					across:5							offset:[10,-160]
+			button 		btn_mat_opn   "Open Material in SME"						width:138														offset:[-70,-138]
+			button 		btn_mat_aply  "Apply Material to Selected"					width:138														offset:[-142,-116]
+			button 		btn_open_maps  "Open Map Locations"					width:138																offset:[-240,-94]
+			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[-22,-55]
 				
 			
 			edittext 	edt_mat_name "Material Name:" 								width:280														offset:[00,17]	
 			checkbox 	chk_ab_map "ab"												width:30					enabled:true		across:8		offset:[-5,00]				checked:true
 			checkbox 	chk_rg_map "rg"												width:30					enabled:false						offset:[-20,00]	
-			checkbox 	chk_nm_map "nm"												width:32					enabled:true						offset:[-35,00]	
-			checkbox 	chk_op_map "op"												width:30					enabled:true						offset:[-50,00]	
-			checkbox 	chk_mt_map "mt"												width:30					enabled:true						offset:[-65,00]	
-			checkbox 	chk_ao_map "ao"												width:30					enabled:true						offset:[-80,00]	
-			checkbox 	chk_hg_map "hg"												width:30					enabled:true						offset:[-95,00]	
-			checkbox 	chk_em_map "em"												width:32														offset:[-115,00]	
+			checkbox 	chk_nm_map "nm"												width:32					enabled:true						offset:[-35,00]				checked:true
+			checkbox 	chk_op_map "op"												width:30					enabled:false						offset:[-50,00]	
+			checkbox 	chk_mt_map "mt"												width:30					enabled:false						offset:[-65,00]	
+			checkbox 	chk_ao_map "ao"												width:30					enabled:false						offset:[-80,00]	
+			checkbox 	chk_hg_map "hg"												width:30					enabled:false						offset:[-95,00]	
+			checkbox 	chk_em_map "em"												width:32					enabled:false						offset:[-115,00]	
 			label 		lbl_space 	""												height:5
 		)
 			
@@ -1088,8 +1089,6 @@
 				
 			if lst_mtlb_mats.items.count > 0 then
 			(
-				--get selected Material
-				GetSelectedMaterial()
 					
 				--switch map preview
 				FilterMaterialMapsDisplay()
@@ -1099,6 +1098,10 @@
 				print "No Albedo Found"
 				bmp_img.bitmap = b
 			)
+			
+			--get selected Material
+			GetSelectedMaterial()
+			
 		)	
 			
 		on btn_sav_mtlb pressed do 
