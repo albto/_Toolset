@@ -786,13 +786,13 @@
 		
 		local selectedMat
 		
-		Group "MatLib Directory Helper:"
+		Group "MatLib Directory Helper: "
 		(
 			
 			button btn_crt_mtlb "Save"												width:70 	height:22		across:2 							--offset:[90,0]
 			button btn_open_mtlb "Open" 											width:70 	height:22											--offset:[22,0]
 		)
-		
+			
 		Group "MatLib Presets: "
 		(
 			edittext 	edt_mtlb_name "New Preset Name:"	 						width:260 	height:20 		across:2				
@@ -809,14 +809,14 @@
 			
 			button 		btn_mat_sme   "Edit Material in SME"													across:3							offset:[-20,0]
 			button 		btn_mat_opn   "Open Material in SME"																						offset:[-45,0]
-			radiobuttons rad_dbg_maps ""									columns:3		labels:#("alb", "rgh", "nml", "opa", "mtl")				offset:[-10,0]
+			radiobuttons rad_dbg_maps ""									columns:4		labels:#("ab", "rg", "nm", "op", "mt", "ao", "hg", "em")				offset:[05,0]
 				
 			
 			edittext 	edt_mat_name "Material Name:" 			
 			spinner 	spn_uv_ctrl "UVs Scaler"   range:[0, 1000, 100]
 		)
 			
-		Group "Material Toolkit:"
+		Group "Material Toolkit: "
 		(
 			checkbutton chk_mtlb_slnt "Open SME"									height:25 	across:3		checked:false   					offset:[-40,0]
 			button 		btn_comb_mats "Create Combined MultiMat"					height:25 														offset:[-70,0]
@@ -898,6 +898,49 @@
 			)
 			
 		)
+		
+		--checks if the selectMaterials maps exists and displays the preview 
+		fn GetMaterialMaps map = 
+		(
+			if (classof map) == MultiOutputChannelTexmapToTexmap then 
+			(
+				if map.sourcemap != undefined then 
+				(
+					print (map.sourcemap.filename + " is present")
+						
+					bmp_img.filename = map.sourcemap.filename
+						
+					a = (bitmap 128 128 color:gray)
+					copy bmp_img a
+						
+					bmp_img.filename = a.filename
+					
+					(superclassof map)
+				)
+				
+			)
+			else(
+				print "no _nm is present in material"
+				b = (bitmap 128 128 color:gray)
+				bmp_img.bitmap = b
+			)
+		)
+				
+		--switch the map displayed on the preview window 
+		fn FilterMaterialMapsDisplay =
+		(
+			case rad_dbg_maps.state of 
+			(
+				1: GetMaterialMaps ab; 
+				3: GetMaterialMaps nm
+				2: GetMaterialMaps mm
+				5: GetMaterialMaps mm
+				6: GetMaterialMaps mm
+				7: GetMaterialMaps mm
+				8: print "display emissive"				
+				--default: selectedMat = currentMaterialLibrary [item]
+			)
+		)			
 			
 		----------------------------------------------------------------------------------------------------------
 			
@@ -944,16 +987,19 @@
 				
 		)		
 			
+		--uv scalar tester 
 		on spn_uv_ctrl entered do 
 		(
 			spn_uv_ctrl.value = 100
 		)	
 			
+		--save library as - dialog
 		on btn_crt_mtlb pressed do 
 		(
 			FileSaveAsMatLib()
 		)
 			
+		--open library - dialog  
 		on btn_open_mtlb pressed do 
 		(
 			sme.close() 
@@ -962,6 +1008,7 @@
 			
 		)
 			
+		--create a combined multi-material 
 		on btn_comb_mats pressed do 
 		(
 			--create combined multi-mat
@@ -999,8 +1046,7 @@
 			)
 				
 		)
-				
-				
+			
 		--Load Selected Library from list 
 		on btn_sel_mtlb pressed do 
 		(
@@ -1008,8 +1054,8 @@
 			LoadSelectedLibraryFromList()
 			
 			b = (bitmap 128 128 color:gray)
-					print "No Albedo Found"
-					bmp_img.bitmap = b
+			print "No Albedo Found"
+			bmp_img.bitmap = b
 			
 		)	
 			
@@ -1028,40 +1074,27 @@
 			
 		)
 			
+		on rad_dbg_maps changed state do 
+		(
+			selectedMat = currentMaterialLibrary [lst_mtlb_mats.selection]
+				
+			ab = selectedMat.base_color_map
+			nm = selectedMat.norm_map 
+			
+			FilterMaterialMapsDisplay()
+		)
+			
 		--On materials list item selected 
 		on lst_mtlb_mats selected item do 
 		(
 			selectedMat = currentMaterialLibrary [item]
-			
-			if  selectedMat.base_color_map != undefined  then 
-			(
-				try
-				(				
-					if selectedMat.base_color_map.bitmap != undefined then 
-					(
-						bmp_img.filename = selectedMat.base_color_map.filename
-							
-						a = (bitmap 128 128 color:gray)
-						copy bmp_img a
-							
-						bmp_img.filename = a.filename
-						
-						print selectedMat
-					)	
-				)
-				catch
-				( 
-				)				
 				
-			)	
-			else
-			(
-				b = (bitmap 128 128 color:gray)
-				print "No Albedo Found"
-				bmp_img.bitmap = b
-			)			
-			
-			
+			ab = selectedMat.base_color_map
+			nm = selectedMat.norm_map 
+				
+			--switch map preview
+			FilterMaterialMapsDisplay()
+				
 		)
 			
 		--edit material parameters
@@ -1074,7 +1107,8 @@
 					sme.open()
 					sme.SetMtlInParamEditor selectedMat
 				)
-				else(
+				else
+				(
 					sme.SetMtlInParamEditor selectedMat
 				)
 			)
@@ -1091,7 +1125,7 @@
 				if not SME.isOpen() then 
 				(
 					sme.open()
-					nod = curView.CreateNode selectedMat [0,0]
+					curView.CreateNode selectedMat [0,0]
 						
 					n = curView.GetNodeByRef selectedMat 
 					n.selected = true 
