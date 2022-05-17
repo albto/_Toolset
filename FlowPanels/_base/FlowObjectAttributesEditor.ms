@@ -785,6 +785,7 @@
 	(
 		
 		local selectedMat
+		local mapArr = #("ab", "rg", "nm", "op", "mt", "ao", "hg", "em")
 		
 		Group "MatLib Directory Helper: "
 		(
@@ -802,26 +803,36 @@
 			button 		btn_sel_mtlb "Load Library"																									offset:[35,0]
 			button 		btn_sav_mtlb "Save Library"																									offset:[10,0]		
 			
-			listbox 	lst_crnt_mtlb "Current Loaded Library:"													across:3
-			listbox 	lst_mtlb_mats "Library Materials:"
+			listbox 	lst_crnt_mtlb "Current Loaded Library:"						height:2					across:3
+			listbox 	lst_mtlb_mats "Library Materials:"							height:14
 			bitmap 		bmp_img "test"  											bitmap:(bitmap 128 128 color:gray)								offset:[01, 15]		
 			
 			
-			button 		btn_mat_sme   "Edit Material in SME"													across:3							offset:[-20,0]
-			button 		btn_mat_opn   "Open Material in SME"																						offset:[-45,0]
-			radiobuttons rad_dbg_maps ""									columns:4		labels:#("ab", "rg", "nm", "op", "mt", "ao", "hg", "em")				offset:[05,0]
+			button 		btn_mat_sme   "Edit Material in SME"						width:138					across:4							offset:[-02,-160]
+			button 		btn_mat_opn   "Open Material in SME"						width:138														offset:[-103,-138]
+			button 		btn_mat_aply  "Apply Material to Selected"							width:138														offset:[-196,-116]
+			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[-10,-55]
 				
 			
-			edittext 	edt_mat_name "Material Name:" 			
-			spinner 	spn_uv_ctrl "UVs Scaler"   range:[0, 1000, 100]
+			edittext 	edt_mat_name "Material Name:" 								width:280														offset:[00,17]	
+			checkbox 	chk_ab_map "ab"												width:30					enabled:true		across:8		offset:[-5,00]				checked:true
+			checkbox 	chk_rg_map "rg"												width:30					enabled:false						offset:[-20,00]	
+			checkbox 	chk_nm_map "nm"												width:32					enabled:true						offset:[-35,00]	
+			checkbox 	chk_op_map "op"												width:30					enabled:true						offset:[-50,00]	
+			checkbox 	chk_mt_map "mt"												width:30					enabled:true						offset:[-65,00]	
+			checkbox 	chk_ao_map "ao"												width:30					enabled:true						offset:[-80,00]	
+			checkbox 	chk_hg_map "hg"												width:30					enabled:true						offset:[-95,00]	
+			checkbox 	chk_em_map "em"												width:32														offset:[-115,00]	
+			label 		lbl_space 	""												height:5
 		)
 			
 		Group "Material Toolkit: "
 		(
-			checkbutton chk_mtlb_slnt "Open SME"									height:25 	across:3		checked:false   					offset:[-40,0]
+			checkbutton chk_mtlb_slnt "Open SME"									height:25 					across:3		checked:false   	offset:[-40,0]
 			button 		btn_comb_mats "Create Combined MultiMat"					height:25 														offset:[-70,0]
 			button 		btn_apnd_mtl  "Add Selected Material to Current MatLib"		height:25														offset:[-30,0]
 			--timer 	tck_updt_mtlb ""		interval:100
+			spinner 	spn_uv_ctrl "UVs Scaler"   									width:280		           	range:[0, 1000, 100]				offset:[00,00]
 			
 		)
 		----------------------------------------------------------------------------------------------------------
@@ -902,6 +913,7 @@
 		--checks if the selectMaterials maps exists and displays the preview 
 		fn GetMaterialMaps map = 
 		(
+			
 			if (classof map) == MultiOutputChannelTexmapToTexmap then 
 			(
 				if map.sourcemap != undefined then 
@@ -942,7 +954,28 @@
 			)
 		)			
 			
+		fn GetSelectedMaterial = 
+		(
+			if lst_mtlb_mats.items.count > 0 then
+			(
+				selectedMat = currentMaterialLibrary [lst_mtlb_mats.selection]
+					
+				--get material name 
+				edt_mat_name.text = selectedMat.name 
+			)
+			else
+			(
+				--clear material name 
+				edt_mat_name.text = "" 
+			)
+		)
 		----------------------------------------------------------------------------------------------------------
+			
+		on edt_mat_name changed txt do 
+		(
+			
+		)
+			
 			
 		on edt_mtlb_name changed txt do 
 		(
@@ -1052,11 +1085,20 @@
 		(
 			--Load Library
 			LoadSelectedLibraryFromList()
-			
-			b = (bitmap 128 128 color:gray)
-			print "No Albedo Found"
-			bmp_img.bitmap = b
-			
+				
+			if lst_mtlb_mats.items.count > 0 then
+			(
+				--get selected Material
+				GetSelectedMaterial()
+					
+				--switch map preview
+				FilterMaterialMapsDisplay()
+			)	
+			else(								
+				b = (bitmap 128 128 color:gray)
+				print "No Albedo Found"
+				bmp_img.bitmap = b
+			)
 		)	
 			
 		on btn_sav_mtlb pressed do 
@@ -1076,7 +1118,8 @@
 			
 		on rad_dbg_maps changed state do 
 		(
-			selectedMat = currentMaterialLibrary [lst_mtlb_mats.selection]
+			--get selected Material
+			GetSelectedMaterial()
 				
 			ab = selectedMat.base_color_map
 			nm = selectedMat.norm_map 
@@ -1087,7 +1130,8 @@
 		--On materials list item selected 
 		on lst_mtlb_mats selected item do 
 		(
-			selectedMat = currentMaterialLibrary [item]
+			--get selected Material
+			GetSelectedMaterial()
 				
 			ab = selectedMat.base_color_map
 			nm = selectedMat.norm_map 
@@ -1146,8 +1190,8 @@
 				)
 			)
 		)
-		
 			
+		--add selected material to matlib
 		on btn_apnd_mtl pressed do 
 		(
 			sel = selection[1]		
@@ -1178,6 +1222,7 @@
 			
 		)
 			
+		--on dialog open 
 		on srl_materials open do 
 		(
 			--load Material Libraries
@@ -1228,10 +1273,22 @@
 			
 			selectedMat = currentMaterialLibrary [lst_mtlb_mats.selection]
 				
-			ab = selectedMat.base_color_map
-			nm = selectedMat.norm_map 
-			
-			FilterMaterialMapsDisplay()
+			if selectedMat != undefined then 
+			(
+				--get material name 
+				edt_mat_name.text = (selectedMat.name as string) 
+					
+				ab = selectedMat.base_color_map
+				nm = selectedMat.norm_map 
+				
+				FilterMaterialMapsDisplay()
+				
+				
+			)
+			else(
+				
+			)
+
 				
 		)
 			
