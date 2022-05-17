@@ -1225,6 +1225,13 @@
 			)
 				
 			lst_crnt_mtlb.items = arr
+			
+			selectedMat = currentMaterialLibrary [lst_mtlb_mats.selection]
+				
+			ab = selectedMat.base_color_map
+			nm = selectedMat.norm_map 
+			
+			FilterMaterialMapsDisplay()
 				
 		)
 			

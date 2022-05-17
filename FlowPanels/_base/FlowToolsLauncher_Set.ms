@@ -46,10 +46,8 @@
 	FP_DataLocation	= (mainFPFolder + "\FlowPanels\_base\FlowSaveData.ms")
 	FP_BaseLocation = (mainFPFolder + "\FlowPanels\_base\FlowToolsBase.ms")
 	FP_RCLocation 	= (mainFPFolder + "\FlowPanels\_base\FlowRCMenu.ms")
-	
-	
-	
-	
+		
+		
 	--Set Tool Image file
 	bitmapBannerFile = (imgfolder + "banner.jpg")
 		
@@ -85,7 +83,7 @@
 			(
 				menuItem itmDock "Install Object Attributes"
 				separator sp3
-				menuItem myItem3 "Install Custom UI presets"		
+				menuItem itmQuads "Install Custom UI presets"				
 			)
 				
 			separator sp4
@@ -129,6 +127,22 @@
 		(
 			filein (mainFPFolder + "\FlowFunctions\FlowObjectAttributes.ms")
 		)
+		
+		on itmQuads picked do 
+		(
+			try 
+			(
+				--load quad menus
+				menuMan.loadMenuFile  (mainFPFolder + "\\FlowPanels\\savedata\\ui\\MaxStartUI.mnux")
+					
+				--load hotkeys 
+				actionman.loadKeyboardFile (mainFPFolder + "\\FlowPanels\\savedata\\ui\keys.hsx")
+					
+				print "Successfully loaded Quad-Menus and Hotkeys!"
+			)
+			catch(print "custom ui preset files not found")
+		)
+		
 		
 	)
 
