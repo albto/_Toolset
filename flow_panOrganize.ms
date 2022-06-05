@@ -54,7 +54,7 @@
 		on btn_openCtrl pressed do 
 		(
 			
-			filein "scripts//_panels//_subPanels//panObjMan.ms"
+			filein "FlowPanels//_subPanels//panObjMan.ms"
 			
 		)
 			

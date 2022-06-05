@@ -19,6 +19,7 @@
 	----------------------------------------------------------------------------------------------------------------------------------
 		
 	----------------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------
 	-- Auto-Load Lauincher Data on Start-up
 		
 	--this is redundant 
@@ -37,7 +38,7 @@
 		--grab data
 		mainFPFolder = launcherData[1]
 	)
-	
+		
 	global FP_DataLocation 
 	global FP_BaseLocation 
 	global FP_RCLocation 
@@ -52,12 +53,23 @@
 	bitmapBannerFile = (imgfolder + "banner.jpg")
 		
 		
-		
-		
-		
-		
-		
-		
+	----------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------- // Tools Save Data
+	--Tools Save Data 
+		--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowSaveData.ms"
+		filein FP_DataLocation
+			
+			
+	----------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------- // Tool Settings
+	--Tool Settings 
+		--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowToolsBase.ms"
+		filein FP_BaseLocation		
+			
+			
+	----------------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------
+			
 	Try(cui.UnregisterDialogBar edt)catch()
 	try(destroydialog edt)catch()
 		
@@ -81,9 +93,28 @@
 				
 			submenu "Systems Setup"
 			(
-				menuItem itmDock "Install Object Attributes"
-				separator sp3
-				menuItem itmQuads "Install Custom UI presets"				
+				submenu "System Intallation"
+				(
+					menuItem itmErthng "Install Every Available System"	
+					separator sp14
+					menuItem itmDock "Install Object Attributes"
+					separator sp3
+					menuItem itmQuads "Install Custom UI presets"	
+					separator sp13
+					menuItem itmXmlGen "Install Xml Generator (required)"	
+				)
+				
+				submenu "System Removal"
+				(
+-- 					menuItem itmErthng "Install Every Available System"	
+-- 					separator sp14
+-- 					menuItem itmDock "Install Object Attributes"
+-- 					separator sp3
+-- 					menuItem itmQuads "Install Custom UI presets"	
+-- 					separator sp13
+-- 					menuItem itmXmlGen "Install Xml Generator"	
+				)
+				
 			)
 				
 			separator sp4
@@ -122,10 +153,64 @@
 		(
 			filein (getThisScriptFilename() as string)
 		)
+		
+		on itmErthng picked do 
+		(
+			currentMaxVersion = maxversion()		
+			
+			try 
+			(
+				source_file = (" \"C:\\Users\\albto\\Documents\\_Toolset\\FlowPanels\\_base\\XmlGenerator" + ".ms" + "\"")  
+				dest_folder = (" \"C:\\Program Files\\Autodesk\\3ds Max " + currentMaxVersion[8] as string +"\\scripts\\Startup\\XmlGenerator" + ".ms" + "\"") -- "%ProgramFiles%\Autodesk\scripts\startup\XMLGenerator.ms") 
+					
+				txt = ("copy" + " " + source_file + " " + dest_folder) as string 
+				f = (createFile (mainFPFolder + "\\FlowPanels\\_base\\Install_XmlGenerator.bat"))
+				format "%\n" txt to:f
+				format "pause\n" to:f
+					
+				close f
+					
+				bat = (mainFPFolder + "\\FlowPanels\\_base\\Install_XmlGenerator.bat")
+					
+				--run batch file
+				ShellLaunch bat ""
+			)
+			catch(print "Could not find 'Install_XmlGenerator.bat' file")	
+				
+				
+			try 
+			(
+				filein (mainFPFolder + "\FlowFunctions\FlowObjectAttributes.ms")
+				print "Successfully Installed Flow Attributes"
+			)
+			catch(print "ERROR: loading flow attributes script; file was not found")
+				
+				
+			try 
+			(
+				--load quad menus
+				menuMan.loadMenuFile  (mainFPFolder + "\\FlowPanels\\savedata\\ui\\MaxStartUI.mnux")
+					
+				--load hotkeys 
+				actionman.loadKeyboardFile (mainFPFolder + "\\FlowPanels\\savedata\\ui\keys.hsx")
+					
+				print "Successfully loaded Quad-Menus and Hotkeys!"
+			)
+			catch(print "ERROR: loading custom ui presets; files not found")
+				
+			
+			
+		)
+		
 			
 		on itmDock picked do 
 		(
-			filein (mainFPFolder + "\FlowFunctions\FlowObjectAttributes.ms")
+			try 
+			(
+				filein (mainFPFolder + "\FlowFunctions\FlowObjectAttributes.ms")
+				print "Successfully Installed Flow Attributes"
+			)
+			catch(print "ERROR: loading flow attributes script; file was not found")
 		)
 		
 		on itmQuads picked do 
@@ -143,7 +228,31 @@
 			catch(print "custom ui preset files not found")
 		)
 		
+		on itmXmlGen picked do 
+		(
+			currentMaxVersion = maxversion()		
+			
+			try 
+			(
+				source_file = (" \"C:\\Users\\albto\\Documents\\_Toolset\\FlowPanels\\_base\\XmlGenerator" + ".ms" + "\"")  
+				dest_folder = (" \"C:\\Program Files\\Autodesk\\3ds Max " + currentMaxVersion[8] as string +"\\scripts\\Startup\\XmlGenerator" + ".ms" + "\"") -- "%ProgramFiles%\Autodesk\scripts\startup\XMLGenerator.ms") 
+					
+				txt = ("copy" + " " + source_file + " " + dest_folder) as string 
+				f = (createFile (mainFPFolder + "\\FlowPanels\\_base\\Install_XmlGenerator.bat"))
+				format "%\n" txt to:f
+				format "pause\n" to:f
+					
+				close f
+					
+				bat = (mainFPFolder + "\\FlowPanels\\_base\\Install_XmlGenerator.bat")
+					
+				--run batch file
+				ShellLaunch bat ""
+			)
+			catch(print "Could not find 'Install_XmlGenerator.bat' file")			
+		)
 		
+
 	)
 
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -161,7 +270,9 @@
 		local clean_sfol_array = #()
 		local subsfol_array = #()
 		local refObjs = #()
-			
+		
+		local areatag = #("_Art", "_Design", "_Inst", "_Vehicle", "_Test")
+		
 		bitmap bitmapBannerUi 						width:335 height:64 fileName:bitmapBannerFile align:#center gamma:1.0
 			
 		Group "Status"
@@ -195,7 +306,7 @@
 			checkbutton chk_sel_nam "Auto-Name"			width:65					align:#left			across:3
 			edittext edt_dir_name ""					width:180 	height:20		align:#center
 			dropdownList ddl_area_suf ""				width:62					align:#right		items:#("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
-				
+			radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Isnt", "_Vehicle", "_Test")
 			button btn_crt_cat "New Category"		width:80	height:24 							across:4
 			button btn_crt_scn "New Level"			width:75	height:24	
 			button btn_crt_are "New Area"			width:75	height:24
@@ -204,14 +315,21 @@
 			
 		Group "Directory Viewer"
 		(		
-			dropdownList ddl_folder "Categories" 					across:2
+			dropdownList ddl_folder "Categories" 						across:2
 			dropdownList ddl_subfol "Levels" 			
-						
+			button btn_opn_cat "Open"			width:155	height:15	across:2	
+			button btn_opn_lvl "Open"			width:155	height:15
 			listbox lst_areas "Areas List"	
+			
+		)
+			
+		Group "Filter Viewer"
+		(
 			checkbutton chk_art "_Art" 			width:75	height:24	across:4
 			checkbutton chk_dsn "_Design"		width:75	height:24
 			checkbutton chk_inst "_Inst"		width:75	height:24
 			checkbutton chk_veh "_Vehicle"		width:75	height:24
+			
 		)
 			
 		Group "XRef Scenes"
@@ -280,7 +398,7 @@
 			--clean string to display as folder//category 
 			newArr[1] = "Show All"
 			
-
+			
 				
 			ddl_folder.items = newArr
 				
@@ -523,7 +641,7 @@
 			launcherData[intgr] = val
 		)	
 			
-		--update status 
+		--Update status 
 		fn UpdateToolsetStatus = 
 		(
 			if panFlowPan != undefined then 
@@ -553,7 +671,7 @@
 					lbl_title.text = "Welcome, " +( sysinfo.username as string) + "!"	
 						
 					--deactivate 'close' button 
-					
+	
 						
 				)
 			)
@@ -578,7 +696,8 @@
 -- 					btn_clos.enabled = false
 			)
 		)
-		
+			
+		--Update XRef lists 
 		fn UpdateXrefsList = 
 		(
 			--create array
@@ -612,6 +731,12 @@
 		----------------------------------------------------------------------------------------------------------------------------
 		----------------------------------------------------------------------------------------------------------------------------
 		
+		on rad_are_type changed state do 
+		(
+			print areatag[rad_are_type.state]
+		)
+			
+			
 		on tick_LauncherUpdate tick do 
 		(
 			--update status 
@@ -850,8 +975,6 @@
 		on btn_crt_are pressed do 
 		(
 				
-			area_tag = ""
-				
 			if chk_art.checked then
 			(
 				area_tag = "_Art"
@@ -860,18 +983,21 @@
 			if chk_dsn.checked then(
 				area_tag = "_Design"
 			)
+			else(
+				area_tag = ""
+			)
 				
--- 			if chk_sel_nam.checked then 
--- 			(
--- 				edt_dir_name.text
--- 			)
--- 			else 
--- 			( ) 
-			areaname = edt_dir_name.text + area_tag + ".max"			
+			areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + ddl_area_suf.items[ddl_area_suf.selection] as string + ".max") as string 
 				
-			loc =  (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + area_tag + "\\" + areaname as string)
+			loc =  (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + area_tag + "\\" + areaname as string) 
 				
-			saveNodes selection loc quiet:true
+			if selection.count > 0 then 
+			(
+				saveNodes selection[1] loc quiet:true
+			)
+			else (
+				print "Nothing is Selected"
+			)
 				
 			--Reload Projects List
 			ReloadProjectList()
@@ -969,7 +1095,6 @@
 				(
 					if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
 					(
-
 					)
 					else
 					(
@@ -1271,7 +1396,7 @@
 		
 	)
 
-	createDialog edt menu:LauncherSettingsMenu width:340 height:680 
+	createDialog edt menu:LauncherSettingsMenu width:340 height:750 
 	
 	cui.registerDialogBar edt style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true --bgColor:[rRed,bBlu,gGre] 
 

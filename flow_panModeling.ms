@@ -14,49 +14,60 @@
 -- 			filein "D:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_main_dialog\functions\object_props.ms" 
 -- 		)
 			
+			
 		-------------------------------------------------------------------------------------Utilities Group Controls
-		Group "Utilities"	
+		Group "Pivot Tools"	
 		( 
 				
-			Label	lbl_dash1_label "------------- Pivot Axis -------------"	align:#center 
+-- 			Label	lbl_dash1_label "------------- Pivot Axis -------------"	align:#center 
 				
 			checkbutton chkbtn_X  	"X"						width: 50	across:3
 			checkbutton chkbtn_Y	"Y"						width: 50
 			checkbutton chkbtn_Z	"Z"						width: 50	
-				
-			Label	lbl_dash2_label "------------- Pivot Tools -------------"	align:#center
+-- 			Label	lbl_dash2_label "------------- Pivot Tools -------------"	align:#center
 				
 			button btn_min_axis "Min"						width: 50	across:3
 			button btn_cen_axis "Cntr"						width: 50
 			button btn_max_axis "Max"						width: 50	
-			edittext edt_unt_amt "Increment Pivot:"			width:160		
-			button btn_unt_min 	"-"							width: 50	across:2	
-			button btn_unt_plus "+"							width: 50
+			edittext edt_unt_amt "Increment: "	 			width:160	offset:[0, 2]					across:3	
+			button btn_unt_min 	"-"							width: 20	offset:[68, 0]	
+			button btn_unt_plus "+"							width: 20	offset:[22, 0]
 			
-			Label	lbl_dash3_label "------------ Pivot Actions ------------"	align:#center
+-- 			Label	lbl_dash3_label "------------ Pivot Actions ------------"	align:#center
 				
-			button btn_piv_orig "Pivot to World Origin" 	width:165			tooltip: "Pivot to Origin"		
-			button btn_piv_cnt "Pivot to Center" 			width:165					tooltip: "Pivot to Center"	
-			button btn_piv_sel "Pivot to Vert Selection"	width:165	align:#center
-			pickbutton pb_ps 	"Grand Theft Pivot" 		width:165	align:#center
-				
-			Label	lbl_dash_label2 "----------- Modeling Tools -----------"	align:#center 
-				
-			button btn_snd2_orig "Send to Origin"			width: 80	across:2		tooltip: "Send to Center of World"
-			button btn_snd2_grid "Send to Grid"				width: 80					tooltip: "Send to Grid Space"
-			button btn_comObj "Combine"						width: 80	across:2		tooltip: "Insets and Collapses a Face" 
-			button btn_cull_tog "Culling" 					width: 80 					 
-			button btn_setFlow "Set Flow" 					width: 80 	across:2		tooltip: "Adjust Edge Flow of Selected Edges"  
-			button btn_weldVerts "Weld Verts"				width: 80					tooltip: "Welds all verts on a single mesh.\n Only works on verts that are on top of each other. Use this as clean up."
-			button btn_zerObj "Reset Object"					width: 80	across:2
-			button btn_quick_copy "Quick Copy" 				width: 80	
-			button btn_reset_trans "Reset Xform"			width: 80   across:2		 
-			button btn_qck_dtach "Detach"					width: 80	
+			button btn_piv_orig "To Origin" 				width:100					tooltip: "Pivot to World Origin"			across:2
+			button btn_piv_cnt "To Center" 					width:100					tooltip: "Pivot to Object Center"	
+			button btn_piv_sel "From Selection"				width:100	align:#center	tooltip: "Pivot to Sub-Object Selection"	across:2
+			pickbutton pb_ps 	"From Target" 				width:100	align:#center	tooltip: "Pivot to Object Center"	
+		)
+		
+		Group "Modeling Tools"
+		(
+			 
+			button btn_setFlow "Set Flow" 					width: 70 	across:2		tooltip: "Adjust Edge Flow of Selected Edges"  
+			button btn_weldVerts "Weld Verts"				width: 70					tooltip: "Welds all verts on a single mesh.\n Only works on verts that are on top of each other. Use this as clean up."					 
 			button btn_UVW_map "UVW Map"					width: 80	across:2
 			button btn_dubSmt "Double Smooth"				width: 80 					tooltip: "Insets and Collapses a Face" 
 			button btn_delLoop "Delete Loop" 				width: 80	across:2 		tooltip: "Cleanly Remove Edge Loop from Selected Edge"
-			button btn_texChk "Scale UVs" 						width: 80 							
+			button btn_texChk "Normalize UVs" 				width: 80 							
 				
+		)
+		
+		Group "Object Tools"
+		(
+			button btn_comObj "Combine"						width: 70	across:3		tooltip: "Insets and Collapses a Face" 
+			button btn_quick_copy "Quick Copy" 				width: 80	
+			button btn_qck_dtach "Detach"					width: 80	
+			button btn_reset_trans "Reset Xform"			width: 70   across:2
+			
+			button btn_cull_tog "Culling" 					width: 70 
+		)
+			
+		Group "Transform Tools"
+		(
+			button btn_snd2_orig "To Origin"				width: 70	across:3		tooltip: "Send to Center of World"
+			button btn_snd2_grid "To Grid"					width: 70					tooltip: "Send to Grid Space"
+			button btn_zerObj "Reset"						width: 70
 		)
 			
 		------------------------------------------------------------------------------------------------------------------------------------
@@ -497,5 +508,7 @@
 			(
 				if open do switchRolls panModeling
 			)
-			
+				
 		)
+		
+		

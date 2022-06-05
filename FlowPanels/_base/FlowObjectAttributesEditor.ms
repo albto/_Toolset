@@ -29,7 +29,9 @@
 		"ObjectAttributes","Preserve_Hierarchy","fileScale","Bake Xform Conversion","Use File Units","Sort Hierarchy","Keep Quads",
 		"SwapChannels","UseFileScale","Material Name","Material Search","ProcGenType","Category", "TagsList", "LayersList")
 		
-	colorDict = Dictionary #(#Characters, color 125 89 23) #(#Exteriors, color 61 135 6) #(#Interiors, color 135 59 8) #(#Lights, color 28 149 177) #(#Props, color 176 26 26) #(#Structures, color 148 177 27) #(#Terrain, color 225 88 199) #(#Vehicles, color 8 8 136)#(#VertexAnims, color 85 28 177)#(#Weapons, color 227 153 153)
+	colorDict = Dictionary #(#Characters, color 125 89 23) #(#Exteriors, color 61 135 6) #(#Interiors, color 135 59 8) #(#Lights, color 28 149 177) #(#Props, color 176 26 26) #(#Structures, color 148 177 27) #(#Terrain, color 225 88 199) #(#Vehicles, color 8 8 136)#(#VertexAnims, color 85 28 177)#(#Weapons, color 227 153 153)                      
+		
+		
 		
 		
 	LayersList = #()
@@ -172,10 +174,11 @@
 		)
 			
 		------------------------------------------------------------------------------------------------
+		--
 		fn ImportDataFromUnity = 
 		(
 			--load unity layers xml file
-			filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
+			filein (getDir #startupScripts + "\\XmlGenerator.ms")
 			flowIns = flowCore()
 			flowIns.LoadXml()
 				
@@ -185,8 +188,15 @@
 			--Load data 
 			LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
 			
+			
+			print ("Layers List - " + LayersList as string)
+			print ("Tags List - " + TagsList as string)
+			print ("Attributes List - " + AttrList as string)
+			
+			
 		)
 			
+
 		fn SelectObjectsBy objAttr objFilter = 
 		(	
 			for i in geometry do 
@@ -311,17 +321,29 @@
 			(
 				--load attributes from object
 				fps = execute (getUserPropVal i "Unity Attributes" asString:true) 
-				
-				
+					
+					
 				for o = 1 to fps.count-2 do
 				(
 					if o == 2 then --name layers
 					(
-						stats[o] = (gameData[o] as string + " = { " + (fps[30][fps[o]]) as string + " }") as string
+						if fps[30].count > 0 then 
+						(
+							stats[o] = (gameData[o] as string + " = { " + (fps[30][fps[o]]) as string + " }") as string
+						)
+						else(
+							stats[o] = "{ Error Loading Data }"
+						)
 					)
 					else if o == 3 then --name tags 
 					(
-						stats[o] = (gameData[o] as string + " = { " + (fps[29][fps[o]]) as string + " }") as string
+						if fps[29].count > 0 then 
+						(
+							stats[o] = (gameData[o] as string + " = { " + (fps[29][fps[o]]) as string + " }") as string
+						)
+						else(
+							stats[o] = "{ Error Loading Data }"
+						)
 					)
 					else if o == 4 then --name object types
 					(
@@ -332,6 +354,9 @@
 						stats[o] = (gameData[o] as string + " = { " + fps[o] as string + " }") as string
 					)
 				)
+				
+				print stats 
+				
 				--show attributes
 				lst_objAtt.items = stats
 				--selected name
@@ -375,14 +400,17 @@
 						
 					obs = execute (getUserPropVal selection[1] "Unity Attributes" asString:true)	
 						
-					edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
-					pck_wirClr.color = selection[1].wirecolor	
-						
-					if chk_test.checked then 
+					if obs.count != 0 then 
 					(
-						--show selected objects attributes
-						GetSelectedObjectAttribute()	
-					)			
+						edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
+						pck_wirClr.color = selection[1].wirecolor	
+							
+						if chk_test.checked then 
+						(
+							--show selected objects attributes
+							GetSelectedObjectAttribute()	
+						)			
+					)
 					else 
 					(
 						--clear list
@@ -460,17 +488,37 @@
 			for i in selection as array do 
 			(
 					
-				i.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_filObj.selection
+				i.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_iniTyp.selection
 					
 				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
 				
 				--changed setting
-				obs[4] = ddl_filObj.selection
+				obs[4] = ddl_iniTyp.selection
 					
 				--record settings	
 				setUserPropVal i "Unity Attributes" obs 
 					
 			)
+			
+			if selection.count >= 1 then
+			(
+					
+				--set object wirecolor 
+				selection[1].wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
+				pck_wirClr.color = selection[1].wirecolor
+					
+				--selected name
+				edt_name.text = (selection[1].name + " - Attributes")
+				edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
+					
+				--refresh list 
+				RefreshAttributeObjectsList()
+				--show selected objects attributes
+				GetSelectedObjectAttribute()				
+					
+			)
+			
+			
 		)
 			
 		--generate objects in scene 
@@ -534,7 +582,7 @@
 			RefreshAttributeObjectsList()
 				
 			--show selected objects attributes
--- 			GetSelectedObjectAttribute()
+ 			GetSelectedObjectAttribute()
 				
 		)
 			
@@ -765,9 +813,12 @@
 			
 		on srl_stats open do 
 		(
-			ImportDataFromUnity()
+			
 			try 
 			(
+				--import unity data
+				ImportDataFromUnity()
+				
 				--refresh list 
 				RefreshAttributeObjectsList()
 					
@@ -805,26 +856,28 @@
 			
 			listbox 	lst_crnt_mtlb "Current Loaded Library:"						height:2					across:3							offset:[-02, 00]
 			listbox 	lst_mtlb_mats "Library Materials:"							height:14
-			bitmap 		bmp_img "test"  											bitmap:(bitmap 128 128 color:gray)								offset:[01, 15]		
+			bitmap 		bmp_img "test"  																			offset:[01, 15]		
 			
 			
 			button 		btn_mat_sme   "Edit Material in SME"						width:138					across:5							offset:[10,-160]
 			button 		btn_mat_opn   "Open Material in SME"						width:138														offset:[-70,-138]
 			button 		btn_mat_aply  "Apply Material to Selected"					width:138														offset:[-142,-116]
-			button 		btn_open_maps  "Open Map Locations"					width:138																offset:[-240,-94]
-			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[-22,-55]
+			button 		btn_open_maps "Open Map Locations"							width:138														offset:[-240,-94]
+			button 		btn_add_fsel  "Add Material from Selected"							width:138												offset:[-308,-72]
+			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[145,-5]
 				
 			
-			edittext 	edt_mat_name "Material Name:" 								width:280														offset:[00,17]	
-			checkbox 	chk_ab_map "ab"												width:30					enabled:true		across:8		offset:[-5,00]				checked:true
-			checkbox 	chk_rg_map "rg"												width:30					enabled:false						offset:[-20,00]	
-			checkbox 	chk_nm_map "nm"												width:32					enabled:true						offset:[-35,00]				checked:true
-			checkbox 	chk_op_map "op"												width:30					enabled:false						offset:[-50,00]	
-			checkbox 	chk_mt_map "mt"												width:30					enabled:false						offset:[-65,00]	
-			checkbox 	chk_ao_map "ao"												width:30					enabled:false						offset:[-80,00]	
-			checkbox 	chk_hg_map "hg"												width:30					enabled:false						offset:[-95,00]	
-			checkbox 	chk_em_map "em"												width:32					enabled:false						offset:[-115,00]	
-			label 		lbl_space 	""												height:5
+			edittext 		edt_mat_name "Material Name:" 								width:280													offset:[00,17]	
+			checkbutton 	chk_ab_map "ab"												width:30							across:8				offset:[-15,00]				
+			checkbutton 	chk_rg_map "rg"												width:30													offset:[-35,00]	
+			checkbutton 	chk_nm_map "nm"												width:30													offset:[-55,00]				
+			checkbutton 	chk_op_map "op"												width:30													offset:[-75,00]	
+			checkbutton 	chk_mt_map "mt"												width:30													offset:[-95,00]	
+			checkbutton 	chk_ao_map "ao"												width:30													offset:[-115,00]	
+			checkbutton 	chk_hg_map "hg"												width:30													offset:[-135,00]	
+			checkbutton 	chk_em_map "em"												width:30													offset:[-155,00]	
+			checkbutton 	chk_bk_map "  "												width:30													offset:[57,-26]		enabled:false
+			label 			lbl_space 	""												height:5
 		)
 			
 		Group "Material Toolkit: "
@@ -844,6 +897,11 @@
 -- 			
 -- 			
 -- 		)
+		
+		
+		local mapCtrlArr = #(chk_ab_map, chk_rg_map, chk_nm_map, chk_op_map, chk_mt_map, chk_ao_map, chk_hg_map, chk_em_map)
+		
+		
 		
 		--Load Library Buttton - function 
 		fn LoadSelectedLibraryFromList = 
@@ -868,7 +926,7 @@
 					
 				lst = #()
 				lst_mtlb_mats.items = lst
-				print loadedLib.count
+				--print loadedLib.count
 				if loadedLib.count > 0 then 
 				(
 					for i = 1 to loadedLib.count do 
@@ -913,48 +971,54 @@
 		
 		--checks if the selectMaterials maps exists and displays the preview 
 		fn GetMaterialMaps map = 
-		(
+		( 
 			
+					
 			if (classof map) == MultiOutputChannelTexmapToTexmap then 
 			(
 				if map.sourcemap != undefined then 
 				(
-					print (map.sourcemap.filename + " is present")
+					strng = filenameFromPath (map.sourcemap.filename)
+						
+					--#PSEUDO
+					if (matchpattern strng pattern:"*_MaskMap*") or (matchpattern strng pattern:"*_mm*")then
+					(
+						--split channel 
+						print "Channel Belongs to _MaskMap"
+					)					
+					
+					print ("Texmap: " + filenameFromPath(map.sourcemap.filename) + " is present")
 						
 					bmp_img.filename = map.sourcemap.filename
 						
-					a = (bitmap 128 128 color:gray)
-					copy bmp_img a
+					p = (bitmap 128 128 color: (color 0 0 0 0))
+					copy bmp_img p
 						
-					bmp_img.filename = a.filename
-					
-					(superclassof map)
+					bmp_img.filename = p.filename
+						
 				)
-				
 			)
-			else(
-				print "no _nm is present in material"
-				b = (bitmap 128 128 color:gray)
-				bmp_img.bitmap = b
+			else
+			(
+				print ("no " + map as string + " is present")	
+				
+				bmp_img.filename = "C:\Users\albto\OneDrive\Documents\GitHub\_Toolset\FlowPanels\_base\error.png"
+				p = (bitmap 132	132 color:(color 0 0 0 0))
+				print p.hasAlpha 
+				print (getChannel p [0,0] #UVCoords)
+				copy bmp_img p
+					
+				if map == undefined then 
+				(
+					
+				)
+					
+				bmp_img.filename = p.filename
+				bmp_img
 			)
 		)
 				
-		--switch the map displayed on the preview window 
-		fn FilterMaterialMapsDisplay =
-		(
-			case rad_dbg_maps.state of 
-			(
-				1: GetMaterialMaps ab; 
-				3: GetMaterialMaps nm
-				2: GetMaterialMaps mm
-				5: GetMaterialMaps mm
-				6: GetMaterialMaps mm
-				7: GetMaterialMaps mm
-				8: print "display emissive"				
-				--default: selectedMat = currentMaterialLibrary [item]
-			)
-		)			
-			
+		--Gets the selected material 
 		fn GetSelectedMaterial = 
 		(
 			if lst_mtlb_mats.items.count > 0 then
@@ -970,8 +1034,81 @@
 				edt_mat_name.text = "" 
 			)
 		)
+						
+		--switch the map displayed on the preview window 
+		fn FilterMaterialMapsDisplay =
+		(
+			--get selected Material
+			GetSelectedMaterial()
+				
+			--grab maps from material
+			ab = selectedMat.base_color_map
+			rg = selectedMat.roughness_map
+			nm = selectedMat.norm_map 	
+			op = selectedMat.opacity_map
+			mt = selectedMat.metalness_map
+			ao = selectedMat.ao_map
+			hg = selectedMat.displacement_map
+			em = selectedMat.emit_color_map
+				
+			mapArr = #(ab, rg, nm, op, mt, ao, hg, em)
+				
+			--set map checkbutton status 
+			for i = 1 to mapArr.count do 
+			(
+				map1 = mapArr[i]
+				
+				if (classof map1) == MultiOutputChannelTexmapToTexmap then 
+				(
+					   
+					if map1.sourcemap != undefined then 
+					(
+						print (map1.outputChannelIndex) 
+						mapCtrlArr[i].enabled = true
+						mapCtrlArr[i].checked = true
+					)
+				)
+				else(mapCtrlArr[i].enabled = false; mapCtrlArr[i].checked = false)
+			)
+				
+				
+			case rad_dbg_maps.state of 
+			(
+				1: 	GetMaterialMaps ab 
+				2: 	GetMaterialMaps rg 
+				3: 	GetMaterialMaps nm
+				4: 	GetMaterialMaps op
+				5: 	GetMaterialMaps mt
+				6: 	GetMaterialMaps ao
+				7: 	GetMaterialMaps hg
+				8: 	GetMaterialMaps em
+				--default: selectedMat = currentMaterialLibrary [item]
+			)
+		)		
+		
+		
+		
+		
+		
+		
+		
+
+		
 		----------------------------------------------------------------------------------------------------------
 			
+		
+		on btn_mat_aply pressed do 
+		(
+			for i in (selection as array) do 
+			(
+				if selectedMat != undefined then 
+				(
+					i.mat = selectedMat
+				)
+			)
+			
+		)
+		
 		on edt_mat_name changed txt do 
 		(
 			
@@ -1089,7 +1226,12 @@
 				
 			if lst_mtlb_mats.items.count > 0 then
 			(
-					
+				--get selected Material
+				GetSelectedMaterial()
+				
+				ab = selectedMat.base_color_map
+				nm = selectedMat.norm_map 	
+				
 				--switch map preview
 				FilterMaterialMapsDisplay()
 			)	
@@ -1098,10 +1240,6 @@
 				print "No Albedo Found"
 				bmp_img.bitmap = b
 			)
-			
-			--get selected Material
-			GetSelectedMaterial()
-			
 		)	
 			
 		on btn_sav_mtlb pressed do 
@@ -1195,34 +1333,36 @@
 		)
 			
 		--add selected material to matlib
-		on btn_apnd_mtl pressed do 
+		on btn_add_fsel pressed do 
 		(
 			sel = selection[1]		
 				
-			lib = loadTempMaterialLibrary (lst_crnt_mtlb.items[1] as string)
-			
-			
-			objMats = #()
-			objMats = for i in sel where i.mat != undefined collect i.mat
-				
-			print ("matLib name > " + lib[1] as string)
--- 			
-			print ("selected mat name > " + objMats[1] as string)
--- 			
-			for i in selection do 
+			if sel != undefined then
 			(
-				--append material test 
-				append (lib) (objMats[1])
+				lib = loadTempMaterialLibrary (lst_crnt_mtlb.items[1] as string)
+				
+				
+				objMats = #()
+				objMats = for i in sel where i.mat != undefined collect i.mat
+					
+				print ("matLib name > " + lib[1] as string)
+					
+				print ("selected mat name > " + objMats[1] as string)
+					
+				for i in selection do 
+				(
+					--append material test 
+					append (lib) (objMats[1])
+				)
+				
+				saveTempMaterialLibrary lib (lst_crnt_mtlb.items[1] as string)
+				
+				--load Material Libraries
+				LoadCustomMLs()	
+				
+				--Load Library
+				LoadSelectedLibraryFromList()
 			)
-			
-			saveTempMaterialLibrary lib (lst_crnt_mtlb.items[1] as string)
-			
-			--load Material Libraries
-			LoadCustomMLs()	
-			
-			--Load Library
-			LoadSelectedLibraryFromList()
-			
 		)
 			
 		--on dialog open 

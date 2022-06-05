@@ -15,10 +15,6 @@
 		(
 			radiobuttons rbtn_plc_prv ""default:1 labels:#("Origin", "Selection") tooltip:"" columns:2 
 		)
-		group "Primitive Scale"
-		(
-			spinner c_PrimText "Primitive Scale" range:[0,999999999, PrimScale] 
-		)
 
 		group "Primitives:" 
 		(
@@ -35,7 +31,113 @@
 			
 		)
 			
+		group "Primitive Scale"
+		(
+			spinner c_PrimText "Size" range:[0,999999999, PrimScale] 
+		)
+		----------------------------------------------------------------------------------------------------------------
+		
+		Group "Shapes:"
+		(
+			button c_Spline "Spline"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,1,1,1,1 ) 		ToolTip: "Create Spline" 	across: 5
+			button c_Circle "Circle"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,2,2,1,1 ) 		ToolTip: "Create Circle"
+			button myBttn16 "Arc"  		width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,3,3,1,1 ) 		ToolTip: "Create Arc"
+			button myBttn17 "NGon"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,4,4,1,1 ) 		ToolTip: "Create NGon"
+			button myBttn18 "Text"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,5,5,1,1 ) 		ToolTip: "Create Text"
+			button myBttn19 "Rectangle" width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,7,7,1,1 ) 		ToolTip: "Create Rectangle" across:5
+			button myBttn20 "Ellipse"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,8,8,1,1 ) 		ToolTip: "Create Ellipse"
+			button myBttn21 "Donut"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,9,9,1,1 ) 		ToolTip: "Create Donut"
+			button myBttn22 "Star"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,10,10,1,1 ) 	ToolTip: "Create Star"
+			button myBttn23 "Helix"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,11,11,1,1 ) 	ToolTip: "Create Helix"
+				
+			
+		)
 	
+		---------------------------------------------------------------------------------------------------------------- HELPERS
+		
+		group "Helpers:" 
+		(
+				
+			button c_Point "Point" 							width:32 height: 32 align:#align_topcleft images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,2,2,1,1 ) ToolTip:"Create Point" across:5
+			button c_Grid "Active Grid" 					width:32 height: 32 align:#align_topleft  images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,4,4,1,1 ) ToolTip:"Create Grid Helper" 
+			button c_Container "Container" 					width:32 height: 32 align:#align_topleft  images:#("Containers_24i.bmp", "Containers_24i.bmp",17,2,2,1,1 ) ToolTip:"Create Container" 
+			button c_Dummy "Dummy"  						width:32 height: 32 align:#align_topleft  images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,1,1,1,1 ) ToolTip:"Create Dummy Helper" 
+			button c_TapeMeasure "Tape Measure"  			width:32 height: 32 align:#align_topleft  images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,5,5,1,1 ) ToolTip:"Create Dummy Helper" 
+			
+		)
+			
+		
+	-------------------------------------------------------------------------------------MaxScripts Group Controls
+			
+		local lauFileNam 
+		group "Launch MaxScripts" 
+			
+		(
+			editText lau_Scp_Pth "Script:" 
+				
+			DropDownList lau_scripts "" items:#()
+			button btn_scp_add "Add to List"			width:65		across:3
+			button btn_scp_edt "Edit List"				width:65	
+			button btn_scp_dlt "Delete List"			width:65	
+				
+			button btn_scp_lau "Launch Script"			width:100	height:30	across:2 --align:#center
+			button btn_scp_all "Launch All"		width:100   	height:30
+				
+		)	
+			
+			
+		-----------------------------------------------------------------------------------------------------------------------
+		--SAVE SCRIPTS LIST
+		-----------------------------------------------------------------------------------------------------------------------
+			
+		fn SaveLauScripts = 
+		(
+				
+			--write to file
+			ssLau = createFile (mainFPFolder + "\\FlowPanels\\savedata\\ScriptsLocations.fp")
+			
+			format "%\n" (with printAllElements on scptsData as string) to:ssLau
+			close ssLau
+				
+		)
+
+		fn setFileName item = 
+		(
+			--adds item value to Export Folder Location
+			str = ("#" + lau_scripts.items[item] as string)
+			str2 = GetDictValue scptsData (execute str)	
+			
+			--grab folder path and set as item in array
+			if str2 != undefined then
+			(
+				fldr = str2
+					
+				--tooltip 
+				lau_Scp_Pth.tooltip = fldr as string
+					
+				--grab folder path and set as item in array
+				lauFileNam = fldr
+			)
+		)
+			
+		fn LoadLauScripts = 
+		(
+			-- Scripts Launch Preset Locations on Start-up
+			if doesFileExist (mainFPFolder + "\\FlowPanels\\savedata\\ScriptsLocations.fp") then
+			(
+				print "LOAD DATA ATTEMPT"
+				
+				scpts = openfile (mainFPFolder + "\\FlowPanels\\savedata\\ScriptsLocations.fp") mode:"r"
+				scptsData = execute (readLine scpts)
+				close scpts
+			)
+			else
+				scptsData = Dictionary()
+				
+		)
+			
+			
+			
 		--Primitive Scale
 		on c_PrimText changed val do 
 		(			
@@ -215,24 +317,6 @@
 			)
 		)
 		
-	----------------------------------------------------------------------------------------------------------------
-		
-		Group "Shapes:"
-		(
-			button c_Spline "Spline"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,1,1,1,1 ) 		ToolTip: "Create Spline" 	across: 5
-			button c_Circle "Circle"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,2,2,1,1 ) 		ToolTip: "Create Circle"
-			button myBttn16 "Arc"  		width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,3,3,1,1 ) 		ToolTip: "Create Arc"
-			button myBttn17 "NGon"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,4,4,1,1 ) 		ToolTip: "Create NGon"
-			button myBttn18 "Text"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,5,5,1,1 ) 		ToolTip: "Create Text"
-			button myBttn19 "Rectangle" width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,7,7,1,1 ) 		ToolTip: "Create Rectangle" across:5
-			button myBttn20 "Ellipse"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,8,8,1,1 ) 		ToolTip: "Create Ellipse"
-			button myBttn21 "Donut"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,9,9,1,1 ) 		ToolTip: "Create Donut"
-			button myBttn22 "Star"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,10,10,1,1 ) 	ToolTip: "Create Star"
-			button myBttn23 "Helix"  	width:32 align:#align_topleft  	images:#("Splines_24i.bmp", "Splines_24i.bmp",11,11,11,1,1 ) 	ToolTip: "Create Helix"
-				
-			
-		)
-		
 		--Button Function - Create Spline
 		on c_Spline pressed do
 		(
@@ -302,19 +386,7 @@
 			
 		)
 		
-	---------------------------------------------------------------------------------------------------------------- HELPERS
-		
-		group "Helpers:" 
-		(
-				
-			button c_Point "Point" 							width:32 height: 32 align:#align_topcleft images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,2,2,1,1 ) ToolTip:"Create Point" across:5
-			button c_Grid "Active Grid" 					width:32 height: 32 align:#align_topleft  images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,4,4,1,1 ) ToolTip:"Create Grid Helper" 
-			button c_Container "Container" 					width:32 height: 32 align:#align_topleft  images:#("Containers_24i.bmp", "Containers_24i.bmp",17,2,2,1,1 ) ToolTip:"Create Container" 
-			button c_Dummy "Dummy"  						width:32 height: 32 align:#align_topleft  images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,1,1,1,1 ) ToolTip:"Create Dummy Helper" 
-			button c_TapeMeasure "Tape Measure"  			width:32 height: 32 align:#align_topleft  images:#("Helpers_24i.bmp", "Helpers_24i.bmp",6,5,5,1,1 ) ToolTip:"Create Dummy Helper" 
-			
-		)
-			
+
 		--Button Function - Create Point
 		on c_Point pressed do
 		(
@@ -371,61 +443,6 @@
 		)
 			
 		
-		
-	-------------------------------------------------------------------------------------MaxScripts Group Controls
-			
-		local lauFileNam 
-		group "Launch MaxScripts" 
-			
-		(
-			editText lau_Scp_Pth "Script:" 
-				
-			DropDownList lau_scripts "" items:#()
-			button btn_scp_add "Add to List"			width:65		across:3
-			button btn_scp_edt "Edit List"				width:65	
-			button btn_scp_dlt "Delete List"			width:65	
-				
-			button btn_scp_lau "Launch Script"			width:100	height:30	across:2 --align:#center
-			button btn_scp_all "Launch All"		width:100   	height:30
-				
-		)	
-
-					
-		-----------------------------------------------------------------------------------------------------------------------
-		--SAVE SCRIPTS LIST
-		-----------------------------------------------------------------------------------------------------------------------
-			
-		fn SaveLauScripts = 
-		(
-				
-			--write to file
-			ssLau = createFile ("G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\savedata\\ScriptsLocations.fp")
-			
-			format "%\n" (with printAllElements on scptsData as string) to:ssLau
-			close ssLau
-				
-		)
-
-		fn setFileName item = 
-		(
-			--adds item value to Export Folder Location
-			str = ("#" + lau_scripts.items[item] as string)
-			str2 = GetDictValue scptsData (execute str)	
-			
-			--grab folder path and set as item in array
-			if str2 != undefined then
-			(
-				fldr = str2
-					
-				--tooltip 
-				lau_Scp_Pth.tooltip = fldr as string
-					
-				--grab folder path and set as item in array
-				lauFileNam = fldr
-			)
-		)
-
-			
 		on lau_scripts selected i do
 		(
 				
@@ -523,6 +540,14 @@
 						--destroyDialog lauWndw
 						valNam.text = ""
 						entNam.text = ""
+							
+							
+						print "Added New Item to List!"
+							
+						--Save Settings 
+						SaveLauScripts()
+							
+						print "Data Saved"
 					)
 						
 				)
@@ -610,6 +635,19 @@
 		-----------------------------------------------------------------------------------------------------------------------
 		on panCreate rolledUp open do 
 		(
+			--------------------------------------------------------------------------------------------------------------------------------------
+			-- Scripts Launch Preset Locations on Start-up
+			if doesFileExist(mainFPFolder + "\\FlowPanels\\savedata\\ScriptsLocations.fp") then
+			(
+				scpts = openfile (mainFPFolder + "\\FlowPanels\\savedata\\ScriptsLocations.fp") mode:"r"
+				scptsData = execute (readLine scpts)
+				close scpts
+			)
+			else (
+				scptsData = Dictionary()
+			)
+				
+			--pass data 
 			lau_scripts.items = scptsData.keys
 				
 				

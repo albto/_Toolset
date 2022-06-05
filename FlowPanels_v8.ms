@@ -4,7 +4,7 @@
 
 
 --------------------------------------------------------------------------------------------------------------------------------------
---GLOBAL ACCESSIBLE 
+-- GLOBAL ACCESSIBLE 
 --------------------------------------------------------------------------------------------------------------------------------------
 ---	include "startup/FlowFunctions.ms"
 
@@ -16,40 +16,24 @@
 	global scripts = getDir #scripts 
 
 ----------------------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------- // Tools Save Data
---Tools Save Data 
-	--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowSaveData.ms"
-	filein FP_DataLocation
-
-
-----------------------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------- // Tool Settings
---Tool Settings 
-	--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowToolsBase.ms"
-	filein FP_BaseLocation
-
-----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------
 
 -- CALLBACKS - SUBSCRIPTIONS ---
 
 ----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------
-
---Remove any existing callbacks with this ID.
-callbacks.removeScripts id:#MXSHelp
---Add a new callback script which will call --callbacks.notificationParam() before selected nodes are deleted --and thus will print the deleted objects to the Listener:
-callbacks.addScript #nodeCreated " AutoLayer()" id:#MXSHelp
-
-
-
-
-
-
+		
+	--Remove any existing callbacks with this ID.
+	callbacks.removeScripts id:#MXSHelp
+		
+	--Add a new callback script which will call --callbacks.notificationParam() before selected nodes are deleted --and thus will print the deleted objects to the Listener:
+	callbacks.addScript #nodeCreated " AutoLayer()" id:#MXSHelp
+		
+		
 ----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------
 
---CALLBACK FUNCTIONS ---
+-- CALLBACK FUNCTIONS ---
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -83,7 +67,7 @@ fn UnSubscribe = callbacks.removeScripts id:#MXSHelp
 --------------------------------------------------------------------------------------------------------------------------------
 -- rcMenu ToolSettingsMenu - Flow Panels Menu
 --------------------------------------------------------------------------------------------------------------------------------
---Tools Options Menu
+-- Tools Options Menu
 	--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowRCMenu.ms"
 	filein FP_RCLocation
 ------------------------------------------------------------------------------------------------------------------------	
@@ -153,7 +137,7 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 	--------------------------------------------------------------------------------------------------------------------------------------
 	-- Modelling Panel Controls 
 		
-	Rollout panModeling "Modelling Panel"
+	Rollout panModeling "Modeling Panel"
 		
 	--------------------------------------------------------------------------------------------------------------------------------------
 	(
@@ -498,7 +482,7 @@ rollout panFlowPan ("Flow Panels Toolset - " + "Hi, " + useGlobalDotNam as strin
 ---------------------------------------------------------------------------------------------------------------- // CreateU
 
 
-createdialog panFlowPan   width:260 height:300 menu:ToolSettingsMenu pos:toolSetClosePos--height:(FPHeight.y) 
+createdialog panFlowPan   width:265 height:300 menu:ToolSettingsMenu pos:toolSetClosePos--height:(FPHeight.y) 
 
 -- subPanelsArray = newRolloutFloater "Floater" 280 200 300 450
 -- addRollout panFlowPan subPanelsArray

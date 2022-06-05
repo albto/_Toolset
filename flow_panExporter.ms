@@ -1587,9 +1587,10 @@
 		-- OPEN // CLOSED 
 		------------------------------------------------------------------------------------------------------------------------------
 			
+			
 		-- get saved data on start up
 		on panExporter rolledUp open do 
-		(
+		(		
 				
 			--populate list
 			thelist.items = saveddata.keys -- change this to saveddata
@@ -1676,9 +1677,12 @@
 				)
 			)
 				
+			
 			if use_autocollapse == true do 
 			(
 				--switches to this rollout
 				if open do switchrolls panexporter
-			)	
-		)		
+			)
+				
+		)	
+			

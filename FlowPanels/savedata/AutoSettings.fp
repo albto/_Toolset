@@ -1,1 +1,1 @@
-#(false, true, false, false, true, false, ".FBX", "msh", "D:/Projects/Project3D/Assets/Art/Geometry", true, 1, "D:/Projects/Project3D/Assets/Art/Geometry", #(), "", 1, 0.6, "#Meters", true, false, false, "D:/Projects/Project3D/Assets/Art/Geometry", true, true)
+#(false, true, false, false, true, false, ".FBX", "msh", "D:/Projects/Project3D/Assets/Art/Geometry", false, 1, "", #(), "", 1, 1.0, "", false, false, false, "D:/Projects/Project3D/Assets/Art/Geometry", false, true)

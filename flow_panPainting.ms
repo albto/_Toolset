@@ -15,35 +15,34 @@
 			
 		Group "Vertex Display: "
 		(
-			
 			button btn_sho_vert "Show Color" 					width:32 	Height:32 	images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,4,5,1,0) 	ToolTip: "Show Vertex Colors"	across:5 
 			button btn_sho_text "Show Texture" 					width:32 	Height:32 	images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,3,5,1,0) 	ToolTip: "Show Textures"
 			button btn_sho_uv1 "Show UV1" 						width:32 	Height:32 	images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,1,5,1,0) 	ToolTip: "Show UV_1"
 			button btn_sho_uv2 "Show UV2" 						width:32 	Height:32 	images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,1,5,1,0) 	ToolTip: "Show UV_2"
 			button btn_sho_tint "Show Tint" 					width:32 	Height:32 	images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,7,5,1,0) 	ToolTip: "Show Mesh Tint Colors"
-			
 		)
 		
 		Group "Vertex Painting: "
 		(
-			button btn_vert_pnt_clr "Vertex Paint - Color" 	width: 160 	Height:30
-			button btn_vert_pnt_uv "Vertex Paint - Uv1" 	width: 160 	Height:30
-			button btn_vert_pnt_tnt "Vertex Paint - Mesh Tint" 	width: 160 	Height:30
-			button btn_vert_pnt_id "Vertex Paint - Mesh IDs" 	width: 160 	Height:30
+			button btn_vert_pnt_clr "Color 1" 					width: 55 	Height:30	across:4
+			button btn_vert_pnt_tnt "Color 2" 					width: 55 	Height:30
+			button btn_vert_pnt_uv "UV1" 						width: 55 	Height:30
+			button btn_vert_pnt_id "Mesh IDs" 					width: 55 	Height:30	align:#right	offset:[-1,0]
 			
-			
+			dropdownList ddl_mode_state "Mode:" 				items:#("Normal", "", "")
+			colorpicker clr_paint_color "Color:"
 		)
 			
 		Group "Bake Vertex Paint: "
 		(
 			label lbl_brit "Brightness:"								align:#left		across:2
-			spinner exp_brit ""							width: 90 		align:#right	range:[0, 100, 50]
+			spinner exp_brit ""							width: 90 		align:#right	range:[0, 100, 50] 	type:#float
 			
 			label lbl_contr "Contrast:"									align:#left		across:2
-			spinner exp_contr ""						width: 90		align:#right	range:[0, 100, 50]
+			spinner exp_contr ""						width: 90		align:#right	range:[0, 100, 50.0] 	type:#float
 			
 			label lbl_val "Exposure:"									align:#left		across:2
-			spinner exp_val ""							width: 90		align:#right	range:[0, 5, 0]
+			spinner exp_val ""							width: 90		align:#right	range:[0, 5, 0]		type:#float
 			checkbox chk_glo_sub "  Global Subdivision Settings"
 			checkbox chk_inc_sky "  Include Skylight"
 				
@@ -57,35 +56,32 @@
 		on btn_vert_pnt_clr pressed do 
 		(
 			mdf = modpanel.getCurrentObject()
-			sel = $ 
-			
--- 			if (classof mdf) == VertexPaint then 
--- 			(
--- 				validmodifier $ VertexPaint 
--- 				
--- 				n =	$.modifiers[#VertexPaint] 
--- 				
--- 				--modPanel n
--- 				
--- 				--return false 
--- 			)
--- 			else 
+			sel = selection as array 
+				
+			for i in sel do 
 			(
-				addModifier $ (VertexPaint ())
 				
-				$.VertexPaint.mapChannel = 0
-				$.VertexPaint.layerIsolated = false
-				$.VertexPaint.surviveCondense = true
+				if i.modifiers[#VextexPaint] == "VextexPaint - Color" then
+				(
+					print "Yes!"
+				)
 				
-				ChannelInfo.NameChannel $ 3 1 "UV_1"
-				ChannelInfo.NameChannel $ 3 2 "UV_2"
-				ChannelInfo.NameChannel $ 3 3 "UV_Mesh_Tint"
+				
+				addModifier i (PaintLayerMod ())
+				
+				i.VertexPaint.mapChannel = 0
+				i.VertexPaint.layerIsolated = false
+				i.VertexPaint.surviveCondense = true
+				
+				ChannelInfo.NameChannel i 3 1 "UV_1"
+				ChannelInfo.NameChannel i 3 2 "UV_2"
+				ChannelInfo.NameChannel i 3 3 "UV_Mesh_Tint"
 					
-				$.VertexPaint.name = "VextexPaint - Color"
+				i.VertexPaint.name = "VextexPaint - Color"
 				
-				sel = $ 
+				sel = i 
 					
-				deselect $
+				deselect i
 				select sel
 					
 			)
@@ -241,23 +237,24 @@
 		(
 			LinExp = Linear_Exposure_Control()
 			SceneExposureControl.exposureControl = LinExp
-			LinExp.brightess = val
+			
+			LinExp.active = true
+			
+			SceneExposureControl.exposureControl.brightess = val
 		)
 		------------------------------------------------------------------------------------------------------------------------------	
 		on exp_contr changed val do 
 		(
 			LinExp = Linear_Exposure_Control()
 			SceneExposureControl.exposureControl = LinExp
-			LinExp.contrast = val
+			
+			LinExp.active = true
+			
+			SceneExposureControl.exposureControl.contrast = val
 		)
 		------------------------------------------------------------------------------------------------------------------------------		
 		on btn_bake_ao pressed do 
 		(
-			if $AmbientBake != undefined do 
-			(
-				select $AmbientBake
-				delete $AmbientBake
-			)
 				
 			obj = getCurrentSelection() 
 			 
@@ -271,10 +268,10 @@
 			LinExp = Linear_Exposure_Control()
 			SceneExposureControl.exposureControl = LinExp
 			LinExp.active = true
-				
-			LinExp.contrast = exp_contr.value
-			LinExp.brightess = exp_brit.value
-			LinExp.exposureValue = exp_val.value
+-- 				
+-- 			LinExp.contrast = exp_contr.value
+-- 			LinExp.brightess = exp_brit.value
+-- 			LinExp.exposureValue = exp_val.value
 				
 				
 			SceneRadiosity.showPanel() 
@@ -301,53 +298,30 @@
 		------------------------------------------------------------------------------------------------------------------------------	
 		on btn_app_bak pressed do 
 		(
-			local obj = getCurrentSelection()
-				
-			--AssignVertexColors.ApplyNodes $ vertexPaint:$.modifiers[#VertexPaint]
-			
-			if obj.count > 0 do 
+			mdf = modpanel.getCurrentObject()
+			if (classof mdf) != VertexPaint then
 			(
-				if $AmbientBake != undefined do 
-				(
-					select $AmbientBake
-					delete $AmbientBake
-				)
-					
-				Select obj
-					
-				LinExp = Linear_Exposure_Control()
-				SceneExposureControl.exposureControl = LinExp
-				LinExp.active = true
-					
-				LinExp.contrast = exp_contr.value
-				LinExp.brightess = exp_brit.value
-				LinExp.exposureValue = exp_val.value
-					
-				mdf = modpanel.getCurrentObject()
-				if (classof mdf) != VertexPaint then
-				(
 -- 					modPanel.addModToSelection (VertexPaint ()) ui:on
-					macros.run "Modifiers" "Vertex_Paint"
-					--modPanel.setCurrentObject $.modifiers[#VertexPaint]
-					$.modifiers[#VertexPaint].lightingModel = 0
-					$.modifiers[#VertexPaint].radiosityOption = 1
-					$.modifiers[#VertexPaint].mapchannel = 0
-					--$.modifiers[#VertexPaint].colorBy = 2
-					--$.modifiers[#VertexPaint].radiosityOnly = true
-					--rootScene[#Environment][#Advanced_Lighting].rmReuseDirectIllumination = on
-					for i in selection do
-					(						
-						AssignVertexColors.ApplyNodes i vertexPaint:i.modifiers[#VertexPaint]
-					)
-					$.showVertexColors = on
+				macros.run "Modifiers" "Vertex_Paint"
+				--modPanel.setCurrentObject $.modifiers[#VertexPaint]
+				$.modifiers[#VertexPaint].lightingModel = 0
+				$.modifiers[#VertexPaint].radiosityOption = 1
+				$.modifiers[#VertexPaint].mapchannel = 0
+				--$.modifiers[#VertexPaint].colorBy = 2
+				--$.modifiers[#VertexPaint].radiosityOnly = true
+				--rootScene[#Environment][#Advanced_Lighting].rmReuseDirectIllumination = on
+				for i in selection do
+				(						
+					AssignVertexColors.ApplyNodes i vertexPaint:i.modifiers[#VertexPaint]
 				)
-				else
-				(
-					AssignVertexColors.ApplyNodes $ vertexPaint:$.modifiers[#VertexPaint]
-				)
-				update $
-				Select $
+				$.showVertexColors = on
 			)
+			else
+			(
+				AssignVertexColors.ApplyNodes $ vertexPaint:$.modifiers[#VertexPaint]
+			)
+			update $
+			Select $
 		)
 			
 		on BtnSendToSubstancePainter pressed do

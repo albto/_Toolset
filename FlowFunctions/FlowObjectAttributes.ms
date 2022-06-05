@@ -7,10 +7,11 @@ macroScript IBGUnityAttributesAdd
 category:"FlowAttributes"
 toolTip:"Add Unity Attributes"
 (				
-	global flowCore 	
-	filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
+	global flowIns
+	filein (getdir #startupScripts + "\\XMLGenerator.ms")
 	--load unity layers xml file
 	flowIns = flowCore()
+	flowIns.LoadXml()	
 		
 	m = EmptyModifier()
 	m.name = "Unity Attributes"
@@ -28,7 +29,7 @@ toolTip:"Add Unity Attributes"
 
 	Global UnityAttributes = attributes gameData
 	(
-				
+			
 		parameters Param0 rollout:General
 		(
 			Preserve_Hierarchy 		type:#boolean ui:chk_preHier 
@@ -93,7 +94,7 @@ toolTip:"Add Unity Attributes"
 			-----------------------------------------------------------------------------------------------------------	
 				
 			--Save Settings -- 
-			dropdownList ddl_prst "Presets:"	items: ObjectTypes
+			dropdownList ddl_prst "Presets:"		items:ObjectTypes
 			button btn_save "Save"		width:40	height:20	align:#left	across:3
 			button btn_updt "Update"	width:50	height:20	align:#center
 			button btn_load "Load"		width:40	height:20	align:#right
@@ -231,7 +232,7 @@ toolTip:"Add Unity Attributes"
 			fn ImportDataFromUnity = 
 			(
 				--load unity layers xml file
-				filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
+				filein ((getdir #startupScripts) + "\\XMLGenerator.ms") as string 
 				flowIns = flowCore()
 				flowIns.LoadXml()
 					
@@ -313,7 +314,10 @@ toolTip:"Add Unity Attributes"
 				
 			fn LoadObjectSettings =
 			(
-				
+				--load data from unity xml
+				ImportDataFromUnity()
+					
+					
 				for i in selection as array do 
 				(
 					obs = execute (getUserPropVal i "Unity Attributes" asString:true)
@@ -352,8 +356,8 @@ toolTip:"Add Unity Attributes"
 					(
 						if obs[29].count > 0 then 
 						(
-							--print "Loading from Memory  - layers"
-							--print (obs[29] as string)
+							print "Loading from Memory  - layers"
+							print (obs[29] as string)
 							Layers = obs[29]
 							ddl_Lyrs.items = Layers
 						)
@@ -363,14 +367,12 @@ toolTip:"Add Unity Attributes"
 					(
 						if obs[30].count > 0 then 
 						(
-							--print "Loading from Memory - tags"
-							--print (obs[30] as string)							
+							print "Loading from Memory - tags"
+							print (obs[30] as string)							
 							GameTags = obs[30]
 							ddl_Tags.items = GameTags
 						)
-					)
-						
-					--ImportDataFromUnity()
+					)					
 						
 					--record settings	
 					setUserPropVal i "Unity Attributes" obs 
@@ -380,8 +382,10 @@ toolTip:"Add Unity Attributes"
 			)
 				
 			on General open do
-			(		
-
+			(			
+				--load data from unity xml 
+				ImportDataFromUnity()
+					
 				--Load Settings
 				try 
 				(	
@@ -390,7 +394,7 @@ toolTip:"Add Unity Attributes"
 				) 
 				catch
 				(  
-					--print "Brand New Object Detected - Applying Default Settings"
+					print "Brand New Object Detected - Applying Default Settings"
 					
 					chk_preHier.checked		= true
 					chk_IsPrefab.checked 	= false

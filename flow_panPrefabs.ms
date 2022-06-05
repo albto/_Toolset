@@ -131,7 +131,7 @@
 				)
 				else
 				(
-					macros.run "FlowAttributes" "IBGUnityAttributes"
+					macros.run "FlowAttributes" "IBGUnityAttributesAdd"
 				)
 					
 			)

@@ -109,7 +109,7 @@ global 	newExpEntry = false
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-global panFlowPan, panCreate, panModeling, panNormals, panPaint, panSubstance, panOrganize, panExporter, panImporter panViewport
+global panFlowPan, panCreate, panModeling, panNormals, panPaint, panSubstance, panOrganize, panExporter, panImporter, panViewport
 
 --------------------------------------------------------------------------------------------------------------------------------------
 -- Flow Panels Toggles
