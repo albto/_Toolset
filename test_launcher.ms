@@ -22,8 +22,6 @@ if doesFileExist(mainFPFolder + "\\FlowPanels\\savedata\\ScriptsLocations.fp") t
 else (
 	scptsData = Dictionary()
 )
-
-	
 	
 
 	global toolMiniLauncherPos = #([400, 200], [500, 200])
@@ -95,7 +93,7 @@ else (
 						include "flow_panModeling.ms"
 					)	
 						
-					CreateDialog panM width:260 height:490
+					CreateDialog panM width:250 height:490
 				)
 				(ddl_pan_lst.selection == 4):(
 					

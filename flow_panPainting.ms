@@ -22,15 +22,19 @@
 			button btn_sho_tint "Show Tint" 					width:32 	Height:32 	images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,7,5,1,0) 	ToolTip: "Show Mesh Tint Colors"
 		)
 		
-		Group "Vertex Painting: "
+		Group "Vertex Paint Layer Settings: "
 		(
-			button btn_vert_pnt_clr "Color 1" 					width: 55 	Height:30	across:4
-			button btn_vert_pnt_tnt "Color 2" 					width: 55 	Height:30
+			dropdownList ddl_mode_state "Mode:" 				across:3 items:#("Normal", "Overlay", "Screen", "Multiply", "Add", "Subtract", "Lighten", "Darken")
+			slider sld_opac_val "Opacity:"						width:125 	Height:20	range: [0, 100, 100]  type:#integer
+			edittext edt_opac_read ""							width:45 	Height:20	offset:[35,20]		text:(sld_opac_val.value as string)
+			
+			button btn_vert_pnt_clr "Color" 					width: 55 	Height:30	across:4
+			button btn_vert_pnt_tnt "Tint" 						width: 55 	Height:30
 			button btn_vert_pnt_uv "UV1" 						width: 55 	Height:30
 			button btn_vert_pnt_id "Mesh IDs" 					width: 55 	Height:30	align:#right	offset:[-1,0]
 			
-			dropdownList ddl_mode_state "Mode:" 				items:#("Normal", "", "")
-			colorpicker clr_paint_color "Color:"
+			colorpicker clr_paint_color ""						color:white across:2
+			button chk_clr_1 "Black"							images:#("VertexPaint_i.bmp", "VertexPaint_i.bmp",23,4,5,1,0) 	ToolTip: "Show Vertex Colors"	
 		)
 			
 		Group "Bake Vertex Paint: "
@@ -53,6 +57,12 @@
 			
 		------------------------------------------------------------------------------------------------------------------------------	
 			
+		on sld_opac_val changed val do 
+		(
+			edt_opac_read.text = val as string
+		)
+		
+		
 		on btn_vert_pnt_clr pressed do 
 		(
 			mdf = modpanel.getCurrentObject()

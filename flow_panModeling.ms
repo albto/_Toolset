@@ -21,45 +21,50 @@
 				
 -- 			Label	lbl_dash1_label "------------- Pivot Axis -------------"	align:#center 
 				
-			checkbutton chkbtn_X  	"X"						width: 50	across:3
-			checkbutton chkbtn_Y	"Y"						width: 50
-			checkbutton chkbtn_Z	"Z"						width: 50	
+			checkbutton chk_crd_spa "Local"					width: 55	across:4
+			checkbutton chk_X_axis  "X"						width: 55	offset:[0,0]
+			checkbutton chkbtn_Y	"Y"						width: 55
+			checkbutton chkbtn_Z	"Z"						width: 55	
 -- 			Label	lbl_dash2_label "------------- Pivot Tools -------------"	align:#center
 				
-			button btn_min_axis "Min"						width: 50	across:3
-			button btn_cen_axis "Cntr"						width: 50
-			button btn_max_axis "Max"						width: 50	
+			button btn_ngrd_axis "-Grid"					width: 35	across:6
+			button btn_pgrd_axis "Grid"						width: 35	offset:[-2, 0]
+			button btn_zer_axis "Zero"						width: 35	offset:[1, 0]
+			button btn_min_axis "Min"						width: 35
+			button btn_cen_axis "Cntr"						width: 35	offset:[2, 0]
+			button btn_max_axis "Max"						width: 35	offset:[2.5, 0]
 			edittext edt_unt_amt "Increment: "	 			width:160	offset:[0, 2]					across:3	
 			button btn_unt_min 	"-"							width: 20	offset:[68, 0]	
 			button btn_unt_plus "+"							width: 20	offset:[22, 0]
 			
 -- 			Label	lbl_dash3_label "------------ Pivot Actions ------------"	align:#center
 				
-			button btn_piv_orig "To Origin" 				width:100					tooltip: "Pivot to World Origin"			across:2
-			button btn_piv_cnt "To Center" 					width:100					tooltip: "Pivot to Object Center"	
-			button btn_piv_sel "From Selection"				width:100	align:#center	tooltip: "Pivot to Sub-Object Selection"	across:2
-			pickbutton pb_ps 	"From Target" 				width:100	align:#center	tooltip: "Pivot to Object Center"	
+			button btn_piv_orig "To Origin" 				width:90					tooltip: "Pivot to World Origin"			across:2
+			button btn_piv_cnt "To Center" 					width:90					tooltip: "Pivot to Object Center"	
+			button btn_piv_sel "From Selection"				width:90	align:#center	tooltip: "Pivot to Sub-Object Selection"	across:2
+			pickbutton pb_ps 	"From Target" 				width:90	align:#center	tooltip: "Pivot to Object Center"	
 		)
 		
 		Group "Modeling Tools"
 		(
 			 
-			button btn_setFlow "Set Flow" 					width: 70 	across:2		tooltip: "Adjust Edge Flow of Selected Edges"  
+			button btn_setFlow "Set Flow" 					width: 70 	across:3		tooltip: "Adjust Edge Flow of Selected Edges"  
+			button btn_delLoop "Delete Loop" 				width: 70					tooltip: "Cleanly Remove Edge Loop from Selected Edge"
 			button btn_weldVerts "Weld Verts"				width: 70					tooltip: "Welds all verts on a single mesh.\n Only works on verts that are on top of each other. Use this as clean up."					 
-			button btn_UVW_map "UVW Map"					width: 80	across:2
-			button btn_dubSmt "Double Smooth"				width: 80 					tooltip: "Insets and Collapses a Face" 
-			button btn_delLoop "Delete Loop" 				width: 80	across:2 		tooltip: "Cleanly Remove Edge Loop from Selected Edge"
-			button btn_texChk "Normalize UVs" 				width: 80 							
-				
 		)
-		
+		Group "Unwrap Tools"
+		(
+			button btn_UVW_map "UVW Map"					width: 70	across:3
+			button btn_texChk "Normalize" 					width: 70 			
+			button btn_Uv_Tls "UV Tools"					width: 70 			
+		)
 		Group "Object Tools"
 		(
 			button btn_comObj "Combine"						width: 70	across:3		tooltip: "Insets and Collapses a Face" 
-			button btn_quick_copy "Quick Copy" 				width: 80	
-			button btn_qck_dtach "Detach"					width: 80	
-			button btn_reset_trans "Reset Xform"			width: 70   across:2
-			
+			button btn_quick_copy "Quick Copy" 				width: 70	
+			button btn_qck_dtach "Detach"					width: 70	
+			button btn_reset_trans "Set Xform"				width: 70   across:3
+			button btn_dubSmt "Smoothing"					width: 70 					tooltip: "Insets and Collapses a Face" 
 			button btn_cull_tog "Culling" 					width: 70 
 		)
 			
@@ -74,19 +79,73 @@
 		-- PIVOT AXIS to MIN		
 		------------------------------------------------------------------------------------------------------------------------------------
 			
+		on btn_zer_axis pressed do 
+		(
+			undo on
+				
+			selObjs = selection
+				
+			case chk_X_axis.state of 
+			(
+				true: 
+					( 	
+						for i in selObjs do 
+						(		
+							if chk_crd_spa.checked then 
+							(
+								in coordsys #local i.pos = [0, i.pivot.y, i.pivot.z]
+							)
+							else(
+								i.pos = [0, i.pivot.y, i.pivot.z]
+							)
+						)
+					)
+			)
+			case chkbtn_Y.state of 
+			(
+				true: 
+					( 	
+						for i in selObjs do 
+						(		
+							i.pos = [i.pivot.x, 0, i.pivot.z]
+						)
+					)
+			)
+			case chkbtn_Z.state of 
+			(
+				true: 
+					( 	
+						for i in selObjs do 
+						(		
+							i.pos = [i.pivot.x, i.pivot.y, 0]
+						)
+					)
+			)
+		)
+			
+		------------------------------------------------------------------------------------------------------------------------------------
+		-- PIVOT AXIS to MIN		
+		------------------------------------------------------------------------------------------------------------------------------------
+			
 		on btn_min_axis pressed do
 		(
 			undo on
 				
 			selObjs = selection
 				
-			case chkbtn_X.state of 
+			case chk_X_axis.state of 
 			(
 				true: 
 					( 	
 						for i in selObjs do 
-						(		
-							i.pivot = [i.min.x, i.pivot.y, i.pivot.z]
+						(	
+							if chk_crd_spa.checked then 
+							(
+								in coordsys #local i.pivot.x = in coordsys #local i.min.x
+							)
+							else(
+								i.pivot = [i.min.x, i.pivot.y, i.pivot.z]
+							)
 						)
 					)
 			)
@@ -112,6 +171,160 @@
 			)
 				
 		)
+		--positive grid align
+		on btn_pgrd_axis pressed do
+		(
+			undo on
+				
+			selObjs = selection
+				
+			case chk_X_axis.state of 
+			(
+				true: 
+					( 	
+						increment = -getGridSpacing()
+							
+						-- grid align Objects 
+						for i in selection do 
+						(
+							print ("value = "+ (((floor (1.0*i.pos.x/increment+increment)*increment) as float*10)/10) as string )
+							
+							print ("pos = " + ((i.pos.x*10)/10) as string )
+							
+							if (((floor (1.0*i.pos.x/increment+increment)*increment) as float*10)/10) == ((i.pos.x*10)/10) then
+							(
+								print "all aligned"
+							)
+							else(
+								i.pos = [(floor (1.0*i.pos.x/increment)*increment) as float, i.pos.y, i.pos.z]
+							)
+						)
+
+					)
+			)
+			case chkbtn_Y.state of 
+			(
+				true: 
+					( 	
+						increment = -getGridSpacing()
+							
+						-- grid align Objects 
+						for i in selection do 
+						(
+							print ("value = "+ (((floor (1.0*i.pos.x/increment+increment)*increment) as float*10)/10) as string )
+							
+							print ("pos = " + ((i.pos.y*10)/10) as string )
+							
+							if (((floor (1.0*i.pos.y/increment+increment)*increment) as float*10)/10) == ((i.pos.y*10)/10) then
+							(
+								print "all aligned"
+							)
+							else(
+								i.pos = [i.pos.x, (floor (1.0*i.pos.y/increment)*increment) as float, i.pos.z]
+							)
+						)
+					)
+			)
+			case chkbtn_Z.state of 
+			(
+				true: 
+					( 	
+						increment = -getGridSpacing()
+							
+						-- grid align Objects 
+						for i in selection do 
+						(
+							print ("value = "+ (((floor (1.0*i.pos.z/increment+increment)*increment) as float*10)/10) as string )
+							
+							print ("pos = " + ((i.pos.z*10)/10) as string )
+							
+							if (((floor (1.0*i.pos.z/increment+increment)*increment) as float*10)/10) == ((i.pos.z*10)/10) then
+							(
+								print "all aligned"
+							)
+							else(
+								i.pos = [i.pos.x, i.pos.y, (floor (1.0*i.pos.z/increment)*increment) as float]
+							)
+						)
+					)
+			)
+				
+		)
+		--negative grid align
+		on btn_ngrd_axis pressed do
+		(
+			undo on
+				
+			selObjs = selection
+				
+			case chk_X_axis.state of 
+			(
+				true: 
+					( 	
+						increment = getGridSpacing()
+						--grid align Objects 
+						for i in selection do 
+						(
+							print ("value = "+ (((floor (1.0*i.pos.x/increment)*increment) as float*10)/10) as string )
+							
+							print ("pos x = " + ((i.pos.x*10)/10) as string )
+							
+							if (((floor (1.0*i.pos.x/increment)*increment) as float*10)/10) == ((i.pos.x*10)/10) then
+							(
+								print "all aligned"
+							)
+							else(
+								i.pos = [(floor (1.0*i.pos.x/increment)*increment) as float, i.pos.y, i.pos.z]
+							)
+						)
+					)
+			)
+			case chkbtn_Y.state of 
+			(
+				true: 
+					( 	
+						increment = getGridSpacing()
+						--grid align Objects 
+						for i in selection do 
+						(
+							print ("value = "+ (((floor (1.0*i.pos.y/increment)*increment) as float*10)/10) as string )
+							
+							print ("pos y  = " + ((i.pos.y*10)/10) as string )
+							
+							if (((floor (1.0*i.pos.y/increment)*increment) as float*10)/10) == ((i.pos.y*10)/10) then
+							(
+								print "all aligned"
+							)
+							else(
+								i.pos = [i.pos.x, (floor (1.0*i.pos.y/increment)*increment) as float, i.pos.z]
+							)
+						)
+					)
+			)
+			case chkbtn_Z.state of 
+			(
+				true: 
+					( 	
+						increment = getGridSpacing()
+						--grid align Objects 
+						for i in selection do 
+						(
+							print ("value = "+ (((floor (1.0*i.pos.y/increment)*increment) as float*10)/10) as string )
+							
+							print ("pos y  = " + ((i.pos.y*10)/10) as string )
+							
+							if (((floor (1.0*i.pos.z/increment)*increment) as float*10)/10) == ((i.pos.z*10)/10) then
+							(
+								print "all aligned"
+							)
+							else(
+								i.pos = [i.pos.x, i.pos.y, (floor (1.0*i.pos.z/increment)*increment) as float]
+							)
+						)
+					)
+			)
+				
+		)
 		------------------------------------------------------------------------------------------------------------------------------------
 		-- PIVOT AXIS to CENTER		
 		------------------------------------------------------------------------------------------------------------------------------------
@@ -122,7 +335,7 @@
 				
 			selObjs = selection
 				
-			case chkbtn_X.state of 
+			case chk_X_axis.state of 
 			(
 				true: 
 					( 	
@@ -164,7 +377,7 @@
 				
 			selObjs = selection
 				
-			case chkbtn_X.state of 
+			case chk_X_axis.state of 
 			(
 				true: 
 					( 	
@@ -206,7 +419,7 @@
 				
 			selObjs = selection
 				
-			case chkbtn_X.state of 
+			case chk_X_axis.state of 
 			(
 				true: 
 					( 	
@@ -248,7 +461,7 @@
 				
 			selObjs = selection
 				
-			case chkbtn_X.state of 
+			case chk_X_axis.state of 
 			(
 				true: 
 					( 	

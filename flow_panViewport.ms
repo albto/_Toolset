@@ -29,7 +29,38 @@
 		local viewFilterButtons = #(btn_filGeo,btn_filSha,btn_filLig,btn_filHel,btn_filBon)
 		local viewFilterBtnBaseImgs = #()
 		
+	--------------------------------------------------------------------------------------------------------------------------------	
+	--//////////////////////////////////////////////////////////////////////////////////// GRID SPACING SETTINGS
+	--------------------------------------------------------------------------------------------------------------------------------
+		local getGridSpa = getGridSpacing()
+		local unitTypeLabel = set_Unit_Type
+		local IsMeters = set_M_UT
+		local IsCM = set_CM_UT
+		local IsInches = set_INCH_UT
 		
+		group "Grid Dimensions:" 
+		(
+			label lbl_sep_grid ""		height: 5
+			Spinner set_spacing 		"Set Grid Spacing:" 	type:#float 	range: [0,1000,getGridSpa]  width:100 	height: 20 			align: #left
+			Spinner set_majorlines 		"Set Major Lines:  " 	type:#integer 	range: [0,1000,0]  			width:100 	height: 20 			align: #left
+			Spinner set_persviewextent 	"Set Grid Extent:  " 	type:#integer 	range: [0,1000,0]  			width:100 	height: 20			align: #left
+			label lbl_02 				"Preset Spacing:" 		across: 2
+			dropdownlist scale_dd 		"" 						items:#("   10" + unitTypeLabel as string, "   8" + unitTypeLabel as string, "   6" + unitTypeLabel as string,  "   4" + unitTypeLabel as string,
+				"   2" + unitTypeLabel as string,"   1" + unitTypeLabel as string, "   1/2" + unitTypeLabel as string, "   1/4" + unitTypeLabel as string, "   1/8" + unitTypeLabel as string) width: 80 align: #center
+			
+		)
+			
+	--------------------------------------------------------------------------------------------------------------------------------	
+	--//////////////////////////////////////////////////////////////////////////////////// GRID DISPLAY SETTINGS
+	--------------------------------------------------------------------------------------------------------------------------------	
+		Group "Grid Display"
+		(
+				
+			checkbox grid_on "Grid Toggle" across: 2
+			dropdownlist grid_active "Pick Grid Type:" items:#("Actvie Grid","Home Grid") 
+				
+		)
+			
 	--------------------------------------------------------------------------------------------------------------------------------FILTERS 
 		
 		fn setViewFilterButtonStates = 
@@ -190,17 +221,7 @@
 			actionMan.executeAction -844228238 "0"  -- Viewport Lighting and Shadows: Viewport Shadows Ambient Occlusion Toggle
 		)
 			
-	--------------------------------------------------------------------------------------------------------------------------------	
-	--//////////////////////////////////////////////////////////////////////////////////// GRID DISPLAY SETTINGS
-	--------------------------------------------------------------------------------------------------------------------------------	
-		Group "Grid Display"
-		(
-				
-			checkbox grid_on "Grid Toggle" across: 2
-			dropdownlist grid_active "Pick Grid Type:" items:#("Actvie Grid","Home Grid") 
-				
-		)
-		
+			
 		on grid_on changed state do 
 		(
 			max grid toggle
@@ -218,26 +239,6 @@
 			)
 		)
 			
-	--------------------------------------------------------------------------------------------------------------------------------	
-	--//////////////////////////////////////////////////////////////////////////////////// GRID SPACING SETTINGS
-	--------------------------------------------------------------------------------------------------------------------------------
-		local getGridSpa = getGridSpacing()
-		local unitTypeLabel = set_Unit_Type
-		local IsMeters = set_M_UT
-		local IsCM = set_CM_UT
-		local IsInches = set_INCH_UT
-		
-		group "Grid Dimensions:" 
-		(
-			label lbl_sep_grid ""		height: 5
-			Spinner set_spacing 		"Set Grid Spacing:" 	type:#float 	range: [0,1000,getGridSpa]  width:100 	height: 20 			align: #left
-			Spinner set_majorlines 		"Set Major Lines:  " 	type:#integer 	range: [0,1000,0]  			width:100 	height: 20 			align: #left
-			Spinner set_persviewextent 	"Set Grid Extent:  " 	type:#integer 	range: [0,1000,0]  			width:100 	height: 20			align: #left
-			label lbl_02 				"Preset Spacing:" 		across: 2
-			dropdownlist scale_dd 		"" 						items:#("   10" + unitTypeLabel as string, "   8" + unitTypeLabel as string, "   6" + unitTypeLabel as string,  "   4" + unitTypeLabel as string,
-				"   2" + unitTypeLabel as string,"   1" + unitTypeLabel as string, "   1/2" + unitTypeLabel as string, "   1/4" + unitTypeLabel as string, "   1/8" + unitTypeLabel as string) width: 80 align: #center
-			
-		)
 		--------------------------------------------------------------------------------------------
 			
 		timer getViewportTimer "" interval:100
