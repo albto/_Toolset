@@ -24,6 +24,8 @@
 	"Lights", "Props", "Structures", "Terrain", 
 	"Vehicles", "VertexAnims", "Weapons" )		
 		
+	ObjectAttributes = #()
+		
 	gameData = #("Is Prefab", "Tags","Layer","Object Type","Mesh Compression","Generate Colliders","Generate Lightmaps","Import Animation",
 		"Import BlendShapes","Import Cameras","Import_Lights","Import Visibility","NormalsImport","Material Creation Mode","Material Location",
 		"ObjectAttributes","Preserve_Hierarchy","fileScale","Bake Xform Conversion","Use File Units","Sort Hierarchy","Keep Quads",
@@ -81,10 +83,12 @@
 			dropdownList ddl_iniTyp "type"							height:30	items:ObjectTypes
 			dropdownList ddl_iniAtt "attribute"						height:30						
 			dropdownList ddl_iniTag "tag"							height:30	items:TagsList
+				
 			button chk_cnLay "Convert-Layer"						width:105	height:25		align:#left 	across:4
 			button chk_cnvrt "Convert-Type"							width:105	height:25		align:#center 	
 			button chk_cnAtt "Convert-Attribute"					width:105	height:25		align:#right 	
 			button chk_cnTag "Convert-Tag"							width:105	height:25		align:#right 	
+				
 			checkbutton chk_onNew "Init w/ Settings"				width:105	height:24		align:#left 		checked:true	across:3
 			checkbutton chk_lowt "Init and Prep"					width:105	height:24		align:#left 		checked:true
 			checkbutton chk_flpr "EMPTY BUTTON"						width:105	height:24		align:#right
@@ -189,9 +193,9 @@
 			LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
 			
 			
-			print ("Layers List - " + LayersList as string)
-			print ("Tags List - " + TagsList as string)
-			print ("Attributes List - " + AttrList as string)
+			--print ("Layers List - " + LayersList as string)
+			--print ("Tags List - " + TagsList as string)
+			--print ("Attributes List - " + AttrList as string)
 			
 			
 		)
@@ -491,7 +495,7 @@
 				i.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_iniTyp.selection
 					
 				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
-				
+				print obs
 				--changed setting
 				obs[4] = ddl_iniTyp.selection
 					
@@ -510,6 +514,107 @@
 				--selected name
 				edt_name.text = (selection[1].name + " - Attributes")
 				edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
+					
+				--refresh list 
+				RefreshAttributeObjectsList()
+				--show selected objects attributes
+				GetSelectedObjectAttribute()				
+					
+			)
+			
+			
+		)
+			
+		--convert to attribute button 
+		on chk_cnAtt pressed do 
+		(
+			--fps = #()
+			obs = #() 
+				
+			for i in selection as array do 
+			(
+					
+				i.modifiers[#Unity_Attributes].gameData.ObjectAttributes = ddl_iniAtt.selection
+					
+				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
+				
+				--changed setting
+				obs[16] = ddl_filAtt.selection
+					
+				--record settings	
+				setUserPropVal i "Unity Attributes" obs 
+					
+			)
+			
+			if selection.count >= 1 then
+			(					
+				--refresh list 
+				RefreshAttributeObjectsList()
+				--show selected objects attributes
+				GetSelectedObjectAttribute()				
+					
+			)
+			
+			
+		)
+			
+		--convert to layer button 
+		on chk_cnLay pressed do 
+		(
+			--fps = #()
+			obs = #() 
+				
+			for i in selection as array do 
+			(
+					
+				i.modifiers[#Unity_Attributes].gameData.GameLayers = ddl_iniLay.selection
+					
+				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
+				
+				--changed setting
+				obs[3] = ddl_iniLay.selection
+					
+				--record settings	
+				setUserPropVal i "Unity Attributes" obs 
+					
+			)
+			
+			if selection.count >= 1 then
+			(
+					
+				--refresh list 
+				RefreshAttributeObjectsList()
+				--show selected objects attributes
+				GetSelectedObjectAttribute()				
+					
+			)
+			
+			
+		)
+			
+		--convert to Tag button 
+		on chk_cnTag pressed do 
+		(
+			--fps = #()
+			obs = #() 
+				
+			for i in selection as array do 
+			(
+					
+				i.modifiers[#Unity_Attributes].gameData.Tags = ddl_iniTag.selection
+					
+				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
+				
+				--changed setting
+				obs[2] = ddl_iniTag.selection
+					
+				--record settings	
+				setUserPropVal i "Unity Attributes" obs 
+					
+			)
+			
+			if selection.count >= 1 then
+			(
 					
 				--refresh list 
 				RefreshAttributeObjectsList()

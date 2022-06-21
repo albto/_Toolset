@@ -17,7 +17,7 @@
 			button btn_fov75 "75" 				width:40
 			button btn_fov85 "85" 				width:40
 			button btn_fov95 "95" 				width:40
-			spinner fov " Set Field of View: " 		width:128  	range:[25,200,viewport.GetFOV()] type:#integer align:#left
+			spinner fov " Set Field of View: " 	width:128  	range:[25,200,viewport.GetFOV()] type:#integer align:#left
 			button btn_vie_real "Realistic" 	width:50 	across: 3
 			button btn_vie_sha "Shaded" 		width:50
 			checkbutton btn_vie_edg "Wires"  	width:50

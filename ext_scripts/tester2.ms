@@ -42,3 +42,15 @@ for i in selection do
 		i.pos = [(floor (1.0*i.pos.x/increment+increment)*increment) as float, (floor (1.0*i.pos.y/increment+increment)*increment) as float, (floor (1.0*i.pos.z/increment+increment)*increment) as float]
 	)
 )
+
+
+--visualize open dialogs 
+list = UIAccessor.GetPopupDialogs() 
+openDialogs = #()
+for i = 1 to list.count do 
+(
+	--UIAccessor.CloseDialog i
+	openDialogs[i] = UIAccessor.GetWindowText list[i]
+)
+
+print openDialogs

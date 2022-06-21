@@ -27,10 +27,7 @@
 			checkbutton chkbtn_Z	"Z"						width: 55	
 -- 			Label	lbl_dash2_label "------------- Pivot Tools -------------"	align:#center
 				
-			button btn_ngrd_axis "-Grid"					width: 35	across:6
-			button btn_pgrd_axis "Grid"						width: 35	offset:[-2, 0]
-			button btn_zer_axis "Zero"						width: 35	offset:[1, 0]
-			button btn_min_axis "Min"						width: 35
+			button btn_min_axis "Min"						width: 35	across:3
 			button btn_cen_axis "Cntr"						width: 35	offset:[2, 0]
 			button btn_max_axis "Max"						width: 35	offset:[2.5, 0]
 			edittext edt_unt_amt "Increment: "	 			width:160	offset:[0, 2]					across:3	
@@ -71,8 +68,11 @@
 		Group "Transform Tools"
 		(
 			button btn_snd2_orig "To Origin"				width: 70	across:3		tooltip: "Send to Center of World"
-			button btn_snd2_grid "To Grid"					width: 70					tooltip: "Send to Grid Space"
+			button btn_snd2_grid "To Floor"					width: 70					tooltip: "Send to Grid Space"
 			button btn_zerObj "Reset"						width: 70
+			button btn_ngrd_axis "-Grid"					width: 70	across:3
+			button btn_pgrd_axis "Grid"						width: 70	offset:[-2, 0]
+			button btn_zer_axis "Zero"						width: 70	offset:[1, 0]
 		)
 			
 		------------------------------------------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@
 						(		
 							if chk_crd_spa.checked then 
 							(
-								in coordsys #local i.pos = [0, i.pivot.y, i.pivot.z]
+								in coordsys local i.pos = [0, i.pivot.y, i.pivot.z]
 							)
 							else(
 								i.pos = [0, i.pivot.y, i.pivot.z]
@@ -141,7 +141,7 @@
 						(	
 							if chk_crd_spa.checked then 
 							(
-								in coordsys #local i.pivot.x = in coordsys #local i.min.x
+								in coordsys local i.pivot.x = i.min.x
 							)
 							else(
 								i.pivot = [i.min.x, i.pivot.y, i.pivot.z]

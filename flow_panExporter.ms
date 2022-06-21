@@ -24,46 +24,41 @@
 		local   offSwitch 	= false
 		local 	bypassNam 	= set_bypass_nam
 			
-		
 			
 	------------------------------------------------------------------------------------------------------------------------------------- EXPORT LOCATION
 			
 		Group "Export Location:"
 		(
-			edittext disp_fldr_nam ""					labelOnTop: true		height:20 		width: 170		align:#left				tooltip:""							fieldWidth:160 across:2  
-			button btn_add_itm "+" 												width:18 		height:20 		align:#right 			tooltip:"add item to Presets"              
-			button btn_exp_show_path "Show in Explorer"							width:100		height:20								tooltip:"Show in Explorer"						across:2
-			button btn_exp_edt_path	"Edit Folder Path"							width:90		height:20		align:#right			tooltip:"Edit the Folder Path Manually" 							
-			button btn_cop_clip_path "Copy"										width:63		height:20		align:#left				tooltip:"Copy from Clipboard"					across:2	
-			button btn_exp_clip_path "Paste From Clipboard"						width:125		height:20		align:#right			tooltip:"Paste from Clipboard"
-			button btn_fold_path "Set Export Location"							width:190		height:20								tooltip:"Manually"
+			edittext disp_fldr_nam ""					labelOnTop: true		width:175		height:20 								tooltip:""						fieldWidth:160 	 across:2
+			button btn_add_itm "Save" 											width:42 		height:20		offset:[35,0]			tooltip:"add item to Presets"              		
+			button btn_fold_path "Set"											width:42		height:20								tooltip:"Set Export Location"					across:5
+			button btn_exp_show_path "Show"										width:42		height:20								tooltip:"Show in Explorer"						
+			button btn_exp_edt_path	"Edit"										width:42		height:20								tooltip:"Edit the Folder Path Manually" 							
+			button btn_cop_clip_path "Copy"										width:42		height:20								tooltip:"Copy from Clipboard"					
+			button btn_exp_clip_path "Paste"									width:42		height:20		offset:[2,0]			tooltip:"Paste from Clipboard"
 		)
+				
+	------------------------------------------------------------------------------------------------------------------------------------- EXPORT NAMING		
 			
 		Group "Export Name:"
 		(
-			edittext preNam   "Prefix:"										labelOnTop:false			align:#left 	width:100	height:20	across:1  fieldWidth: 5
-			edittext multiNam "Name:"										labelOnTop:false			align:#left 	width:190	height:20   across:1
-				
-			checkbox btn_use_objNam "Use Selection Name"					width:114		checked:use_ObjNam				align:#left		Tooltip:"Toggle On, to Use Selection's name as 'Object Name'" across:2 	
-			checkbox btn_renam_on "Rename Obj"								width:75		checked:renamObjs				align:#right	Tooltip:"Toggle On, to allow Renaming of Objects" 	
-				
-			edittext verNam   "Suffix:"										labelOnTop:false			align:#left 	width:100	height:20
-			radioButtons radSufVal "Suffix Type:"							Labels:#("Letters","Numbers", "None")	align:#left  columns:3
-			spinner btn_incr_vr "Use to Increment Suffix Value" 			type:#integer	align:#right	width: 30 	height:18	range:[-9999, 9999, 1]	tooltip:"increment suffix letter"
+			edittext preNam   ""											labelOnTop:false	width:40	height:20	fieldWidth:5	offset:[-4,0]	across:3
+			edittext multiNam ""											labelOnTop:true		width:150	height:20   				offset:[-35,0]
+			edittext verNam   ""											labelOnTop:false	width:38	height:20					offset:[40,0]
+			radioButtons radSufVal ""										Labels:#("Letters","Numbers", "None")	columns:3
+			spinner btn_incr_vr "" 			type:#integer		width:30 	height:18	range:[-9999, 9999, 1]	tooltip:"increment suffix letter"
 				
 		)
 			
 	------------------------------------------------------------------------------------------------------------------------------------- PROPERTIES
 			
 		Group "Export Options:"
-		(				
-			checkBox btn_bypass_nam "Bypass Prefix/Suffix Naming" 			align:#left		--checked: bypassNam				Tooltip:"Will use the name in the object name field and bypass prefix and suffix"
-			checkBox btn_unity_exp "Export to Unity3D" 						align:#left		checked: Unity_Y_Up				Tooltip:"Sets Y-up instead of Z" 					
-			checkBox autoTypeCheck "Auto-Match Type to Prefix" 				align:#left		checked: autoType				Tooltip:"Automatically sets the object export type based on prefix"
-			checkBox noPromptCheck "No Prompt on Export" 					align:#left		checked: noPrompt				Tooltip:"Ignore all prompts and sends directly to folder"
-			checkBox BtchExportChk "Batch Export" 							align:#left		checked: batchExp				Tooltip:"Batch Exports each individual mesh and sends it directly to folder  \n \n Warning: for Auto Export make sure to turn-on 'NoPrompt on Export'"
-			label lbl_exp_prog "Batch Export Progress:"						align:#left		enabled: batchExp
-			progressBar progBar "BatchExportProgressBar"					color:green		enabled: batchExp
+		(	
+			checkbutton btn_use_objNam "Use Name"					width: 70	align:#left		offset:[0,0]		checked:use_ObjNam			Tooltip:"Toggle On, to Use Selection's name as 'Object Name'" across:3 	
+			checkbutton btn_renam_on "Rename"						width: 70					offset:[0,0]		checked:renamObjs			Tooltip:"Toggle On, to allow Renaming of Objects" 				
+			checkButton btn_bypass_nam "Simple Naming" 				width: 80	align:#right	offset:[0,0]									Tooltip:"Will use the name in the object name field and bypass prefix and suffix" 	
+			checkButton btn_unity_exp "Unity3D" 					width: 80					offset:[0,0]		checked: Unity_Y_Up			Tooltip:"Sets Y-up instead of Z" 								 
+			
 		)
 			
 		Group "Export File Type:"
@@ -78,7 +73,10 @@
 	------------------------------------------------------------------------------------------------------------------------------------- QUICK EXPORT
 		Group "Export:"
 		(
-				
+			checkBox noPromptCheck "No Prompt" 										checked:noPrompt								Tooltip:"Ignore all prompts and sends directly to folder"			across:2
+			checkBox BtchExportChk "Batch Export" 									checked:batchExp								Tooltip:"Batch Exports each individual mesh and sends it directly to folder  \n \n Warning: for Auto Export make sure to turn-on 'NoPrompt on Export'"
+			label lbl_exp_prog "Batch Export Progress:"								enabled:batchExp
+			progressBar progBar "BatchExportProgressBar"			color:green		enabled:batchExp
 			button b_Quick_Export "Quick Export!" 				width: 180			height:40
 		)
 			
@@ -86,10 +84,9 @@
 			
 		Group "Preset Locations"
 		(
-			
-			dropdownlist theList "" items:#() 		width:190		    height:20		align:#left			   	tooltip:""  									
-			button btn_edt_item "Edit List" 		width:90 			height:20 		align:#center 			tooltip:"edit contents of selected item" 		across:2             
-			button btn_dlt_preset "Delete List"		width:90			height:20		align:#center			tooltip:"delete presets file"
+			dropdownlist theList 	"" 		items:#() 	width:150		    height:20				   				tooltip:""  									across:3
+			button btn_edt_item 	"Edit" 				width:30 			height:20 		offset:[58,0] 			tooltip:"edit contents of selected item" 		             
+			button btn_dlt_preset 	"Delete"			width:42			height:20		offset:[22,0] 			tooltip:"delete presets file"
 		)
 			
 	-------------------------------------------------------------------------------------------------------------------------------- TIMERS		
@@ -118,6 +115,7 @@
 					
 			)
 		)
+			
 		--------------------------------------------------------------------------------------------------------------------------------
 		--exports meshes -- FUNCTION
 		--------------------------------------------------------------------------------------------------------------------------------
@@ -227,6 +225,7 @@
 			)
 				
 		)
+			
 		--------------------------------------------------------------------------------------------------------------------------------
 		--check for type of export based on prefix -- FUNCTION	
 		--------------------------------------------------------------------------------------------------------------------------------
@@ -266,6 +265,7 @@
 			SetAutoSettings set_prefixText 8
 				
 		)
+			
 		--------------------------------------------------------------------------------------------------------------------------------
 		--DOESNT DO CRAP -- EMPTY -- FUNCTION	
 		--------------------------------------------------------------------------------------------------------------------------------
@@ -273,6 +273,7 @@
 		(
 			
 		)
+			
 		--------------------------------------------------------------------------------------------------------------------------------
 		--auto check type timer  toggle -- FUNCTION
 		--------------------------------------------------------------------------------------------------------------------------------
@@ -445,13 +446,13 @@
 			if state == true then
 			(
 				verNam.enabled = false
-				vernam.visible = false
+				--vernam.visible = false
 				radSufVal.enabled = false
-				radSufVal.visible = false
+				--radSufVal.visible = false
 				preNam.enabled = false
-				preNam.visible = false
+				--preNam.visible = false
 				btn_incr_vr.enabled = false
-				btn_incr_vr.visible = false
+				--btn_incr_vr.visible = false
 					
 				bypassNam = true
 				set_bypass_nam = true
@@ -469,24 +470,24 @@
 					btn_renam_on.enabled = false
 					multiNam.enabled = false
 					verNam.enabled = false
-					vernam.visible = true
+					--vernam.visible = true
 					radSufVal.enabled = false
-					radSufVal.visible = true
+					--radSufVal.visible = true
 					preNam.enabled = false
-					preNam.visible = true
+					--preNam.visible = true
 					btn_incr_vr.enabled = false
-					btn_incr_vr.visible = true
+					--btn_incr_vr.visible = true
 				)
 				else
 				(
 					verNam.enabled = true
-					vernam.visible = true
+					--vernam.visible = true
 					radSufVal.enabled = true
-					radSufVal.visible = true
+					--radSufVal.visible = true
 					preNam.enabled = true
-					preNam.visible = true
+					--preNam.visible = true
 					btn_incr_vr.enabled = true
-					btn_incr_vr.visible = true
+					--btn_incr_vr.visible = true
 						
 				)	
 					
@@ -587,25 +588,7 @@
 			SetAutoSettings batchExp 22
 				
 		)
-		-------------------------------------------------------------------------------------------------------------------------------- 
-		--AUTOMATCH PREFIX
-		-------------------------------------------------------------------------------------------------------------------------------- 
-			
-		on autoTypeCheck changed state do
-		(
-			if typCheck.active == true then 
-			(
-				autoType = state
-				checkAutoTypeCheck autoType			
-			)
-			else
-				autoType = state
-				checkAutoTypeCheck autoType
-			
-			--records settings				
-			SetAutoSettings autoType 4
-		)
-	--------------------------------------------------------------------------------------------------------------------------------------------------------TIMER TICKS	
+		--------------------------------------------------------------------------------------------------------------------------------------------------------TIMER TICKS	
 		--------------------------------------------------------------------------------------------------------------------------------
 		--CHECK FOR NAME OF SELECTION	
 		--------------------------------------------------------------------------------------------------------------------------------
@@ -658,8 +641,6 @@
 		(
 			--Create Entry Function
 			CreateNewExportListEntry()
-				
-			
 			
 		)
 			
@@ -978,8 +959,8 @@
 					ss = (mainFPFolder + "\FlowPanels\savedata\PresetLocations.fp")
 						
 					deletefile (ss)
-					free scptsData
-					lau_scripts.items = scptsData.keys
+					free savedData
+					theList.items = savedData.keys
 						
 				)
 				else			
@@ -1155,7 +1136,7 @@
 				
 			rollout expEdtPthWndw "Edit Entry"
 			(
-				edittext valNam "Entry Name:" 				width:500	height:30							--text:qx_fldr
+				edittext valNam "Entry Name:" 				width:500	height:30							text:qx_fldr
 				button exp_Accpt "Accept"					width:110	height:20		align:#center			across:3				
 				button exp_Open "Open Directory"			width:110	height:20		align:#center
 				button exp_dlt_Entry "Clear Path"  			width:110	height:20		align:#center
@@ -1624,13 +1605,13 @@
 			(
 					btn_bypass_nam.checked = true
 					vernam.enabled = false
-					vernam.visible = false
+					--vernam.visible = false
 					radsufval.enabled = false
-					radsufval.visible = false
+					--radsufval.visible = false
 					prenam.enabled = false
-					prenam.visible = false
+					--prenam.visible = false
 					btn_incr_vr.enabled = false
-					btn_incr_vr.visible = false
+					--btn_incr_vr.visible = false
 						
 			)
 			else

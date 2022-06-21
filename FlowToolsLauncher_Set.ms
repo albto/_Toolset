@@ -7,13 +7,13 @@
 		
 	----------------------------------------------------------------------------------------------------------------------------------
 	global str = getThisScriptFilename()
-	global imgfolder = getfilenamepath str
+
 		
 		
 	global launcherFolder = getfilenamepath str  
 	
 	global toolFolder = substituteString launcherFolder "\FlowPanels\_base" ""
-	
+	global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str
 		
 	global strMyFolder = ""
 	----------------------------------------------------------------------------------------------------------------------------------
@@ -259,9 +259,10 @@
 
 ----------------------------------------------------------------------------------------------------------------------------------
 	
-	rollout edt "Launcher"
+	rollout edt "Tools Launcher"
 	(
-			
+		local appImages = "UVWUnwrapView_24i.bmp"
+		local appAlphas = "UVWUnwrapView_24a.bmp"
 		local newArr = #()
 		local levels = #()
 		local newLevels = #()
@@ -270,6 +271,7 @@
 		local clean_sfol_array = #()
 		local subsfol_array = #()
 		local refObjs = #()
+		local openHelpersList = #()
 		
 		local areatag = #("_Art", "_Design", "_Inst", "_Vehicle", "_Test")
 		
@@ -283,63 +285,36 @@
 			
 		Group "Toolset"
 		(
-			edittext edt_find "" 				 	align:#left 			height:20 	fieldwidth:280  	enalbed:false			multiline:false											 across:2
-			button btn_find "Find" 					align:#right height:20 	width:20	images:#("UVWUnwrapOption_24i.bmp", "UVWUnwrapOption_24i.bmp",30,7,8,1,1) 		ToolTip: "Find Toolset Folder"	
-			button btn_lau "Launch"					height:24	width:75 	across:4	--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,1,1,3,4) 				ToolTip: "Launch Toolset"
-			button btn_clos "Close"					height:24	width:75				--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,4,1,1,4) 				ToolTip: "Close Toolset"
-			button btn_rest "Reset"					height:24	width:75 				--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,3,1,1,4) 				ToolTip: "Reset Toolset"
-			button btn_empt "Empty"					height:24	width:75 				--images:#("Maxscript_24i.bmp", "Maxscript_24i.bmp",5,3,1,1,4) 				ToolTip: "Reset Toolset"
+			edittext edt_find "" 				 	height:20 				align:#left 	fieldwidth:280  	enalbed:false				multiline:false											across:2
+			button btn_find "Find" 					height:20 	width:20	align:#right 	images:#(appImages, appAlphas,30,7,8,1,1) 		ToolTip: "Find Toolset Folder"	
+			button btn_lau "Launch"					height:24	width:75 																	ToolTip: "Find Toolset Folder"														across:4
+			button btn_clos "Close"					height:24	width:75																	ToolTip: "Find Toolset Folder"
+			button btn_rest "Reset"					height:24	width:75 																	ToolTip: "Find Toolset Folder"
+			button btn_empt "Mini Launcher"			height:24	width:75 	align:#right													ToolTip: "Find Toolset Folder"
 		)	
-			
-			
-		Group "Project Directory"
+		
+		Group "Open Dialogs List:"
 		(
-			dropdownlist ddl_proj "" 			items:#()
-			button btn_crt "New"				width:75	height:24	across:4
-			button btn_open "Open"				width:75	height:24
-			button btn_edit	"Refresh"				width:75	height:24
-			button btn_swtc	"Switch"			width:75	height:24
+			listbox lst_opn_dlg ""
 		)
 			
-		Group "Directory Helper"
-		(	
-			checkbutton chk_sel_nam "Auto-Name"			width:65					align:#left			across:3
-			edittext edt_dir_name ""					width:180 	height:20		align:#center
-			dropdownList ddl_area_suf ""				width:62					align:#right		items:#("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
-			radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Isnt", "_Vehicle", "_Test")
-			button btn_crt_cat "New Category"		width:80	height:24 							across:4
-			button btn_crt_scn "New Level"			width:75	height:24	
-			button btn_crt_are "New Area"			width:75	height:24
-			button btn_crt_prp "New Prop"			width:75	height:24
-		)
-			
-		Group "Directory Viewer"
-		(		
-			dropdownList ddl_folder "Categories" 						across:2
-			dropdownList ddl_subfol "Levels" 			
-			button btn_opn_cat "Open"			width:155	height:15	across:2	
-			button btn_opn_lvl "Open"			width:155	height:15
-			listbox lst_areas "Areas List"	
-			
-		)
-			
-		Group "Filter Viewer"
+		Group "Tool Helpers"
 		(
-			checkbutton chk_art "_Art" 			width:75	height:24	across:4
-			checkbutton chk_dsn "_Design"		width:75	height:24
-			checkbutton chk_inst "_Inst"		width:75	height:24
-			checkbutton chk_veh "_Vehicle"		width:75	height:24
-			
-		)
-			
-		Group "XRef Scenes"
-		(
-			dropdownList ddl_refs ""	 			width:200 across:6
-			label lbl_space ""
-			label lbl_space2 ""
-			label lbl_space3 ""
-			button btn_rmv_ref "Remove"				align:#right 
-			button btn_upd_ref "Update"				--align:#right
+				
+			button btn_app_1 "Organize" 			height:52 	width:52	images:#(appImages, appAlphas,27,1,8,1,1) 		ToolTip: "Scene and Layer Organizer"						across:6
+			button btn_app_2 "Create" 				height:52 	width:52	images:#(appImages, appAlphas,27,2,3,1,1) 		ToolTip: "Object Creation Helper and Script Launcher"
+			button btn_app_3 "Model" 				height:52 	width:52	images:#(appImages, appAlphas,27,3,3,1,1) 		ToolTip: "Modeling Helper"
+			button btn_app_4 "Chamfer" 				height:52 	width:52	images:#(appImages, appAlphas,27,4,8,1,1) 		ToolTip: "Vertex Normal and Chamfering Helper"
+			button btn_app_5 "Paint" 				height:52 	width:52	images:#(appImages, appAlphas,27,5,8,1,1) 		ToolTip: "Vertex Painting Helper"
+			button btn_app_6 "Texture" 				height:52 	width:52	images:#(appImages, appAlphas,27,6,8,1,1) 		ToolTip: "Substance Painter Helper"
+				
+			button btn_app_7 "Prefab" 				height:52 	width:52	images:#(appImages, appAlphas,27,9,8,1,1) 		ToolTip: "Prefabs Helper"									across:6
+			button btn_app_8 "Export" 				height:52 	width:52	images:#(appImages, appAlphas,27,8,8,1,1) 		ToolTip: "Export Helper"
+			button btn_app_9 "Import" 				height:52	width:52	images:#(appImages, appAlphas,27,11,8,1,1) 		ToolTip: "Import Helper"
+			button btn_app_10 "Viewport"			height:52 	width:52	images:#(appImages, appAlphas,27,12,8,1,1) 		ToolTip: "Viewport Helper"
+			button btn_app_11 "Manage" 				height:52 	width:52	images:#(appImages, appAlphas,27,10,8,1,1) 		ToolTip: "Project Directory Helper"
+			button btn_app_12 "Tag" 				height:52 	width:52	images:#(appImages, appAlphas,27,7,8,1,1) 		ToolTip: "Attributes Helper"
+				
 		)
 			
 			
@@ -361,267 +336,7 @@
 					
 			)		
 		)
-			
-		--Reload sub folders list
-		fn GetProjectLevels = 
-		(
-			strMyFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
-			
-			levels = getFiles((strMyFolder as string + "\\*.max"))
 				
-			newArr = #()
-			newLevels = #()
-			cleanArr = #()
-				
-			--create directories array 
-			dir_array = GetDirectories (strMyFolder +"\scenes\Areas\\*")
-				
-			for d in dir_array do
-			(
-				join dir_array (GetDirectories (d+"\\*"))
-				
-			)
-				
-			--pass the sub folders to drop downlist 
-			folders_array = GetDirectories (strMyFolder +"\scenes\Areas\\*")
-				
-			--loop through categories and create the list 
-			for i = 1 to folders_array.count do 
-			(
-				newArr[i] = filenameFromPath folders_array[i]
-				--clean up Name 
-				str = substituteString newArr[i] "\\" ""
-				newArr[i] = str
-				
-			)		
-				
-			--clean string to display as folder//category 
-			newArr[1] = "Show All"
-			
-			
-				
-			ddl_folder.items = newArr
-				
-			--finds .mxp files and then filters out the sub-folder location 
-			
-				
-			--Folder filter
-			if ddl_folder.selection == 1 then 
-			(
-					
-				for f in dir_array do
-				(
-					join newLevels (getFiles (f+ "\\*.max"))
-					ddl_subfol.items = #("Levels List")
-					ddl_subfol.selection = 1
-					ddl_subfol.enabled = false
-					
-				)
-				
-			)			
-			else if ddl_folder.selection == ddl_folder.selection then 
-			(
-				
-				ddl_subfol.enabled = true
-				
-				--create new folder array 
-				clean_fold_arr = #()
-					
-				--create new sub folder array 
-				clean_sfol_array = #()
-				
-					
-				if ddl_subfol.selection == 1 then
-				(			
-					newLevels = #()
-					
-					for i in folders_array do
-					(
-						--filter level name
-						str = filenameFromPath i
-						--remove slashes -- it errors out otherwise
-						str = substituteString str "\\" "" 
-							
-						--adding to new array
-						appendIfUnique clean_fold_arr str as string 
-							
-					)
-						
-					--Set Sub folders
-					folders_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
-						
-					subsfol_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*"))
-						
-					for t in subsfol_array do 
-					(
-						join subsfol_array (GetDirectories (t+"\\"))
-						
-					)
-						
-					--create new sub folder array 
-					clean_sfol_array[1] = "All Levels"
-						
-					for o in subsfol_array do 
-					(
-						--filter level name
-						str = filenameFromPath o
-						--remove slashes -- it errors out otherwise
-						str = substituteString str "\\" "" 
-							
-						--adding to new array
-						appendIfUnique clean_sfol_array str as string 
-					)
-					
-					--pass sub folder names to the list 
-					ddl_subfol.items = clean_sfol_array
-						
-					--grab all sub folders 
-					for f in folders_array do 
-					(
-						join folders_array (GetDirectories (f+"*"))
-						
-					)
-						
-					--find all max files in sub folders
-					for l in folders_array do 
-					(
-						join newLevels (getFiles (l+ "\\*.max"))
-					)
-				)
-				else if ddl_subfol.selection > 1 then
-				(
-					
-					for i in folders_array do
-					(
-						--filter level name
-						str = filenameFromPath i
-						--remove slashes -- it errors out otherwise
-						str = substituteString str "\\" "" 
-							
-						--adding to new array
-						appendIfUnique clean_fold_arr str as string 
-							
-					)
-						
-					--Set Sub folders
-					folders_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
-						
-						
-					subsfol_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*" ))
-						
-					for t in subsfol_array do 
-					(
-						join subsfol_array (GetDirectories (t+"\\"))
-						
-					)
-					
-					
-					--create new sub folder array 
-					clean_sfol_array[1] = "All Levels"
-						
-					for o in subsfol_array do 
-					(
-						--filter level name
-						str = filenameFromPath o
-						--remove slashes -- it errors out otherwise
-						str = substituteString str "\\" "" 
-							
-						--adding to new array
-						appendIfUnique clean_sfol_array str as string 
-					)
-					
-					--pass sub folder names to the list 
-					ddl_subfol.items = clean_sfol_array
-					
-					subsfol_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
-					
-					if subsfol_array.count >= 1 then 
-					(
-						--grab all sub folders 
-						for f in subsfol_array do 
-						(
-							join subsfol_array (GetDirectories (f +"*"))
-							
-						)
-							
-						--find all max files in sub folders
-						for l in subsfol_array do 
-						(
-							join newLevels (getFiles (l + "\\*.max"))
-						)
-						
-					)
-				)					
-			)
-				
-			for i in newLevels do 
-			(	
-				
-				if not chk_art.checked and not chk_dsn.checked and not chk_inst.checked and not chk_veh.checked then 
-				(
-					LevelFilter cleanArr newLevels "**"
-				)				
-					
-				if chk_art.checked then
-				(						
-					LevelFilter cleanArr newLevels "*_art*"
-				)		
-				if chk_dsn.checked then
-				(						
-					LevelFilter cleanArr newLevels "*_design*"
-				)		
-				if chk_inst.checked then
-				(						
-					LevelFilter cleanArr newLevels "*_inst*"
-				)		
-				if chk_veh.checked then
-				(						
-					LevelFilter cleanArr newLevels "*_vehicle*"
-				)		
-					
-			)
-				
-			--pass to the list 
-			lst_areas.items = cleanArr
-				
-		)
-			
-		--Reload Projects ListBoxControl
-		fn ReloadProjectList = 
-		(
-			pth = "G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects" --pathConfig.removePathLeaf (pathConfig.getCurrentProjectFolderPath())
-				
-			files = getFiles((pth as string + "\\*.mxp"))
-				
-			dir_array = GetDirectories (pth +"\\*")
-			for d in dir_array do
-			(
-				join dir_array (GetDirectories (d+"\\*"))
-			)
-				
-			newFiles = #()
-			cleanArr = #()
-				
-			--finds .mxp files and then filters out the sub-folder location 
-			for f in dir_array do
-			(
-				join newFiles (getFiles (f+ "\\*.mxp"))
-					
-				for i in newFiles do 
-				(
-					str = getFilenamePath i
-					appendIfUnique cleanArr str as string 
-				)
-					
-				files = cleanArr
-					
-			)
-				
-			--updates list ui
-			ddl_proj.items = files					
-				
-		)
-			
 		--Saves Flow Panels Global Settings
 		fn SaveLauncherData location = 
 		(		
@@ -697,28 +412,37 @@
 			)
 		)
 			
-		--Update XRef lists 
-		fn UpdateXrefsList = 
+		fn closeToolHelper val = 
 		(
-			--create array
-			arr = #()
-			--clear items
-			ddl_refs.items = arr
-			
-			count = xrefs.getXRefFileCount()
-			
-			if count > 0 then
+			--visualize open dialogs 
+			list = UIAccessor.GetPopupDialogs() 
+			openDialogs = #()
+			for i = 1 to list.count do 
 			(
-				for i = 1 to count do 
+				--UIAccessor.CloseDialog i
+				openDialogs[i] = UIAccessor.GetWindowText list[i]
+				
+				if openDialogs[i] == val do
 				(
-					xs = xrefs.getXRefFile i
-					arr[i] = filenameFromPath xs.filename
+					UIAccessor.CloseDialog list[i]
 				)
 			)
-			else(
-				arr = #("No Scenes Found")
-			)	
-			ddl_refs.items = arr
+		)
+			
+		fn GetOpenDialogsList = 
+		(		
+			--generate list items --
+			--create list
+			openHelpersList = UIAccessor.GetPopupDialogs()
+			openDialogs = #()
+			for i = 1 to openHelpersList.count do 
+			(
+				openDialogs[i] = UIAccessor.GetWindowText openHelpersList[i]
+			)
+				
+			lst_opn_dlg.items = openDialogs
+				
+				
 		)
 		
 		----------------------------------------------------------------------------------------------------------------------------
@@ -730,350 +454,28 @@
 		
 		----------------------------------------------------------------------------------------------------------------------------
 		----------------------------------------------------------------------------------------------------------------------------
-		
-		on rad_are_type changed state do 
-		(
-			print areatag[rad_are_type.state]
-		)
-			
+
 			
 		on tick_LauncherUpdate tick do 
 		(
 			--update status 
 			UpdateToolsetStatus()		
-			
-			if chk_sel_nam.checked then 
-			(
-				edt_dir_name.enabled = false
-				sel = selection as array
-				if  sel.count > 0 then 
-				(
-					for i in selection as array do 
-					(
-						edt_dir_name.text = i.name
-					)
-				)
-				else ( edt_dir_name.text = "...")
-			)
-			else (edt_dir_name.enabled = true )
+			GetOpenDialogsList()
 		)
 			
-		on chk_sel_nam changed state do 
-		(			
-			if chk_sel_nam.checked then 
-			(
-				edt_dir_name.enabled = false
-				sel = selection as array
-				if  sel.count > 0 then 
-				(
-					for i in selection as array do 
-					(
-						edt_dir_name.text = i.name
-					)
-				)
-				else ( edt_dir_name.text = "...")
-			)
-			else (edt_dir_name.enabled = true )		
-		)
-			
-			
-		on btn_rmv_ref pressed do 
-		(
-			
-			try(
-				xs = xrefs.getXRefFile ddl_refs.selection
-			
-				--delete xScene ref
-				delete xs
-				
-				--remove item from list 
-				arr = #()
-				arr = ddl_refs.items
-				
-				deleteItem arr ddl_refs.selection
-				ddl_refs.items = arr
-				
-				print "removed"
-				
-				if ddl_refs.items.count == 0 then 
-				(arr = #("No Scenes Found"); ddl_refs.items = arr)
-			
-			)
-			catch( print "unable to remove item"; arr = #("No Scenes Found"); ddl_refs.items = arr)
-		)
-			
-		on btn_upd_ref pressed do 
-		( 
-				
-			if ddl_refs.items.count > 1 then
-			(				
-				
-				xs = xrefs.getXRefFile ddl_refs.selection
-				
-				updateXRef xs
-				print "updated"
-			)			
--- 			hiddenNodes = #()
--- 			hiddenLayers = #()
--- 			
--- 			for o in objects where not o.ishidden and not o.isSelected do 
--- 			(
--- 				hide o
--- 				append hiddenNodes o
--- 			)
--- 			
--- 			local nxrefs = xrefs.getXRefFileCount()
--- 			for i = 1 to nxrefs do
--- 			(
--- 				local xref_f = xrefs.getXRefFile i
--- 				if not xref_f.hidden do (xref_f.hidden = true; append hiddenLayers xref_f)
--- 			)
--- 			ok
--- 			for o in hiddenNodes where isvalidnode o do unhide o
--- 			hiddenNodes = #()
--- 			hiddenLayers = #()
-		)
-		--Areas List -- when double clicked 
-		on lst_areas selected i do 
-		(
-			--print lst_areas.items[i]
-		)
-			
-			
-		--Areas List -- when double clicked 
-		on lst_areas doubleClicked i do 
-		(
-			loadMaxFile levels[i] useFileUnits:true quietmode:true
-		)
-			
-		
-		--Areas List -- when right clicked 
-		on lst_areas rightClick i do 
-		(
-			 
-			try
-			(
-				refObjs = #()
-				Xrefobjs = getMAXFileObjectNames levels[i]
-				
-				Xrefobjs = xrefs.addNewXRefFile  levels[i] modifiers:#xref manipulators:#xref dupMtlNameAction:#useXRefed 
-				
-				--Xrefobjs.showFrozenInGray = false
-				--freeze Xrefobjs
-				--Xrefobjs.wirecolor = [88, 144, 225]
-					
-				append refObjs (filenameFromPath Xrefobjs.filename)
-				
-				ddl_refs.items = refObjs
-						
-			)
-			catch()
-			
-			
-			
-		)
-			
-		--level filter - art 
-		on chk_art changed state do 
-		(
-			GetProjectLevels()
-		)
-			
-		--level filter - design 
-		on chk_dsn changed state do 
-		(
-			GetProjectLevels()
-		)
-		
-		--level filter - inst 
-		on chk_inst changed state do 
-		(
-			GetProjectLevels()
-		)
-			
-		--level filter - veh 
-		on chk_veh changed state do 
-		(
-			GetProjectLevels()
-		)
-		
-		on ddl_proj selected i do 
-		(
-			--get Project levels and filter types 
-			GetProjectLevels()
-			
-		)
-		
-		on ddl_subfol selected i do
-		(
-				
-			--get Project levels and filter types 
-			GetProjectLevels()
-				
-		)
-			
-		on ddl_folder selected i do 
-		(
-			--reset drop down list
-			ddl_subfol.selection = 1 
-				
-			--Reload sub folders list
-			GetProjectLevels()
-				
-		)
-			
-		on btn_crt_cat pressed do 
-		(
-			areaname = edt_dir_name.text		
-			
-			makeDir (@"G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects\Prj_Buho_BathHouse\scenes\Areas\\" + areaname as string)
-			
-			areaname = edt_dir_name.text			
-			
-			makeDir (@"G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects\Prj_Buho_BathHouse\scenes\Areas\\" + areaname as string)
-			
-			
-			--Reload Projects List
-			ReloadProjectList()
-				
-			--get Project levels and filter types 
-			GetProjectLevels()
-			
-			
-		)
-			
-		on btn_crt_scn pressed do 
-		(
-			area_tag = ""
-				
-			if chk_art.checked then
-			(
-				area_tag = "_Art"
-			)
-				
-			if chk_dsn.checked then(
-				area_tag = "_Design"
-			)
-			
-			areaname = edt_dir_name.text + "_Main" 	+ "\models\Art"
-			
-			makeDir (@"G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects\Prj_Buho_BathHouse\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
-		
-			areaname = edt_dir_name.text + "_Main" 	+ "\models\Design"
-			
-			makeDir (@"G:\Dropbox\[main access]\3ds_Max_Source\_3ds Max - Projects\Prj_Buho_BathHouse\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
-			
-			--Reload Projects List
-			ReloadProjectList()
-				
-			--get Project levels and filter types 
-			GetProjectLevels()
-			
-			
-		)
-		
-		on btn_crt_are pressed do 
-		(
-				
-			if chk_art.checked then
-			(
-				area_tag = "_Art"
-			)
-				
-			if chk_dsn.checked then(
-				area_tag = "_Design"
-			)
-			else(
-				area_tag = ""
-			)
-				
-			areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + ddl_area_suf.items[ddl_area_suf.selection] as string + ".max") as string 
-				
-			loc =  (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + area_tag + "\\" + areaname as string) 
-				
-			if selection.count > 0 then 
-			(
-				saveNodes selection[1] loc quiet:true
-			)
-			else (
-				print "Nothing is Selected"
-			)
-				
-			--Reload Projects List
-			ReloadProjectList()
-				
-			--get Project levels and filter types 
-			GetProjectLevels()
-				
-				
-		)
-		
-		on btn_crt pressed do 
-		(
-				
-			if (folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
-			(
-				--macros.run "Tools" "CreateDefaultProject" 
-				pathConfig.doProjectSetupStepsUsingDirectory folder  
-				pathConfig.setCurrentProjectFolder folder
-				
-				--Reload Projects List
-				ReloadProjectList()
-				
-			)
-				
-		)
-		
-		on btn_edit pressed do 
-		(
-			--Reload Projects List
-			ReloadProjectList()
-		)
-		
-		on btn_swtc pressed do 
-		(
-			--pathconfig.SaveTo(strMyFolder)
-				
-			pathconfig.setCurrentProjectFolder strMyFolder
-			resetMaxFile() 
-				
-			--pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
-				
--- 			doesFolderExist = doesFileExist strMyFolder allowDirectory:true
--- 			if(doesFolderExist and pathconfig.IsProjectFolder(strMyFolder)) then 
--- 			(
--- 				-----------------------------------------------
--- 				-- backup the current config paths settings in the current working folder 
--- 				-- to not lose possible modifications that might have been done
--- 				-- before switching the working folder
--- 				-----------------------------------------------
--- 				pathconfig.SaveTo(pathconfig.getCurrentProjectFolderPath())
-
--- 				pathconfig.setCurrentProjectFolder strMyFolder
--- 				pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
--- 				
--- 				resetMaxFile 
--- 					
--- 					
--- 				--arStrFnames = getfiles (strMyFolder + "\\*.mxp")
--- 			)
-			
--- 			if (strMyFolder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
--- 			(
--- 				macros.run "Tools" "SetProjectFolder" 
--- 				
--- 				print strMyFolder
--- 				pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
--- 				pathConfig.setCurrentProjectFolder strMyFolder
--- 				resetMaxFile 
--- 				
--- 			)
-				
-		)
-		
 			
 		--------------------------------------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------------------------------------------------------------
+				
+		on lst_opn_dlg selected i do 
+		(
+			
+		)
+			
+		on lst_opn_dlg rightClick i do 
+		(
+			UIAccessor.CloseDialog openHelpersList[i]
+		)
 			
 		on btn_find pressed do 
 		(
@@ -1292,46 +694,201 @@
 			UpdateToolsetStatus()
 				
 		)
-		
 			
 		on btn_empt pressed do 
 		(
-			ShellLaunch "Unity3d.exe" ""
+			try (filein "flow_MiniLauncher.ms") catch ()
 			
 		)
+			
+		--------------------------------------------------------------------------------------------------------------------------------------
+		--------------------------------------------------------------------------------------------------------------------------------------
+			
+		on btn_app_8 pressed do 
+		(
+			nam = "Export Tools"
+				
+			--close if dialog is open 
+			closeToolHelper nam
+				
+			Rollout panE nam 
+			(
+				include "flow_panExporter.ms"
+				
+				--button btn_save "Save Settings" 
+				
+				on btn_save pressed do
+				(	
+					--saves recorder data
+					SaveRecorderSettings()
+						
+					--saves tool settings
+					SaveToolSettingsFP()
+					
+				)
+					
+				on panE open do 
+				(
+					--populate list
+					thelist.items = saveddata.keys -- change this to saveddata
+						
+					--update export list's tooltip 
+					--listtooltipupdater thelist
+						
+					--checks to set value of prefix
+					if set_autotype_checked == true do
+					(
+						prenam.text = set_prefixtext
+					)
+					--checks to set value of export location
+					if set_exp_location != undefined do
+					(
+							
+						--resets the list's last selected item
+						if(thelist.items.count > 0 and set_list_last_sel != undefined) do
+						(
+							thelist.selection = set_list_last_sel
+						)
+							
+						--displays folder name
+						disp_fldr_nam.text = filenamefrompath qx_fldr
+						disp_fldr_nam.tooltip = qx_fldr
+							
+					)	
+						
+					--sets bypass prefix and suffix value
+					if bypassnam == true then
+					(
+							btn_bypass_nam.checked = true
+							vernam.enabled = false
+							vernam.visible = false
+							radsufval.enabled = false
+							radsufval.visible = false
+							prenam.enabled = false
+							prenam.visible = false
+							btn_incr_vr.enabled = false
+							btn_incr_vr.visible = false
+								
+					)
+					else
+					(
+						--sets prefix if undefined
+						if (prenam.text == "") do (
+							prenam.text = "msh"
+						)			
+						--sets suffix to 'a' 
+						if(vernam.text == "") do (
+							vernam.text = "a"
+						)
+					)				
+						
+					--turns on and off the naming fields
+					if btchexportchk.checked == true then
+					(
+						btn_use_objnam.enabled = false
+						btn_renam_on.enabled = false
+						multinam.enabled = false
+						vernam.enabled = false
+						radsufval.enabled = false
+						prenam.enabled = false
+						btn_incr_vr.enabled = false
+					)
+					else
+					(
+						if bypassnam == true or btn_bypass_nam.checked == true then
+						(
+							vernam.enabled = false
+							radsufval.enabled = false
+							prenam.enabled = false
+							btn_incr_vr.enabled = false
+						)
+						else
+						(
+							btn_use_objnam.enabled = true
+							btn_renam_on.enabled = true
+							multinam.enabled = true
+							vernam.enabled = true
+							radsufval.enabled = true
+							prenam.enabled = true
+							btn_incr_vr.enabled = true
+						)
+					)
+						
+				)
+				
+				on panE close do 
+				(
+						
+					--saves recorder data
+					SaveRecorderSettings()
+						
+					--saves tool settings
+					SaveToolSettingsFP()
+						
+				)
+					
+			)	
+				
+			CreateDialog panE width:260 height:680
+		)
+			
+		on btn_app_9 pressed do 
+		(
+			nam = "Import Tools"
+
+			--close if dialog is open 
+			closeToolHelper nam
+				
+			Rollout panI nam
+			(
+				include "flow_panImporter.ms"
+				
+				
+				on panI close do 
+				(
+						
+					--saves recorder data
+					SaveRecorderSettings()
+						
+					--saves tool settings
+					SaveToolSettingsFP()
+						
+				)
+			)					
+			
+			CreateDialog panI width:260 height:600
+		)
+			
+		--launch Viewport helper
+		on btn_app_10 pressed do 
+		(	
+			nam = "Viewport Tools" 
+
+			--close if dialog is open 
+			closeToolHelper nam
+			
+			Rollout panV nam 
+			(
+				include "flow_panViewport.ms"
+			)	
+				
+			CreateDialog panV width:260 height:532
+		)
+		
+		on btn_app_11 pressed do 
+		(
+			try ( filein "FlowToolsProjectHelper.ms" ) catch()
+			
+			
+		)
+		
+		
+		
 		--------------------------------------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------------------------------------------------------------
 			
 		on edt open do 
 		(
-						
-			callbacks.addScript #filePostOpenProcess  " edt.UpdateXrefsList()" id:#MXSHelp
-			arr = #()
-			
-			count = xrefs.getXRefFileCount()
-			
-			if count > 0 then
-			(
-				for i = 1 to count do 
-				(
-					xs = xrefs.getXRefFile i
-					arr[i] = filenameFromPath xs.filename
-				)
-			)
-			else(
-				arr = #("No Scenes Found")
-			)	
-			ddl_refs.items = arr
-			
-				
-			--Reload Projects List
-			ReloadProjectList()
-				
-			ddl_proj.selected = ddl_proj.items[1]
-				
-			--get Project levels and filter types 
-			GetProjectLevels()
-				
 			if mainFPFolder != undefined then
 			(
 					
@@ -1395,9 +952,15 @@
 		)
 		
 	)
-
-	createDialog edt menu:LauncherSettingsMenu width:340 height:750 
+	
+	
+	
+	
+	createDialog edt menu:LauncherSettingsMenu width:340 height:530
 	
 	cui.registerDialogBar edt style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true --bgColor:[rRed,bBlu,gGre] 
 
+	
+	
+		
 	
