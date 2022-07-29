@@ -41,11 +41,14 @@
 		group "Grid Dimensions:" 
 		(
 			label lbl_sep_grid ""		height: 5
-			Spinner set_spacing 		"Set Grid Spacing:" 	type:#float 	range: [0,1000,getGridSpa]  width:100 	height: 20 			align: #left
-			Spinner set_majorlines 		"Set Major Lines:  " 	type:#integer 	range: [0,1000,0]  			width:100 	height: 20 			align: #left
-			Spinner set_persviewextent 	"Set Grid Extent:  " 	type:#integer 	range: [0,1000,0]  			width:100 	height: 20			align: #left
-			label lbl_02 				"Preset Spacing:" 		across: 2
-			dropdownlist scale_dd 		"" 						items:#("   10" + unitTypeLabel as string, "   8" + unitTypeLabel as string, "   6" + unitTypeLabel as string,  "   4" + unitTypeLabel as string,
+			Spinner set_spacing 		"Spacing:" 					type:#float 	range: [0,1000,getGridSpa]  	width:140 	height: 20 					align: #left		across:4
+			dropdownList ddl_by_typ     ""							items:#("*", "/") 								width:35				offset:[50,0]
+			dropdownList ddl_spa_amt 	""							items:#("2", "3", "4", "5", "6", "7", "8", "9")	width:35				offset:[30,0]
+			button btn_multi_spa		"Resize"																							offset:[5,0]
+			Spinner set_majorlines 		"Major Lines:  " 			type:#integer 	range: [0,1000,0]  			width:100 	height: 20 		offset:[0,0]	align: #left		across:2
+			Spinner set_persviewextent 	"Extent:  " 				type:#integer 	range: [0,1000,0]  			width:100 	height: 20		offset:[10,0]	align: #left
+			label lbl_02 				"Preset Spacing:" 			across: 2
+			dropdownlist scale_dd 		"" 							items:#("   10" + unitTypeLabel as string, "   8" + unitTypeLabel as string, "   6" + unitTypeLabel as string,  "   4" + unitTypeLabel as string,
 				"   2" + unitTypeLabel as string,"   1" + unitTypeLabel as string, "   1/2" + unitTypeLabel as string, "   1/4" + unitTypeLabel as string, "   1/8" + unitTypeLabel as string) width: 80 align: #center
 			
 		)
@@ -56,11 +59,30 @@
 		Group "Grid Display"
 		(
 				
-			checkbox grid_on "Grid Toggle" across: 2
+			checkbutton grid_on "Show Grid" across: 2
 			dropdownlist grid_active "Pick Grid Type:" items:#("Actvie Grid","Home Grid") 
 				
 		)
 			
+	--------------------------------------------------------------------------------------------------------------------------------	
+	--//////////////////////////////////////////////////////////////////////////////////// UNIT SETUP SETTINGS
+	--------------------------------------------------------------------------------------------------------------------------------
+		
+	group "Unit Setup:" 
+	(
+		Edittext edt_Unit 	"Unit Type:" 	labelOnTop:false	readOnly:true text:unitTypeLabel
+			
+		checkbox chk_autU	"Find Unit Type"
+			
+		checkbutton chk_met	"Meters"									across:3
+		checkbutton chk_cen	"Centimeters"
+		checkbutton chk_inc	"Inches"
+				
+		
+		Button btn_un_M		"Set to Meters"			 	across:3
+		Button btn_un_CM	"Set to CM"		
+		Button btn_un_IN	"Set to Inches"			
+	)
 	--------------------------------------------------------------------------------------------------------------------------------FILTERS 
 		
 		fn setViewFilterButtonStates = 
@@ -121,9 +143,7 @@
 				)				
 			)
 		)
-		
-		
-		
+			
 		on btn_filGeo changed state do 
 		(
 			hideByCategory.geometry = state
@@ -307,6 +327,36 @@
 			if scale_dd.selection == 8 then setGridSpacing .25
 			if scale_dd.selection == 9 then setGridSpacing .125
 		)
+		
+		on btn_multi_spa pressed do 
+		(
+			spa = ddl_by_typ.selection --ddl_by_typ.items[ddl_by_typ.selection]
+			case spa of 
+			(
+				1:(
+					SetGridSpacing (set_spacing.value *= ddl_spa_amt.selected as integer)
+				)
+				2:(
+					SetGridSpacing (set_spacing.value /= ddl_spa_amt.selected as integer)
+				)
+			)
+-- 			case spa of 
+-- 			(
+-- 				1:(print "1")
+-- 				2:(print "2"	)			
+-- 			)
+-- 			
+-- 			md = execute (ddl_by_typ.items[ddl_spa_amt.selection])
+-- 			factor = execute (ddl_spa_amt.items[ddl_spa_amt.selection])
+-- 			
+-- 			print md 
+-- 			print factor 
+-- 			
+-- 			amt = (spa md factor)
+-- 			 
+-- 			setGridSpacing amt 
+		)
+		
 			
 		on set_spacing changed spa do
 		(
@@ -325,25 +375,6 @@
 			state = set_persviewextent.value
 			gridPrefs.perspViewGridExtents = state
 		)	
-		--------------------------------------------------------------------------------------------------------------------------------	
-		--//////////////////////////////////////////////////////////////////////////////////// UNIT SETUP SETTINGS
-		--------------------------------------------------------------------------------------------------------------------------------
-			
-		group "Unit Setup:" 
-		(
-			Edittext edt_Unit 	"Unit Type:" 	labelOnTop:false	readOnly:true text:unitTypeLabel
-				
-			checkbox chk_autU	"Find Unit Type"
-				
-			checkbutton chk_met	"Meters"									across:3
-			checkbutton chk_cen	"Centimeters"
-			checkbutton chk_inc	"Inches"
-					
-			
-			Button btn_un_M		"Set to Meters"			 	across:3
-			Button btn_un_CM	"Set to CM"		
-			Button btn_un_IN	"Set to Inches"			
-		)
 		
 		on chk_autU changed state do 
 		(
@@ -454,77 +485,82 @@
 			
 		on panViewport rolledUp open do 
 		(
-							btn_filGeo.checked = hideByCategory.geometry()
-				btn_filGeo.state = hideByCategory.geometry()
-				
-				
-			if open do 
+			print "WHAT THE FUCK"
+			
+			btn_filGeo.checked
+			--AutoCollapse
+			if use_AutoCollapse == true do 
 			(
-				
-
-				--AutoCollapse
-				if use_AutoCollapse == true do 
-				(
-					--switches to this rollout
-					if open do switchRolls panViewport
-				)
-					
-				if autoFindUnits then
-				(
-					
-				)
-				else
-				(
-					
-				)
-				
-				--Set Preset Spacing type
-				if IsMeters then
-				(
-					--preset spacing unit scale label
-					unitTypeLabel = " m"
-						
-					scale_dd.items = #("   10" + unitTypeLabel, "   8" + unitTypeLabel, "   6" + unitTypeLabel,  "   4" + unitTypeLabel, 
-						"   2" + unitTypeLabel,"   1" + unitTypeLabel, "   1/2" + unitTypeLabel, "   1/4" + unitTypeLabel, "   1/8" + unitTypeLabel)
-						
-				)
-				else if IsCM then
-				(
-					--preset spacing unit scale label
-					unitTypeLabel = " cm"
-						
-					scale_dd.items = #("   10" + unitTypeLabel, "   8" + unitTypeLabel, "   6" + unitTypeLabel,  "   4" + unitTypeLabel, 
-						"   2" + unitTypeLabel,"   1" + unitTypeLabel, "   1/2" + unitTypeLabel, "   1/4" + unitTypeLabel, "   1/8" + unitTypeLabel)
-						
-				)
-				else if IsInches then
-				(
-					--preset spacing unit scale label
-					unitTypeLabel = " in"
-						
-					scale_dd.items = #("   10" + unitTypeLabel, "   8" + unitTypeLabel, "   6" + unitTypeLabel,  "   4" + unitTypeLabel, 
-						"   2" + unitTypeLabel,"   1" + unitTypeLabel, "   1/2" + unitTypeLabel, "   1/4" + unitTypeLabel, "   1/8" + unitTypeLabel)
-						
-				)
+				--switches to this rollout
+				if open do switchRolls panViewport
 			)
-				
 		)
+		
+-- 		on panViewport rolledUp open do 
+-- 		(
+-- 			btn_filGeo.checked = hideByCategory.geometry()
+-- 			btn_filGeo.state = hideByCategory.geometry()
+-- 				
+-- 			print "HELLO WORLD"
+-- 				
+-- 			--AutoCollapse
+-- 			if use_AutoCollapse == true do 
+-- 			(
+-- 				--switches to this rollout
+-- 				if open do switchRolls panViewport
+-- 			)
+-- 				
+-- 			if autoFindUnits then
+-- 			(
+-- 				
+-- 			)
+-- 			else
+-- 			(
+-- 				
+-- 			)
+-- 			
+-- 			--Set Preset Spacing type
+-- 			if IsMeters then
+-- 			(
+-- 				--preset spacing unit scale label
+-- 				unitTypeLabel = " m"
+-- 					
+-- 				scale_dd.items = #("   10" + unitTypeLabel, "   8" + unitTypeLabel, "   6" + unitTypeLabel,  "   4" + unitTypeLabel, 
+-- 					"   2" + unitTypeLabel,"   1" + unitTypeLabel, "   1/2" + unitTypeLabel, "   1/4" + unitTypeLabel, "   1/8" + unitTypeLabel)
+-- 					
+-- 			)
+-- 			else if IsCM then
+-- 			(
+-- 				--preset spacing unit scale label
+-- 				unitTypeLabel = " cm"
+-- 					
+-- 				scale_dd.items = #("   10" + unitTypeLabel, "   8" + unitTypeLabel, "   6" + unitTypeLabel,  "   4" + unitTypeLabel, 
+-- 					"   2" + unitTypeLabel,"   1" + unitTypeLabel, "   1/2" + unitTypeLabel, "   1/4" + unitTypeLabel, "   1/8" + unitTypeLabel)
+-- 					
+-- 			)
+-- 			else if IsInches then
+-- 			(
+-- 				--preset spacing unit scale label
+-- 				unitTypeLabel = " in"
+-- 					
+-- 				scale_dd.items = #("   10" + unitTypeLabel, "   8" + unitTypeLabel, "   6" + unitTypeLabel,  "   4" + unitTypeLabel, 
+-- 					"   2" + unitTypeLabel,"   1" + unitTypeLabel, "   1/2" + unitTypeLabel, "   1/4" + unitTypeLabel, "   1/8" + unitTypeLabel)
+-- 					
+-- 			)
+-- 				
+-- 		)
 			
 		on panViewport rolledUp close do 
 		(
-			if close do 
-			(
 				--Save Settings
 				SetAutoSettings "" 14
-				
-				
+					
 				--AutoCollapse
 				if use_AutoCollapse == true do 
 				(
 					--switches to this rollout
 					if close do switchRolls panViewport
-				)				
-			)
+				)	
 			
 			--turn off viewport timer
 			getViewportTimer.active = not getViewportTimer.active

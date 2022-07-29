@@ -25,4 +25,13 @@
     <Assign_Hotkey Shortcut="Q" Description="Quick Planar Map" Id="2077580866-40195"/>
     <Unassign_Hotkey Shortcut="Ctrl+E" Description="Scale Cycle" Id="0-278"/>
     <Assign_Hotkey Shortcut="Ctrl+E" Description="Collapse Stack" Id="647394-Collapse_Stack`Modifier Stack"/>
+    <Assign_Hotkey Shortcut="Alt+B" Description="Bridge Settings" Id="1250838234-40091"/>
+    <Assign_Hotkey Shortcut="Alt+B" Description="Bridge Settings" Id="369982487-40091"/>
+    <Assign_Hotkey Shortcut="Alt+Shift+A" Description="Select By Angle" Id="647394-SelectByAngle`Ribbon - Modeling"/>
+    <Unassign_Hotkey Shortcut="Ctrl+B" Description="Sub-object Selection Toggle" Id="0-40205"/>
+    <Assign_Hotkey Shortcut="Ctrl+B" Description="Edge Bridge" Id="647394-EdgeBridgeOptions`Ribbon - Modeling"/>
+    <Assign_Hotkey Shortcut="Shift+C" Description="Cap" Id="1250838234-40060"/>
+    <Unassign_Hotkey Shortcut="Alt+P" Description="Cap" Id="369982487-40060"/>
+    <Unassign_Hotkey Shortcut="Alt+P" Description="Cap" Id="1250838234-40060"/>
+    <Assign_Hotkey Shortcut="Shift+C" Description="Cap" Id="369982487-40060"/>
 </MaxHotkeyTransformations>

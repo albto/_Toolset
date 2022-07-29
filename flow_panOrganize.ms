@@ -14,7 +14,6 @@
 			button btn_selset "Selection Sets" 	width:80 height: 20 				align:#center
 		)
 			
-
 		group "Organize Layers:"
 		(
 			CheckButton chk_autLay "Auto-Organize Layers" 				width:180 height: 30	checked:true
@@ -32,16 +31,15 @@
 		--auto Layer Scene
 		on chk_autLay changed state do
 		(
-				
 			if state then
-			(
-				
+			(				
 				--Remove any existing callbacks with this ID.
 				callbacks.removeScripts id:#MXSHelp
 				--Add a new callback script which will call --callbacks.notificationParam() before selected nodes are deleted --and thus will print the deleted objects to the Listener:
 				callbacks.addScript #nodeCreated " AutoLayer()" id:#MXSHelp			
-				
+					
 				AutoLayer()
+					
 			)
 			else
 			(

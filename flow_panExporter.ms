@@ -64,8 +64,10 @@
 		Group "Export File Type:"
 		(
 				
-			checkbutton btn_obj_typ "Export OBJ" 							align:#left		width: 90	checked:objTypeSet			across:2
-			checkbutton btn_fbx_typ "Export FBX"							align:#right	width: 90 	checked:fbxTypeSet
+			checkbutton btn_obj_typ ".Obj" 							width: 45	checked:objTypeSet			across:4
+			checkbutton btn_fbx_typ ".Fbx"							width: 45 	checked:fbxTypeSet
+			checkbutton btn_alem_typ ".Abc"						width: 45 	checked:false
+			checkbutton btn_usd_typ ".Usd"							width: 45 	checked:false
 				
 		)
 			
@@ -1573,6 +1575,8 @@
 		on panExporter rolledUp open do 
 		(		
 				
+			print "HELLO WORLD"
+			
 			--populate list
 			thelist.items = saveddata.keys -- change this to saveddata
 				

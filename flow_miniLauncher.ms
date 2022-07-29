@@ -20,7 +20,7 @@ global panO, panC, panM, panN, panP, panS, panPf, panE, panI, panV
 try (DestroyDialog flow_miniLauncher) catch()
 rollout flow_miniLauncher "Mini Launcher" 
 ( 	
-	local rolls = #("Organize Tools", "Create Tools", "Modeling Tools", "Normals Tools", "Painting Tools", "Substance Tools", "Prefabs Tools", "Export Tools", "Import Tools", "Viewport Tools")
+	local rolls = #("Organize Tools", "Create Tools", "Modeling Tools", "Normals Tools", "Painting Tools", "Substance Tools", "Prefabs Tools", "Export Tools", "Import Tools", "Viewport Tools", "Project Helper", "Attributes Helper")
 	dropdownList ddl_pan_lst 	"Panel's List: "				items:rolls  default:1
 	button btn_lau_pan 			"Launch Selected Panel"
 		
@@ -274,6 +274,27 @@ rollout flow_miniLauncher "Mini Launcher"
 				)	
 					
 				CreateDialog panV width:260 height:532
+			)
+			(ddl_pan_lst.selection == 11):(
+				try ( filein "FlowToolsProjectHelper.ms" ) catch()
+			)
+			(ddl_pan_lst.selection == 12):(
+				global FlowAttEditor 	
+					
+				--link to script here 
+				sysFolder = sysInfo.windowsdir
+				subS = substituteString sysFolder "WINDOWS" ("Users\\" + sysInfo.username as string)
+				
+				if (doesDirectoryExist (subS + "\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms") ) then
+				(
+					sysFolder = (subS + "\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms")
+				)
+				else
+				(
+					sysFolder = (subS + "\\OneDrive\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\FlowObjectAttributesEditor.ms")
+				)
+				
+				filein sysFolder
 			)
 		)
 		

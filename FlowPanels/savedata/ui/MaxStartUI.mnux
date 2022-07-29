@@ -82,7 +82,7 @@
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1567997" title="Render Dialog Menu Bar" menuID="238" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1744264583" title="" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1101794312" title="Arnold" />
-        <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="0" title="SubstanceMenu" menuID="489" />
+        <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="0" title="SubstanceMenu" menuID="490" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="518483343" title="" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1641024585" title="" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="2075629464" title="" />
@@ -136,10 +136,10 @@
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="359" flat="0" customTitle="C&amp;ustomize" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="254" flat="0" customTitle="&amp;Scripting" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="449" flat="0" />
-            <Item mode="4" modeName="AM_SUBMENU" subMenuID="490" flat="0" customTitle="Civil &amp;View" />
+            <Item mode="4" modeName="AM_SUBMENU" subMenuID="489" flat="0" customTitle="Civil &amp;View" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="485" flat="0" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="360" flat="0" customTitle="&amp;Help" />
-            <Item mode="4" modeName="AM_SUBMENU" subMenuID="489" flat="0" />
+            <Item mode="4" modeName="AM_SUBMENU" subMenuID="490" flat="0" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="486" flat="0" />
         </Menu>
         <Menu title="&amp;File">
@@ -598,8 +598,12 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="EditPolyMod`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Edit_Mesh`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Edit_Spline`Modifiers" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="PolySelect`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="VertexWeld`Modifiers" />
+            <Item mode="1" modeName="AM_SEPARATOR" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="PolySelect`Modifiers" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="DeleteMesh`Modifiers" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Face_Extrude`Modifiers" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="ChamferMod`Modifiers" />
             <Item mode="1" modeName="AM_SEPARATOR" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="EditNormals`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="WeightedNormalsMod`Modifiers" />
@@ -635,7 +639,6 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="FFDCyl`Modifiers" />
             <Item mode="1" modeName="AM_SEPARATOR" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Bend`Modifiers" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="ChamferMod`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Shell`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Push`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Slice`Modifiers" />
@@ -5011,6 +5014,9 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="RetopologyModifier`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="MeshCleanerModifier`Modifiers" />
         </Menu>
+        <Menu title="Civil &amp;View">
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="MCRinitialize`Civil View" customTitle="Initialize Civil View..." />
+        </Menu>
         <Menu title="Substance">
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="1" customTitle="Substance Settings" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="2" customTitle="Substance Batch Import" />
@@ -5025,9 +5031,6 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="5" customTitle="Substance Website" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="6" customTitle="Substance Source" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="13" customTitle="About Substance in 3ds Max" />
-        </Menu>
-        <Menu title="Civil &amp;View">
-            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="MCRinitialize`Civil View" customTitle="Initialize Civil View..." />
         </Menu>
         <QuadMenu>
             <Item menuID="4" title="Common" />
