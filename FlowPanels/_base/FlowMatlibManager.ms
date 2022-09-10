@@ -26,7 +26,10 @@
 			dropdownList ddl_mtlb_list ""											width:172					labelontop:false 					offset:[-20,0]
 			button 		btn_sel_mtlb "Load Library"																									offset:[35,0]
 			button 		btn_sav_mtlb "Save Library"																									offset:[10,0]		
-			
+		)
+
+		Group "Current MatLib: "
+		(		
 			listbox 	lst_crnt_mtlb "Current Loaded Library:"						height:2					across:3							offset:[-02, 00]
 			listbox 	lst_mtlb_mats "Library Materials:"							height:14
 			bitmap 		bmp_img "test"  																			offset:[01, 15]		
@@ -35,9 +38,11 @@
 			button 		btn_mat_sme   "Edit Material in SME"						width:138					across:5							offset:[10,-160]
 			button 		btn_mat_opn   "Open Material in SME"						width:138														offset:[-70,-138]
 			button 		btn_mat_aply  "Apply Material to Selected"					width:138														offset:[-142,-116]
-			button 		btn_open_maps "Open Map Locations"							width:138														offset:[-240,-94]
-			button 		btn_add_fsel  "Add Material from Selected"							width:138												offset:[-308,-72]
-			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[145,-5]
+			button 		btn_open_maps "Open Map Location"							width:140														offset:[42,-54]
+			button 		btn_view_map  "View Map Image"								width:140														offset:[-49,-32]
+			button 		btn_add_fsel  "Add Material from Selected"					width:138														offset:[-143,-88]
+			button 		btn_rmv_fsel  "Remove Mat from Library"						width:138														offset:[-144,-4]
+			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[145,40]
 				
 			
 			edittext 		edt_mat_name "Material Name:" 								width:280													offset:[00,17]	
@@ -263,11 +268,11 @@
 			
 		----------------------------------------------------------------------------------------------------------
 			
-		
+		--apply material to selected 
 		on btn_mat_aply pressed do 
 		(
 			for i in (selection as array) do 
-			(
+			(z
 				if selectedMat != undefined then 
 				(
 					i.mat = selectedMat
@@ -275,13 +280,15 @@
 			)
 			
 		)
-		
+			
+		--edit material name
 		on edt_mat_name changed txt do 
 		(
 			
 		)
 			
 			
+		--enable "create New lib preset" button 
 		on edt_mtlb_name changed txt do 
 		(
 			if txt.count > 0 then 
@@ -292,7 +299,29 @@
 				btn_mtlb_prst.enabled = false
 			)
 		)
-			
+		
+		on btn_view_map pressed do
+		(
+			num =  rad_dbg_maps.state
+				
+			str = mapArr[num].sourcemap.filename
+			print str
+			shelllaunch "explorer.exe" str	
+				
+		)
+		
+		on btn_open_maps pressed do 
+		(
+			num =  rad_dbg_maps.state
+				
+			str = mapArr[1].sourcemap.filename
+			str = substituteString str (getFilenameFile str + getFilenameType str) ""
+				
+			print qx_fldr
+			print str
+			shelllaunch "explorer.exe" str	
+				
+		)
 			
 		--create new preset 
 		on btn_mtlb_prst pressed do 
