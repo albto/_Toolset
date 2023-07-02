@@ -61,8 +61,6 @@ toolTip:"Add Unity Attributes"
 			SwapChannels			type:#boolean ui:chk_SwapChn   
 			Category 				type:#string ui:edt_subFolder
 			
-			
-			
 		)--end Param1
 			
 			
@@ -229,6 +227,38 @@ toolTip:"Add Unity Attributes"
 				
 			)
 			
+			fn LoadAttributeDataFromXml root = 
+			(
+				ObjectAttributes = #()
+				childNodes=root.childNodes
+					
+				for i = 0 to childNodes.Count-1 do 
+				(
+					ele = childNodes.ItemOf[i]
+					eleName = ele.getAttribute "name"
+						
+					if eleName == "Attributes" then
+					(
+						eleChildren = ele.childNodes
+							
+						for i = 0 to eleChildren.count-1 do 
+						(
+							child = eleChildren.ItemOf[i]
+							
+							--print (child.getAttribute "name")
+							ObjectAttributes[i+1] = (child.getAttribute "name")
+						)
+					)
+						
+				)
+					
+				ddl_oAtr.items = ObjectAttributes
+				obs[31] = ObjectAttributes
+				
+				--showProperties childNodes
+				
+			)
+			
 			fn ImportDataFromUnity = 
 			(
 				--load unity layers xml file
@@ -236,12 +266,14 @@ toolTip:"Add Unity Attributes"
 				flowIns = flowCore()
 				flowIns.LoadXml()
 					
-				--Load data 
+				--Load data  - - Layers 
 				LoadLayerDataFromXml flowIns.xmlDoc.DocumentElement name:"Layers"
 					
-				--Load data 
+				--Load data  - - Tags
 				LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
-				
+					
+				--Load data  - - Attributes
+				LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
 			)
 
 				
@@ -309,9 +341,7 @@ toolTip:"Add Unity Attributes"
 					)
 				)
 			)
-				
-
-				
+					
 			fn LoadObjectSettings =
 			(
 				--load data from unity xml

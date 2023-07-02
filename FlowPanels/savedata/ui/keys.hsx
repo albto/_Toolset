@@ -34,4 +34,7 @@
     <Unassign_Hotkey Shortcut="Alt+P" Description="Cap" Id="369982487-40060"/>
     <Unassign_Hotkey Shortcut="Alt+P" Description="Cap" Id="1250838234-40060"/>
     <Assign_Hotkey Shortcut="Shift+C" Description="Cap" Id="369982487-40060"/>
+    <Assign_Hotkey Shortcut="Alt+Shift+R" Description="Dot Ring" Id="647394-DotRing`PolyTools"/>
+    <Assign_Hotkey Shortcut="Alt+Shift+L" Description="Dot Loop" Id="647394-DotLoop`PolyTools"/>
+    <Assign_Hotkey Shortcut="Alt+F" Description="Flip Normals" Id="369982487-40018"/>
 </MaxHotkeyTransformations>

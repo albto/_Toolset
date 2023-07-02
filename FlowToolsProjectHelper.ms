@@ -88,7 +88,7 @@ Rollout flowProjectHelper "Project Helper"
 		
 	local areatag = #("_Art", "_Design", "_Inst", "_Vehicle", "_Test")
 		
-	bitmap bitmapBannerUi 						width:335 height:64 fileName:bitmapBannerFile align:#center gamma:1.0
+	bitmap bitmapBannerUi 						width:335 height:68 fileName:bitmapBannerFile align:#center gamma:1.0
 		
 		
 	Group "Project Directory"
@@ -116,10 +116,12 @@ Rollout flowProjectHelper "Project Helper"
 	(		
 		dropdownList ddl_folder "Categories" 						across:2
 		dropdownList ddl_subfol "Levels" 			
-		button btn_opn_cat "Open"			width:155	height:15	across:2	
-		button btn_opn_lvl "Open"			width:155	height:15
-		listbox lst_areas "Areas List"	
-		
+		button btn_opn_cat "Open Category's Directory"			width:155	height:15	across:2	
+		button btn_opn_lvl "Open Level's Directory"				width:155	height:15
+		listbox lst_areas "Areas List - "	
+		label lbl_are_ass "Area Assets - " 						align:#left
+		button btn_lod_pref "Load Pure Ref"						align:#left				across:2
+		button btn_lod_pint "Load Pinterest Board"
 	)
 		
 	Group "Filter Viewer"
@@ -133,8 +135,10 @@ Rollout flowProjectHelper "Project Helper"
 		
 	Group "XRef Scenes"
 	(
-		button btn_lod_ava "XRef Avatar Scene"						across:2
-		button btn_lod_met "XRef Metrics Scene"
+		
+		button btn_lod_ava "Avatar XRef"			width:100			across:3		
+		button btn_lod_met "Metrics XRef"			width:100
+		checkbutton chk_asObj "XRefObject Import"		width:100
 		
 		
 		dropdownList ddl_refs ""	 			width:200 across:6
@@ -186,9 +190,8 @@ Rollout flowProjectHelper "Project Helper"
 			(
 				deleteItem levels i 
 			)
-		)
-		
-		
+		)		
+			
 		newArr = #()
 		newLevels = #()
 		cleanArr = #()
@@ -329,6 +332,7 @@ Rollout flowProjectHelper "Project Helper"
 					
 				)
 				
+				--PRINT subsfol_array 
 				
 				--create new sub folder array 
 				clean_sfol_array[1] = "All Levels"
@@ -480,6 +484,40 @@ Rollout flowProjectHelper "Project Helper"
 		)	
 		ddl_refs.items = arr
 	)	
+	
+	
+	--update load pref buttons 
+	fn CheckIfReferenceExists = 
+	(
+		if subsfol_array.count > 0 then 
+		(			
+			pureRefLocation = (subsfol_array[1] as string  + "pref\\_Ref.pur") 
+				
+			if (doesFileExist pureRefLocation) then  
+			(
+				btn_lod_pref.enabled = true
+			)
+			else
+			(
+				btn_lod_pref.enabled = false
+				print "invalid"
+			)	
+			
+			pinterestLocation = (subsfol_array[1] as string + "pref\\_Pinterest.url")
+					
+			if (doesFileExist pinterestLocation) then  
+			(
+				btn_lod_pint.enabled = true
+			)
+			else
+			(
+				btn_lod_pint.enabled = false
+				print "invalid"
+			)	
+		)		
+		
+	)
+	
 	----------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------
 		
@@ -597,9 +635,9 @@ Rollout flowProjectHelper "Project Helper"
 	(
 		if i != 0 then 
 		(
-			print lst_areas.items[i]
-			print levels
-			print i
+			--print lst_areas.items[i]
+			--print levels
+			--print i
 		)
 	)
 		
@@ -637,11 +675,16 @@ Rollout flowProjectHelper "Project Helper"
 
 	)
 		
+	--sub-folders list 
 	on ddl_subfol selected i do
 	(
 			
 		--get Project levels and filter types 
 		GetProjectLevels()
+			
+		--reload pref button status 
+		CheckIfReferenceExists()
+		
 			
 		--set array
 		SetLauncherData i 3
@@ -651,6 +694,7 @@ Rollout flowProjectHelper "Project Helper"
 			
 	)
 		
+	--folders list 
 	on ddl_folder selected i do 
 	(
 		--reset drop down list
@@ -692,6 +736,16 @@ Rollout flowProjectHelper "Project Helper"
 			
 	)
 		
+	--open category's directory in windows 
+	on btn_opn_cat pressed do 
+	(
+		
+		catDir = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
+		print (catDir) 
+		ShellLaunch "explorer.exe" (catDir[1] as string ) 
+	) 
+	
+	
 	--create new level
 	on btn_crt_scn pressed do 
 	(
@@ -708,6 +762,13 @@ Rollout flowProjectHelper "Project Helper"
 		
 	)
 		
+	--open level's directory in windows 
+	on btn_opn_lvl pressed do 
+	(
+		print subsfol_array as string 
+		ShellLaunch "explorer.exe" (subsfol_array[2] as string ) 
+	) 
+		
 	--create new area 
 	on btn_crt_are pressed do 
 	(
@@ -716,7 +777,7 @@ Rollout flowProjectHelper "Project Helper"
 		(
 			default:
 			(					
-				print rad_are_type.state
+				--print rad_are_type.state
 					
 				--create 'type' folder
 				dirname = (clean_sfol_array[ddl_subfol.selection] + "\\models\\" + areatag[rad_are_type.state] as string)
@@ -729,12 +790,12 @@ Rollout flowProjectHelper "Project Helper"
 		areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + ddl_area_suf.items[ddl_area_suf.selection] as string)
 		loc = (strMyFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + areatag[rad_are_type.state] + "\\" + areaname as string + ".max") 
 			
-			print areaname
-		print loc
+			--print areaname
+		--print loc
 				
 		if selection.count > 0 then 
 		(
-			saveNodes selection[1] loc --quiet:true
+			saveNodes selection loc --quiet:true
 		)
 		else 
 		(
@@ -883,6 +944,45 @@ Rollout flowProjectHelper "Project Helper"
 		
 	)
 	
+	--load pure ref - button
+	on btn_lod_pref pressed do 
+	(
+		pureRefLocation = (subsfol_array[1] as string  + "pref\\_Ref.pur") 
+			
+		print ("PureRef Location = "	+ pureRefLocation as string)
+		if (doesFileExist pureRefLocation) then  
+		(
+			print pureRefLocation as string 
+			ShellLaunch pureRefLocation ""
+		)
+		else
+		(
+			
+		)
+				
+	)
+	
+	--load pinterest board -- 
+	on btn_lod_pint pressed do 
+	(
+		pinterestLocation = (subsfol_array[1] + "pref\\_Pinterest.url")
+				
+		if (doesFileExist pinterestLocation) then  
+		(
+			print pinterestLocation as string 
+			ShellLaunch pinterestLocation ""
+		)
+		else
+		(
+			
+			print "invalid"
+		)
+		
+		
+	)
+	
+	
+	
 	
 	on btn_lod_ava pressed do 
 	(
@@ -891,9 +991,15 @@ Rollout flowProjectHelper "Project Helper"
 		(
 			refObjs = #()
 			Xrefobjs = getMAXFileObjectNames (getdir #scene + "\\maxstart.max")
-			
-			Xrefobjs = xrefs.addNewXRefFile  (getdir #scene + "\\maxstart.max") modifiers:#xref manipulators:#xref dupMtlNameAction:#useXRefed 
-			
+						
+			if chk_asObj.checked then 
+			(
+				Xrefobjs = xrefs.addNewXRefObject (getdir #scene + "\\maxstart.max") Xrefobjs
+			)
+			else 
+			(
+				Xrefobjs = xrefs.addNewXRefFile  (getdir #scene + "\\maxstart.max") modifiers:#xref manipulators:#xref dupMtlNameAction:#useXRefed 
+			)
 			--Xrefobjs.showFrozenInGray = false
 			--freeze Xrefobjs
 			--Xrefobjs.wirecolor = [88, 144, 225]
@@ -965,9 +1071,11 @@ Rollout flowProjectHelper "Project Helper"
 		--set Xref Scences list
 		ddl_refs.items = arr
 			
-			
 		--Reload Projects List
 		ReloadProjectList()
+			
+		--Reload PureRef and Pinterest resources
+		CheckIfReferenceExists()	
 			
 		--sets level selection for subfolder load
 		ddl_proj.selected = ddl_proj.items[1]
@@ -986,6 +1094,12 @@ Rollout flowProjectHelper "Project Helper"
 		(
 			if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
 			(
+					
+				--Reload Projects List
+				ReloadProjectList()
+					
+				--Reload PureRef and Pinterest resources
+				CheckIfReferenceExists()	
 					
 				--set image
 				bitmapBannerFile = (imgfolder + "banner.jpg")
@@ -1034,6 +1148,6 @@ Rollout flowProjectHelper "Project Helper"
 
 
 
-CreateDialog flowProjectHelper	width:340 height:650 
+CreateDialog flowProjectHelper	width:340 height:700 
 	
 cui.registerDialogBar	flowProjectHelper	style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true

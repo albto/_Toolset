@@ -5,28 +5,28 @@
 -- ////////////////////////////////////////////////////////////////////////////////
 ------------------------------------------------------------------------------------
 
-	global  FlowPanels 	 = "FlowFunctions"
+	global  FlowPanels 	 	= "FlowFunctions"
 	
-	global  CombineObj 	 = "ObjectCombine"
-	global  VertWeld 	 = "WeldAllVerts"
-	global  ResetObj 	 = "ResetObject"
-	global  CopyObj 	 = "QuickCopy"
-	global  ResTransform = "ResetObjTransforms"
-	global  ObjDetach 	 = "ObjDetach"
-	global  QuickUV 	 = "QuickUV"
-	global  RescaleUVs 	 = "RescaleUVs"
-	global  Cull 		 = "Cull"
-	global  PolyOs		 = "PolyOperationsFF"
-	global	DeleteLoop	 = "DeleteLoop"	
-	global	DeleteMod	 = "DeleteMod"
-	global	DubSmooth	 = "DubSmooth"
-	global 	PivtoVerts	 = "Pivot_to_Vert_Selection"	
-	global 	RandElementClr	 = "AssignRandomElementColor"
-	global 	UvShllGrps 	 = "UVIslandsToSmoothing"
+	global  CombineObj 	 	= "ObjectCombine"
+	global  VertWeld 	 	= "WeldAllVerts"
+	global  ResetObj 	 	= "ResetObject"
+	global  CopyObj 	 	= "QuickCopy"
+	global  ResTransform 	= "ResetObjTransforms"
+	global  ObjDetach 	 	= "ObjDetach"
+	global  QuickUV 	 	= "QuickUV"
+	global  RescaleUVs 	 	= "RescaleUVs"
+	global  Cull 		 	= "Cull"
+	global  PolyOs		 	= "PolyOperationsFF"
+	global	DeleteLoop	 	= "DeleteLoop"	
+	global	DeleteMod	 	= "DeleteMod"
+	global	DubSmooth	 	= "DubSmooth"
+	global 	PivtoVerts	 	= "Pivot_to_Vert_Selection"	
+	global 	RandElementClr	= "AssignRandomElementColor"
+	global 	UvShllGrps 	 	= "UVIslandsToSmoothing"
 		
-	global 	GetChildren	 = "SelectChildren"
+	global 	GetChildren	 	= "SelectChildren"
 		
-	global  cull_tog 	 = true
+	global  cull_tog 	 	= true
 	
 ------------------------------------------------------------------------------------
 -- ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@
 ------------------------------------------------------------------------------------
 macroScript ObjectCombine
 category:"FlowFunctions"
-toolTip:"combine selected objects"
+toolTip:"Combine Poly Mesh"
 (
 	Undo on
 	if classof selection != Editable_Poly and selection.count >= 2 then 

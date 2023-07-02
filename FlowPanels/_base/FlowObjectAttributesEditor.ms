@@ -177,6 +177,37 @@
 			
 		)
 			
+		------------------------------------------------------------------------------------------------		
+		fn LoadAttributeDataFromXml root = 
+		(
+			AttrList = #()
+			childNodes=root.childNodes
+				
+			for i = 0 to childNodes.Count-1 do 
+			(
+				ele = childNodes.ItemOf[i]
+				eleName = ele.getAttribute "name"
+					
+				if eleName == "Attributes" then
+				(
+					eleChildren = ele.childNodes
+						
+					for i = 0 to eleChildren.count-1 do 
+					(
+						child = eleChildren.ItemOf[i]
+						
+						--print (child.getAttribute "name")
+						AttrList[i+1] = (child.getAttribute "name")
+					)
+				)
+					
+			)
+				
+			--pass data
+			ddl_filAtt.items = AttrList
+			ddl_iniAtt.items = AttrList
+			
+		)
 		------------------------------------------------------------------------------------------------
 		--
 		fn ImportDataFromUnity = 
@@ -191,6 +222,9 @@
 				
 			--Load data 
 			LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
+			
+			--Load data 
+			LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
 			
 			
 			--print ("Layers List - " + LayersList as string)
@@ -213,8 +247,8 @@
 					(	
 						o+=1
 							
-						print ("objAttr = " + objAttr as string)
-						print ("objFilter = " + objFilter as string)
+						--print ("objAttr = " + objAttr as string)
+						--print ("objFilter = " + objFilter as string)
 						list[o] = i.name as string 
 						
 						lst_focObj.items = list
@@ -239,7 +273,8 @@
 				
 			case chk_filObj.state of 
 			(
-				1:(	print "None"
+				1:(	
+					--print "None"
 					for i in Geometry do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -252,7 +287,7 @@
 					)
 				)
 				2:(	
-					print "Layers"	
+					--print "Layers"	
 					list = #()
 					for i in geometry do 
 					(
@@ -269,7 +304,7 @@
 					)
 				)
 				3:(
-					print "Type"
+					--print "Type"
 					for i in geometry do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -285,10 +320,12 @@
 						
 					)
 				)
-				4:(	print "Attr"	)		
+				4:(	
+					--print "Attr"	
+					)		
 				5:
 				(
-					print "Tags"
+					--print "Tags"
 					for i in geometry do 
 					(						
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -362,7 +399,7 @@
 						)
 					)
 					
-					print stats 
+					--print stats 
 					
 					--show attributes
 					lst_objAtt.items = stats
@@ -508,7 +545,7 @@
 				i.modifiers[#Unity_Attributes].gameData.GameLayers = ddl_iniLay.selection
 					
 				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
-				print obs
+				--print obs
 				--changed setting
 				obs[4] = ddl_iniTyp.selection
 					
@@ -647,7 +684,7 @@
 			(
 				if (classof i) == EditablePolyMesh then 
 				(					
-					print (i.name + " is missing attributes modifier" )
+					--print (i.name + " is missing attributes modifier" )
 					
 					select i
 					macros.run FlowAttributes FlowAddAtt
@@ -688,7 +725,7 @@
 			(
 				if i.modifiers[#Unity_Attributes] != undefined  then 
 				(	
-					print (i.name + " is missing attributes modifier" )
+					--print (i.name + " is missing attributes modifier" )
 					selectmore i
 					macros.run FlowAttributes FlowRmvAtt
 						
@@ -739,6 +776,9 @@
 		(
 			--selected item 
 			SelectedItem item
+			
+			max tool zoomextents
+			
 		)
 			
 		--refresh list 
@@ -785,7 +825,7 @@
 			(
 				1:
 				(
-					print "None"
+					--print "None"
 					for o in objects do 
 					(					
 						if o.modifiers[#Unity_Attributes] != undefined then 
@@ -802,7 +842,7 @@
 				)
 				2:
 				(
-					print "Layers"
+					--print "Layers"
 					for i in objects do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -822,7 +862,7 @@
 				)
 				3:
 				(
-					print "Type"
+					--print "Type"
 					for i in objects do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -841,10 +881,12 @@
 					RefreshAttributeObjectsList()
 					
 				)
-				4:(print "Attr")
+				4:(
+					--print "Attr"
+					)
 				5:
 				(
-					print "Tag"
+					--print "Tag"
 					for i in objects do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -876,7 +918,7 @@
 			(
 				1:
 				(
-					print "None"
+					--print "None"
 					for o in objects do 
 					(					
 						if o.modifiers[#Unity_Attributes] != undefined then 
@@ -894,11 +936,11 @@
 				)
 				2:
 				(
-					print "Layers"
+					--print "Layers"
 				)
 				3:
 				(
-					print "Type"
+					--print "Type"
 					for i in objects do 
 					(
 						if i.modifiers[#Unity_Attributes] != undefined then 
@@ -918,7 +960,9 @@
 					RefreshAttributeObjectsList()
 					
 				)
-				4:(print "Attr")
+				4:(
+					--print "Attr"
+				)
 			)
 
 		)
