@@ -87,30 +87,32 @@ Rollout flowProjectHelper "Project Helper"
 	local subsfol_array = #()
 	local refObjs = #()
 		
-	local areatag = #("_Art", "_Design", "_Inst", "_Vehicle", "_Test", "")
+	local areatag = #("_Art", "_Design", "_Inst", "_Weapon", "_Veh", "_Test", "")
 		
 	bitmap bitmapBannerUi 						width:335 height:68 fileName:bitmapBannerFile align:#center gamma:1.0
 		
 		
 	Group "Project Directory"
 	(
-		dropdownlist ddl_proj "" 			items:#()
-		button btn_crt "New"				width:75	height:24	across:4
-		button btn_open "Open"				width:75	height:24
+		dropdownlist ddl_proj "" 				items:#()
+		button btn_crt "New"					width:75	height:24	across:4
+		button btn_open "Open"					width:75	height:24
 		button btn_edit	"Refresh"				width:75	height:24
-		button btn_swtc	"Switch"			width:75	height:24
+		button btn_swtc	"Switch"				width:75	height:24
 	)
 		
 	Group "Directory Helper"
 	(	
-		checkbutton chk_sel_nam "Auto-Name"			width:65					align:#left			across:3
-		edittext edt_dir_name ""					width:180 	height:20		align:#center
-		dropdownList ddl_area_suf ""				width:62					align:#right		items:#("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
-		radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Isnt", "_Vehicle", "_Test", "null")
-		button btn_crt_cat "New Category"		width:80	height:24 							across:4
-		button btn_crt_scn "New Level"			width:75	height:24	
-		button btn_crt_are "New Area"			width:75	height:24
-		button btn_crt_prp "New Prop"			width:75	height:24
+		checkbutton chk_sel_nam "Auto-Name"		width:65					align:#left			across:3
+		edittext edt_dir_name ""				width:180 	height:20		align:#center
+		dropdownList ddl_area_suf ""			width:62					align:#right		items:#("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
+		radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Inst", "_Weapon", "_Vehicle", "_Test", "null")	columns:5 	offset:[5,0]
+		button btn_crt_cat "+ Category"			width:70	height:24 		offset:[2,0]	across:6
+		button btn_crt_scn "+ Level"			width:45	height:24		offset:[7,0]
+		button btn_crt_are "+ Area"				width:50	height:24		offset:[1,0]
+		button btn_crt_prp "+ Prop"				width:45	height:24		offset:[-5,0]
+		button btn_crt_veh "+ Vehicle"			width:60	height:24		offset:[-5,0]
+		button btn_crt_wea "+ Weapon"			width:60	height:24		offset:[6,0]
 	)
 		
 	Group "Directory Viewer"
@@ -124,17 +126,19 @@ Rollout flowProjectHelper "Project Helper"
 		
 	Group "Filter Viewer"
 	(
-		checkbutton chk_art "_Art" 			width:75	height:24	across:4
-		checkbutton chk_dsn "_Design"		width:75	height:24
-		checkbutton chk_inst "_Inst"		width:75	height:24
-		checkbutton chk_veh "_Vehicle"		width:75	height:24
+		checkbutton chk_art "_Art" 			width:60	height:24	across:5
+		checkbutton chk_dsn "_Design"		width:62	height:24
+		checkbutton chk_inst "_Inst"		width:62	height:24
+		checkbutton chk_veh "_Vehicle"		width:62	height:24
+		checkbutton chk_wea "_Weapon"		width:62	height:24
 		
 	)
 		
 	Group "Reference Assets"
 	(
-		button btn_lod_pref "Open Pure Ref"						align:#left				across:2
+		button btn_lod_pref "Open Pure Ref"						align:#left				across:3
 		button btn_lod_pint "Open Pinterest Board"
+		button btn_lod_ "Open " 
 	)
 	Group "XRef Scenes"
 	(
@@ -416,7 +420,7 @@ Rollout flowProjectHelper "Project Helper"
 				--pass sub folder names to the list 
 				ddl_subfol.items = clean_sfol_array
 				
-				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
+				subsfol_array = (GetDirectories (curProjectFolder + "\\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
 				
 				if subsfol_array.count >= 1 then 
 				(
@@ -834,7 +838,7 @@ Rollout flowProjectHelper "Project Helper"
 	on btn_crt_scn pressed do 
 	(
 		--create new level directory
-		areaname = edt_dir_name.text + "_Main" 
+		areaname = edt_dir_name.text
 		makeDir (curProjectFolder + "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
 		
 		--Reload Projects List
@@ -845,17 +849,59 @@ Rollout flowProjectHelper "Project Helper"
 			
 	)
 		
+	--create new prop asset
 	on btn_crt_prp pressed do 
-	(
-		
-		
+	(	
+			
+		--create and Label
+		tagname = ""
+		if (ddl_area_suf.selection != 1) then 
+		(
+			tagname = ddl_area_suf.items[ddl_area_suf.selection] as string
+		)
+			
+		areaname = (edt_dir_name.text)
+			
+		newloc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + areaname as string) 
+			
+		areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
+			
+			
+		--create prop directory 
+		makeDir (newloc + "\\_max"  as string)
+		makeDir (newloc + "\\_painter"  as string)
+		makeDir (newloc + "\\_painter\\bake"  as string)
+		makeDir (newloc + "\\_painter\\bake\\high"  as string)
+		makeDir (newloc + "\\_painter\\bake\\low"  as string)
+		makeDir (newloc + "\\_designer"  as string)
+		makeDir (newloc + "\\_zbrush"  as string) 
+		makeDir (newloc + "\\models"  as string)
+		makeDir (newloc + "\\models\\"  as string + areatag[rad_are_type.state] as string)
+		makeDir (newloc + "\\pref"  as string)
+		makeDir (newloc + "\\textures"  as string)	
+			
+		--save file 
+		loc = (newloc + "\\models\\" + areatag[rad_are_type.state] as string + "\\" + areaname as string + ".max") 
+			
+			
+		if selection.count > 0 then 
+		(
+			saveNodes selection loc --quiet:true
+		)
+		else 
+		(
+			print "Nothing is Selected"
+		)
+			
+		--get Project levels and filter types 
+		GetProjectLevels()
 	)		
 		
 	--open level's directory in windows 
 	on btn_opn_lvl pressed do 
 	(
 		print subsfol_array as string 
-		ShellLaunch "explorer.exe" (subsfol_array[2] as string ) 
+		ShellLaunch "explorer.exe" (subsfol_array[1] as string ) 		
 	) 
 		
 	--open category's directory in windows 
@@ -884,30 +930,39 @@ Rollout flowProjectHelper "Project Helper"
 	--Create New Project Button 
 	on btn_crt pressed do 
 	(
+			
 		--project directory 
 		if (folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
 		(
 			--macros.run "Tools" "CreateDefaultProject" 
-			pathConfig.doProjectSetupStepsUsingDirectory folder  
+			pathConfig.doProjectSetupStepsUsingDirectory folder 
 			pathConfig.setCurrentProjectFolder folder
-			
+				
 			--create the Areas Folder Structure
-			makeDir (curProjectFolder + "scenes\\Areas\\All" )
-			makeDir (curProjectFolder + "scenes\\Areas\\" )
-			makeDir (curProjectFolder + "scenes\\Areas\\" )
-			makeDir (curProjectFolder + "scenes\\Areas\\" )
-			makeDir (curProjectFolder + "scenes\\Areas\\" )
-			makeDir (curProjectFolder + "scenes\\Areas\\" )
-			makeDir (curProjectFolder + "scenes\\Areas\\" )
-			
-			
+			makeDir (folder + "\\scenes\\Areas\\All" )
+			makeDir (folder + "\\scenes\\Areas\\Characters" )
+			makeDir (folder + "\\scenes\\Areas\\Characters\\All Characters" )
+			makeDir (folder + "\\scenes\\Areas\\Exteriors" )
+			makeDir (folder + "\\scenes\\Areas\\Exteriors\\All Exteriors" )
+			makeDir (folder + "\\scenes\\Areas\\Interiors" )
+			makeDir (folder + "\\scenes\\Areas\\Interiors\\All Interiors" )
+			makeDir (folder + "\\scenes\\Areas\\Props" )
+			makeDir (folder + "\\scenes\\Areas\\Props\\All Props" )
+			makeDir (folder + "\\scenes\\Areas\\Vehicles" )
+			makeDir (folder + "\\scenes\\Areas\\Vehicles\\All Vehicles" )
+			makeDir (folder + "\\scenes\\Areas\\Weapons" )
+			makeDir (folder + "\\scenes\\Areas\\Weapons\\All Weapons" )
+			makeDir (folder + "\\scenes\\Areas\\zTestGrounds" )
+			makeDir (folder + "\\scenes\\Areas\\zTestGrounds\\All Test Grounds" )
+				
 			--Reload Projects List
 			ReloadProjectList()
-			
-		)
+				
+		)	
 			
 	)
-	
+		
+	--refrsh list 
 	on btn_edit pressed do 
 	(
 		--Reload Projects List
@@ -1234,6 +1289,6 @@ Rollout flowProjectHelper "Project Helper"
 
 
 
-CreateDialog flowProjectHelper	width:340 height:700 
+CreateDialog flowProjectHelper	width:350 height:700 
 	
 cui.registerDialogBar	flowProjectHelper	style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true
