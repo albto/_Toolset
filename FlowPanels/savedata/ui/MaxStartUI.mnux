@@ -82,7 +82,7 @@
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1567997" title="Render Dialog Menu Bar" menuID="238" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1744264583" title="" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1101794312" title="Arnold" />
-        <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="0" title="SubstanceMenu" menuID="490" />
+        <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="0" title="SubstanceMenu" menuID="489" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="518483343" title="" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="1641024585" title="" />
         <MenuContext type="0" typeName="kMenuContextMenuBar" contextID="2075629464" title="" />
@@ -136,10 +136,10 @@
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="359" flat="0" customTitle="C&amp;ustomize" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="254" flat="0" customTitle="&amp;Scripting" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="449" flat="0" />
-            <Item mode="4" modeName="AM_SUBMENU" subMenuID="489" flat="0" customTitle="Civil &amp;View" />
+            <Item mode="4" modeName="AM_SUBMENU" subMenuID="490" flat="0" customTitle="Civil &amp;View" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="485" flat="0" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="360" flat="0" customTitle="&amp;Help" />
-            <Item mode="4" modeName="AM_SUBMENU" subMenuID="490" flat="0" />
+            <Item mode="4" modeName="AM_SUBMENU" subMenuID="489" flat="0" />
             <Item mode="4" modeName="AM_SUBMENU" subMenuID="486" flat="0" />
         </Menu>
         <Menu title="&amp;File">
@@ -392,15 +392,17 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="EMesh_TargetWeld`Editable Mesh Object" />
         </Menu>
         <Menu title="snap toggles" flags="2">
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="80000" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="80001" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="80002" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="80004" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="50059" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="80005" />
-            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="80006" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="40001" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="40000" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="40002" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="40004" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="50074" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="40006" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="50084" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="50062" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="40003" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="50059" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="1259304063" actionID="50076" />
         </Menu>
         <Menu title="snap override" flags="2">
             <Item mode="5" modeName="AM_ITEM_SUBMENU" actionTableID="0" actionID="59227" flat="1" />
@@ -3912,7 +3914,9 @@
         </Menu>
         <Menu title="Modifiers - Parametric &amp;Deformers">
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Affect_Region`Modifiers" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="ArrayModifier`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Bend`Modifiers" customTitle="&amp;Bend" />
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="BooleanMod`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Data_ChannelMod`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Displace`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="Lattice`Modifiers" />
@@ -5014,9 +5018,6 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="RetopologyModifier`Modifiers" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="MeshCleanerModifier`Modifiers" />
         </Menu>
-        <Menu title="Civil &amp;View">
-            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="MCRinitialize`Civil View" customTitle="Initialize Civil View..." />
-        </Menu>
         <Menu title="Substance">
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="1" customTitle="Substance Settings" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="2" customTitle="Substance Batch Import" />
@@ -5031,6 +5032,9 @@
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="5" customTitle="Substance Website" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="6" customTitle="Substance Source" />
             <Item mode="2" modeName="AM_ITEM" actionTableID="536556512" actionID="13" customTitle="About Substance in 3ds Max" />
+        </Menu>
+        <Menu title="Civil &amp;View">
+            <Item mode="2" modeName="AM_ITEM" actionTableID="647394" actionID="MCRinitialize`Civil View" customTitle="Initialize Civil View..." />
         </Menu>
         <QuadMenu>
             <Item menuID="4" title="Common" />

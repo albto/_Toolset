@@ -18,7 +18,7 @@
 	global strMyFolder = ""
 	----------------------------------------------------------------------------------------------------------------------------------
 		
-	----------------------------------------------------------------------------------------------------------------------------------
+	-----------------------------------------------------------------------------------------------------------LAUNCHER DATA -- SET --
 	----------------------------------------------------------------------------------------------------------------------------------
 	-- Auto-Load Lauincher Data on Start-up
 		
@@ -38,18 +38,23 @@
 		--grab data
 		mainFPFolder = launcherData[1]
 	)
+	else 
+	(
+		launcherData = #("", 1, 1)
+	)
 		
-	global FP_DataLocation 
-	global FP_BaseLocation 
+	global FP_DataLocation
+	global FP_BaseLocation	
 	global FP_RCLocation 
 		
+		
 	--set locations
-	FP_DataLocation	= (mainFPFolder + "\FlowPanels\_base\FlowSaveData.ms")
-	FP_BaseLocation = (mainFPFolder + "\FlowPanels\_base\FlowToolsBase.ms")
-	FP_RCLocation 	= (mainFPFolder + "\FlowPanels\_base\FlowRCMenu.ms")
-	FP_Functions 	= (mainFPFolder + "\\FlowFunctions\\FlowFunctions.ms") 
-	FP_Create		= (mainFPFolder + "\\FlowFunctions\\FlowCreator.ms") 
-	FP_Attributes 	= (mainFPFolder + "\\FlowFunctions\\FlowObjectAttributes.ms") 	
+	FP_DataLocation	= (mainFPFolder as string + "\FlowPanels\_base\FlowSaveData.ms" ) as string
+	FP_BaseLocation = (mainFPFolder as string + "\FlowPanels\_base\FlowToolsBase.ms") as string
+	FP_RCLocation 	= (mainFPFolder as string + "\FlowPanels\_base\FlowRCMenu.ms") as string
+	FP_Functions 	= (mainFPFolder as string + "\\FlowFunctions\\FlowFunctions.ms") as string
+	FP_Create		= (mainFPFolder as string + "\\FlowFunctions\\FlowCreator.ms") as string
+	FP_Attributes 	= (mainFPFolder as string + "\\FlowFunctions\\FlowObjectAttributes.ms") as string
 		
 	--Set Tool Image file
 	bitmapBannerFile = (imgfolder + "banner.jpg")
@@ -289,7 +294,7 @@ rcMenu LauncherSettingsMenu
 		
 		try 
 		(
-			source_file = (" \"C:\\Users\\albto\\Documents\\_Toolset\\FlowPanels\\_base\\XmlGenerator" + ".ms" + "\"")  
+			source_file = (" \"C:\\Users\\albto\\OneDrive\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\XmlGenerator" + ".ms" + "\"")  
 			dest_folder = (" \"C:\\Program Files\\Autodesk\\3ds Max " + currentMaxVersion[8] as string +"\\scripts\\Startup\\XmlGenerator" + ".ms" + "\"") -- "%ProgramFiles%\Autodesk\scripts\startup\XMLGenerator.ms") 
 				
 			txt = ("copy" + " " + source_file + " " + dest_folder) as string 

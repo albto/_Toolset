@@ -14,7 +14,7 @@
 -- global toolFolder = substituteString launcherFolder "\FlowPanels\_base" ""
 
 -- 	
--- global strMyFolder = ""
+-- global curProjectFolder = ""
 ----------------------------------------------------------------------------------------------------------------------------------
 	
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -54,6 +54,7 @@ Try(cui.UnregisterDialogBar flowProjectHelper)catch()
 try(destroydialog flowProjectHelper)catch()
 
 global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str	
+global curProjectFolder = ""
 --Set Tool Image file
 bitmapBannerFile = (imgfolder + "banner.jpg")
 	
@@ -86,7 +87,7 @@ Rollout flowProjectHelper "Project Helper"
 	local subsfol_array = #()
 	local refObjs = #()
 		
-	local areatag = #("_Art", "_Design", "_Inst", "_Vehicle", "_Test")
+	local areatag = #("_Art", "_Design", "_Inst", "_Vehicle", "_Test", "")
 		
 	bitmap bitmapBannerUi 						width:335 height:68 fileName:bitmapBannerFile align:#center gamma:1.0
 		
@@ -105,7 +106,7 @@ Rollout flowProjectHelper "Project Helper"
 		checkbutton chk_sel_nam "Auto-Name"			width:65					align:#left			across:3
 		edittext edt_dir_name ""					width:180 	height:20		align:#center
 		dropdownList ddl_area_suf ""				width:62					align:#right		items:#("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
-		radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Isnt", "_Vehicle", "_Test")
+		radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Isnt", "_Vehicle", "_Test", "null")
 		button btn_crt_cat "New Category"		width:80	height:24 							across:4
 		button btn_crt_scn "New Level"			width:75	height:24	
 		button btn_crt_are "New Area"			width:75	height:24
@@ -119,9 +120,6 @@ Rollout flowProjectHelper "Project Helper"
 		button btn_opn_cat "Open Category's Directory"			width:155	height:15	across:2	
 		button btn_opn_lvl "Open Level's Directory"				width:155	height:15
 		listbox lst_areas "Areas List - "	
-		label lbl_are_ass "Area Assets - " 						align:#left
-		button btn_lod_pref "Load Pure Ref"						align:#left				across:2
-		button btn_lod_pint "Load Pinterest Board"
 	)
 		
 	Group "Filter Viewer"
@@ -133,6 +131,11 @@ Rollout flowProjectHelper "Project Helper"
 		
 	)
 		
+	Group "Reference Assets"
+	(
+		button btn_lod_pref "Open Pure Ref"						align:#left				across:2
+		button btn_lod_pint "Open Pinterest Board"
+	)
 	Group "XRef Scenes"
 	(
 		
@@ -175,12 +178,72 @@ Rollout flowProjectHelper "Project Helper"
 		)		
 	)
 		
+		
+	--Toggle Reference Buttons
+	fn ToggleRefButtons toggle = 
+	(
+		btn_lod_pref.enabled = toggle 
+		btn_lod_pint.enabled = toggle 
+		
+	)	
+		
+	--toggle 'Open Level's DIrectory' Button 
+	fn OpenLevelDirectory toggle = 
+	(
+		btn_opn_lvl.enabled = toggle
+	)
+		
+	--update load pref buttons 
+	fn CheckIfReferenceExists = 
+	(
+		pureRefLocation = pinterestLocation = ""
+		
+		if subsfol_array[1] != undefined then 
+		(			
+			pureRefLocation = (subsfol_array[1] as string  + "pref\\_Ref.pur") 
+				
+			if (doesFileExist pureRefLocation) then  
+			(
+				ToggleRefButtons true
+					
+				print subsfol_array[1] as string
+			)
+			else
+			(
+				ToggleRefButtons false
+				print "Error - PureRef file was not found"
+			)	
+					
+		)		
+		
+		if subsfol_array[1] != undefined then 
+		(			
+			pinterestLocation = (subsfol_array[1] as string + "pref\\_Pinterest.url")
+				
+			if (doesFileExist pinterestLocation) then  
+			(
+				ToggleRefButtons true
+					
+				print subsfol_array[1] as string
+			)
+			else
+			(
+				ToggleRefButtons false
+					
+				print "Error - Pinterest Board file was not found"
+			)	
+					
+		)
+		
+	)
+		
 	--Reload sub folders list
 	fn GetProjectLevels = 
 	(
-		strMyFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
+			
+		curProjectFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
 		
-		levels = getFiles((strMyFolder as string + "\\*.max"))
+		levels = getFiles((curProjectFolder as string + "\\*.max"))
 			
 		for i = 1 to levels.count do 
 		(
@@ -197,7 +260,7 @@ Rollout flowProjectHelper "Project Helper"
 		cleanArr = #()
 			
 		--create directories array 
-		dir_array = GetDirectories (strMyFolder +"\scenes\Areas\\*")
+		dir_array = GetDirectories (curProjectFolder +"\scenes\Areas\\*")
 			
 		for d in dir_array do
 		(
@@ -206,7 +269,7 @@ Rollout flowProjectHelper "Project Helper"
 		)
 			
 		--pass the sub folders to drop downlist 
-		folders_array = GetDirectories (strMyFolder +"\scenes\Areas\\*")
+		folders_array = GetDirectories (curProjectFolder +"\scenes\Areas\\*")
 			
 		--loop through categories and create the list 
 		for i = 1 to folders_array.count do 
@@ -234,15 +297,22 @@ Rollout flowProjectHelper "Project Helper"
 				ddl_subfol.items = #("Levels List")
 				ddl_subfol.selection = 1
 				ddl_subfol.enabled = false
+					
+				--toggle dir button 
+				OpenLevelDirectory false
 				
 			)
 			
 		)			
-		else if ddl_folder.selection == ddl_folder.selection then 
+		else if ddl_folder.selection != 0 then 
 		(
 			
+			--toggle state 
 			ddl_subfol.enabled = true
-			
+				
+			--toggle dir button 
+			OpenLevelDirectory true
+				
 			--create new folder array 
 			clean_fold_arr = #()
 				
@@ -267,9 +337,9 @@ Rollout flowProjectHelper "Project Helper"
 				)
 					
 				--Set Sub folders
-				folders_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
+				folders_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
 					
-				subsfol_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*"))
+				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*"))
 					
 				for t in subsfol_array do 
 				(
@@ -278,7 +348,7 @@ Rollout flowProjectHelper "Project Helper"
 				)
 					
 				--create new sub folder array 
-				clean_sfol_array[1] = "All Levels"
+				--clean_sfol_array[1] = "All Levels"
 					
 				for o in subsfol_array do 
 				(
@@ -307,6 +377,7 @@ Rollout flowProjectHelper "Project Helper"
 					join newLevels (getFiles (l+ "\\*.max"))
 				)
 			)
+			else(
 				
 				for i in folders_array do
 				(
@@ -321,21 +392,15 @@ Rollout flowProjectHelper "Project Helper"
 				)
 					
 				--Set Sub folders
-				folders_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
+				folders_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
 					
-					
-				subsfol_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*" ))
+				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*" ))
 					
 				for t in subsfol_array do 
 				(
 					join subsfol_array (GetDirectories (t+"\\"))
 					
 				)
-				
-				--PRINT subsfol_array 
-				
-				--create new sub folder array 
-				clean_sfol_array[1] = "All Levels"
 					
 				for o in subsfol_array do 
 				(
@@ -351,7 +416,7 @@ Rollout flowProjectHelper "Project Helper"
 				--pass sub folder names to the list 
 				ddl_subfol.items = clean_sfol_array
 				
-				subsfol_array = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
+				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
 				
 				if subsfol_array.count >= 1 then 
 				(
@@ -369,7 +434,17 @@ Rollout flowProjectHelper "Project Helper"
 					)
 					
 				)
-								
+			)					
+		)
+		else
+		(
+			ddl_subfol.items = #("Levels List")
+			ddl_subfol.selection = 1
+			ddl_subfol.enabled = false
+				
+			--toggle dir button 
+			OpenLevelDirectory false
+			
 		)
 			
 		for i in newLevels do 
@@ -478,46 +553,16 @@ Rollout flowProjectHelper "Project Helper"
 				xs = xrefs.getXRefFile i
 				arr[i] = filenameFromPath xs.filename
 			)
+			ddl_refs.items = arr
 		)
 		else(
 			arr = #("No Scenes Found")
+			ddl_refs.items = arr
 		)	
-		ddl_refs.items = arr
-	)	
-	
-	
-	--update load pref buttons 
-	fn CheckIfReferenceExists = 
-	(
-		if subsfol_array.count > 0 then 
-		(			
-			pureRefLocation = (subsfol_array[1] as string  + "pref\\_Ref.pur") 
-				
-			if (doesFileExist pureRefLocation) then  
-			(
-				btn_lod_pref.enabled = true
-			)
-			else
-			(
-				btn_lod_pref.enabled = false
-				print "invalid"
-			)	
-			
-			pinterestLocation = (subsfol_array[1] as string + "pref\\_Pinterest.url")
-					
-			if (doesFileExist pinterestLocation) then  
-			(
-				btn_lod_pint.enabled = true
-			)
-			else
-			(
-				btn_lod_pint.enabled = false
-				print "invalid"
-			)	
-		)		
 		
-	)
-	
+	)	
+		
+		
 	----------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------
 		
@@ -526,7 +571,7 @@ Rollout flowProjectHelper "Project Helper"
 		
 	----------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------
-	
+		
 	on rad_are_type changed state do 
 	(
 		print areatag[rad_are_type.state]
@@ -684,7 +729,6 @@ Rollout flowProjectHelper "Project Helper"
 			
 		--reload pref button status 
 		CheckIfReferenceExists()
-		
 			
 		--set array
 		SetLauncherData i 3
@@ -703,6 +747,9 @@ Rollout flowProjectHelper "Project Helper"
 		--Reload sub folders list
 		GetProjectLevels()
 			
+		--reload pref button status 
+		CheckIfReferenceExists()
+			
 		--set array
 		SetLauncherData i 2
 			
@@ -712,7 +759,6 @@ Rollout flowProjectHelper "Project Helper"
 		--save 'mainFPFolder' 
 		SaveLauncherData toolFolder	
 		
-		
 	)
 		
 	--create new category 
@@ -720,11 +766,11 @@ Rollout flowProjectHelper "Project Helper"
 	(
 		areaname = edt_dir_name.text		
 		
-		makeDir (strMyFolder+ "scenes\Areas\\" + areaname as string)
+		makeDir (curProjectFolder+ "scenes\Areas\\" + areaname as string)
 		
 		areaname = edt_dir_name.text			
 		
-		makeDir (strMyFolder+ "scenes\Areas\\" + areaname as string)
+		makeDir (curProjectFolder+ "scenes\Areas\\" + areaname as string)
 			
 			
 		--Reload Projects List
@@ -735,39 +781,6 @@ Rollout flowProjectHelper "Project Helper"
 			
 			
 	)
-		
-	--open category's directory in windows 
-	on btn_opn_cat pressed do 
-	(
-		
-		catDir = (GetDirectories (strMyFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
-		print (catDir) 
-		ShellLaunch "explorer.exe" (catDir[1] as string ) 
-	) 
-	
-	
-	--create new level
-	on btn_crt_scn pressed do 
-	(
-		--create new level directory
-		areaname = edt_dir_name.text + "_Main" 
-		makeDir (strMyFolder + "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
-		
-		--Reload Projects List
-		ReloadProjectList()
-			
-		--get Project levels and filter types 
-		GetProjectLevels()
-		
-		
-	)
-		
-	--open level's directory in windows 
-	on btn_opn_lvl pressed do 
-	(
-		print subsfol_array as string 
-		ShellLaunch "explorer.exe" (subsfol_array[2] as string ) 
-	) 
 		
 	--create new area 
 	on btn_crt_are pressed do 
@@ -781,14 +794,20 @@ Rollout flowProjectHelper "Project Helper"
 					
 				--create 'type' folder
 				dirname = (clean_sfol_array[ddl_subfol.selection] + "\\models\\" + areatag[rad_are_type.state] as string)
-				makeDir (strMyFolder+ "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + dirname as string)
+				makeDir (curProjectFolder+ "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + dirname as string)
 				
 			)
 		)
 			
-		--create 
-		areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + ddl_area_suf.items[ddl_area_suf.selection] as string)
-		loc = (strMyFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + areatag[rad_are_type.state] + "\\" + areaname as string + ".max") 
+		--create and Label
+		tagname = ""
+		if (ddl_area_suf.selection != 1) then 
+		(
+			tagname = ddl_area_suf.items[ddl_area_suf.selection] as string
+		)
+			
+		areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
+		loc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + areatag[rad_are_type.state] + "\\" + areaname as string + ".max") 
 			
 			--print areaname
 		--print loc
@@ -810,15 +829,77 @@ Rollout flowProjectHelper "Project Helper"
 			
 			
 	)
-	
+		
+	--create new level
+	on btn_crt_scn pressed do 
+	(
+		--create new level directory
+		areaname = edt_dir_name.text + "_Main" 
+		makeDir (curProjectFolder + "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
+		
+		--Reload Projects List
+		ReloadProjectList()
+			
+		--get Project levels and filter types 
+		GetProjectLevels()
+			
+	)
+		
+	on btn_crt_prp pressed do 
+	(
+		
+		
+	)		
+		
+	--open level's directory in windows 
+	on btn_opn_lvl pressed do 
+	(
+		print subsfol_array as string 
+		ShellLaunch "explorer.exe" (subsfol_array[2] as string ) 
+	) 
+		
+	--open category's directory in windows 
+	on btn_opn_cat pressed do 
+	(
+		--Get the category's directory 
+		catDir = ""
+		dirname = (clean_fold_arr[ddl_folder.selection] as string)		
+		if ddl_folder.selection == 1 then 
+		(
+			catDir = (GetDirectories (curProjectFolder + "\scenes\Areas"))
+		)
+		else
+		(
+			catDir = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + dirname))
+		)
+		print (catDir) 
+			
+		ShellLaunch "explorer.exe" (catDir[1] as string ) 
+			
+			
+			
+			
+	) 
+		
+	--Create New Project Button 
 	on btn_crt pressed do 
 	(
-			
+		--project directory 
 		if (folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
 		(
 			--macros.run "Tools" "CreateDefaultProject" 
 			pathConfig.doProjectSetupStepsUsingDirectory folder  
 			pathConfig.setCurrentProjectFolder folder
+			
+			--create the Areas Folder Structure
+			makeDir (curProjectFolder + "scenes\\Areas\\All" )
+			makeDir (curProjectFolder + "scenes\\Areas\\" )
+			makeDir (curProjectFolder + "scenes\\Areas\\" )
+			makeDir (curProjectFolder + "scenes\\Areas\\" )
+			makeDir (curProjectFolder + "scenes\\Areas\\" )
+			makeDir (curProjectFolder + "scenes\\Areas\\" )
+			makeDir (curProjectFolder + "scenes\\Areas\\" )
+			
 			
 			--Reload Projects List
 			ReloadProjectList()
@@ -835,15 +916,15 @@ Rollout flowProjectHelper "Project Helper"
 	
 	on btn_swtc pressed do 
 	(
-		--pathconfig.SaveTo(strMyFolder)
+		--pathconfig.SaveTo(curProjectFolder)
 			
-		pathconfig.setCurrentProjectFolder strMyFolder
+		pathconfig.setCurrentProjectFolder curProjectFolder
 		resetMaxFile() 
 			
-		--pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
+		--pathConfig.doProjectSetupStepsUsingDirectory curProjectFolder  
 			
--- 			doesFolderExist = doesFileExist strMyFolder allowDirectory:true
--- 			if(doesFolderExist and pathconfig.IsProjectFolder(strMyFolder)) then 
+-- 			doesFolderExist = doesFileExist curProjectFolder allowDirectory:true
+-- 			if(doesFolderExist and pathconfig.IsProjectFolder(curProjectFolder)) then 
 -- 			(
 -- 				-----------------------------------------------
 -- 				-- backup the current config paths settings in the current working folder 
@@ -852,22 +933,22 @@ Rollout flowProjectHelper "Project Helper"
 -- 				-----------------------------------------------
 -- 				pathconfig.SaveTo(pathconfig.getCurrentProjectFolderPath())
 
--- 				pathconfig.setCurrentProjectFolder strMyFolder
--- 				pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
+-- 				pathconfig.setCurrentProjectFolder curProjectFolder
+-- 				pathConfig.doProjectSetupStepsUsingDirectory curProjectFolder  
 -- 				
 -- 				resetMaxFile 
 -- 					
 -- 					
--- 				--arStrFnames = getfiles (strMyFolder + "\\*.mxp")
+-- 				--arStrFnames = getfiles (curProjectFolder + "\\*.mxp")
 -- 			)
 		
--- 			if (strMyFolder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
+-- 			if (curProjectFolder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
 -- 			(
 -- 				macros.run "Tools" "SetProjectFolder" 
 -- 				
--- 				print strMyFolder
--- 				pathConfig.doProjectSetupStepsUsingDirectory strMyFolder  
--- 				pathConfig.setCurrentProjectFolder strMyFolder
+-- 				print curProjectFolder
+-- 				pathConfig.doProjectSetupStepsUsingDirectory curProjectFolder  
+-- 				pathConfig.setCurrentProjectFolder curProjectFolder
 -- 				resetMaxFile 
 -- 				
 -- 			)
@@ -932,18 +1013,25 @@ Rollout flowProjectHelper "Project Helper"
 		SaveLauncherData toolFolder	
 	)
 		
-		
 	--project name selected 
 	on ddl_proj selected i do 
 	(
+		subsfol_array = #()
+		ddl_subfol.items = #()
+			
 		--get Project levels and filter types 
 		GetProjectLevels()
-		
+			
+		--reload pref button status 
+		CheckIfReferenceExists()
+		--reset drop down list
+		ddl_folder.selection = 1
+			
 		--save 'mainFPFolder' 
 		SaveLauncherData toolFolder	
 		
 	)
-	
+		
 	--load pure ref - button
 	on btn_lod_pref pressed do 
 	(
@@ -961,7 +1049,7 @@ Rollout flowProjectHelper "Project Helper"
 		)
 				
 	)
-	
+		
 	--load pinterest board -- 
 	on btn_lod_pint pressed do 
 	(
@@ -980,10 +1068,8 @@ Rollout flowProjectHelper "Project Helper"
 		
 		
 	)
-	
-	
-	
-	
+		
+	--XRef Avatar - Load 	
 	on btn_lod_ava pressed do 
 	(
 		--temp load maxstart.max scene -- create a custom metrics scene 
@@ -1039,23 +1125,23 @@ Rollout flowProjectHelper "Project Helper"
 		
 		
 	)
-	
+		
 	--------------------------------------------------------------------------------------------------------------------------------------
 	--------------------------------------------------------------------------------------------------------------------------------------
 		
 	on flowProjectHelper open do 
 	(
-			
-		chk_art.state = launcherdata[4]
-		chk_dsn.state = launcherdata[5]
-		chk_inst.state = launcherdata[6]
-		chk_veh.state = launcherdata[7]
+		
+		--chk_art.state = launcherdata[4]
+		--chk_dsn.state = launcherdata[5]
+		--chk_inst.state = launcherdata[6]
+		--chk_veh.state = launcherdata[7]
 		
 		callbacks.addScript #filePostOpenProcess  "flowProjectHelper.UpdateXrefsList()" id:#MXSHelp
 		arr = #()
 		
 		count = xrefs.getXRefFileCount()
-		
+		print ("count = " + count as string )
 		if count > 0 then
 		(
 			for i = 1 to count do 
