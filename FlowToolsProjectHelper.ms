@@ -111,7 +111,7 @@ Rollout flowProjectHelper "Project Manager"
 	----------------------------------------------------------------------------------------------------------------------------
 		
 			
-	local filsList = #(chk_art.checked, chk_dsn.checked, chk_inst.checked, chk_veh.checked)
+	local filsList = #(chk_art.checked, chk_dsn.checked, chk_inst.checked, chk_prop.checked, chk_veh.checked, chk_wea.checked)
 		
 			
 	--TICK-----------------------------------------------------------------------
@@ -404,7 +404,7 @@ Rollout flowProjectHelper "Project Manager"
 		for i in newLevels do 
 		(	
 			
-			if not chk_art.checked and not chk_dsn.checked and not chk_inst.checked and not chk_veh.checked then 
+			if not chk_art.checked and not chk_dsn.checked and not chk_inst.checked and not chk_prop.checked and not chk_veh.checked and not chk_wea.checked then 
 			(
 				LevelFilter cleanArr newLevels "**"
 			)				
@@ -421,11 +421,18 @@ Rollout flowProjectHelper "Project Manager"
 			(						
 				LevelFilter cleanArr newLevels "*_inst*"
 			)		
+			if chk_prop.checked then
+			(						
+				LevelFilter cleanArr newLevels "*_prop*"
+			)	
 			if chk_veh.checked then
 			(						
 				LevelFilter cleanArr newLevels "*_vehicle*"
 			)		
-				
+			if chk_wea.checked then
+			(						
+				LevelFilter cleanArr newLevels "*_weapon*"
+			)
 		)
 			
 		--pass to the list 
@@ -534,7 +541,7 @@ Rollout flowProjectHelper "Project Manager"
 		
 	on tick_LauncherUpdate tick do 
 	(
-		filsList = #(chk_art.state, chk_dsn.state, chk_inst.state, chk_veh.state)
+		filsList = #(chk_art.state, chk_dsn.state, chk_inst.state, chk_prop.state, chk_veh.state, chk_wea.state)
 		--update status 
 		--UpdateToolsetStatus()		
 		
@@ -1086,9 +1093,10 @@ Rollout flowProjectHelper "Project Manager"
 		SaveLauncherData toolFolder	
 	)
 		
-	--level filter - veh 
-	on chk_veh changed state do 
+	--level filter - prop 
+	on chk_prop changed state do 
 	(
+		lst_areas.items = #()
 		GetProjectLevels()
 			
 		filsList[4] = state
@@ -1098,7 +1106,36 @@ Rollout flowProjectHelper "Project Manager"
 			
 		--save 'mainFPFolder' 
 		SaveLauncherData toolFolder	
+	)	
+		
+	--level filter - vehi 
+	on chk_veh changed state do 
+	(
+		GetProjectLevels()
+			
+		filsList[5] = state
+			
+		--set array
+		SetLauncherData filsList[5] 8
+			
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
 	)
+		
+		
+	--level filter - wea 
+	on chk_wea changed state do 
+	(
+		GetProjectLevels()
+			
+		filsList[6] = state
+			
+		--set array
+		SetLauncherData filsList[6] 9
+			
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
+	)	
 		
 	--project name selected 
 	on ddl_proj selected i do 
