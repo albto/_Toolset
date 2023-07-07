@@ -373,7 +373,7 @@ rcMenu LauncherSettingsMenu
 			button btn_app_8 "Export" 				height:52 	width:52	images:#(appImages, appAlphas,27,8,8,1,1) 		ToolTip: "Export Helper"
 			button btn_app_9 "Import" 				height:52	width:52	images:#(appImages, appAlphas,27,11,8,1,1) 		ToolTip: "Import Helper"
 			button btn_app_10 "Viewport"			height:52 	width:52	images:#(appImages, appAlphas,27,12,8,1,1) 		ToolTip: "Viewport Helper"
-			button btn_app_11 "Manage" 				height:52 	width:52	images:#(appImages, appAlphas,27,10,8,1,1) 		ToolTip: "Project Directory Helper"
+			button btn_app_11 "Manage" 				height:52 	width:52	images:#(appImages, appAlphas,27,10,8,1,1) 		ToolTip: "Project Manager"
 			button btn_app_12 "Tag" 				height:52 	width:52	images:#(appImages, appAlphas,27,7,8,1,1) 		ToolTip: "Attributes Helper"
 				
 		)
@@ -746,7 +746,7 @@ rcMenu LauncherSettingsMenu
 				)
 					
 			)
-			Else
+			else
 			(
 				messagebox "No Risk, No Rewards!..." title:"Flow Warnings!"
 			)
@@ -765,6 +765,22 @@ rcMenu LauncherSettingsMenu
 		--------------------------------------------------------------------------------------------------------------------------------------
 		--------------------------------------------------------------------------------------------------------------------------------------
 			
+		on btn_app_7 pressed do 
+		(
+			nam = "Prefabs Tools" 
+
+			--close if dialog is open 
+			closeToolHelper nam
+			
+			Rollout panP nam 
+			(
+				include "flow_panPrefabs.ms"
+			)	
+				
+			CreateDialog panP width:260 height:600
+		)
+		
+		--Launch Export Helper 
 		on btn_app_8 pressed do 
 		(
 			nam = "Export Tools"
@@ -893,6 +909,7 @@ rcMenu LauncherSettingsMenu
 			CreateDialog panE width:260 height:680
 		)
 			
+		--Launch Import Helper
 		on btn_app_9 pressed do 
 		(
 			nam = "Import Tools"
@@ -942,7 +959,8 @@ rcMenu LauncherSettingsMenu
 			
 			
 		)
-		
+			
+		--Launch FBX Attribute Helper 
 		on btn_app_12 pressed do 
 		(
 			global FlowAttEditor 	

@@ -1,55 +1,7 @@
-	
--- global launcherData = #()
-----------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------
--- global mainFPFolder = getThisScriptFilename()
-	
-----------------------------------------------------------------------------------------------------------------------------------
--- global str = getThisScriptFilename()
-
--- 	
--- 	
--- global launcherFolder = getfilenamepath str  
-
--- global toolFolder = substituteString launcherFolder "\FlowPanels\_base" ""
-
--- 	
--- global curProjectFolder = ""
-----------------------------------------------------------------------------------------------------------------------------------
-	
-----------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------
--- Auto-Load Lauincher Data on Start-up
-	
---this is redundant 
--- if (doesFileExist(toolFolder + "\FlowPanels\savedata\LauncherData.fp")) then	
--- (
--- 	ld = openfile (toolFolder + "\FlowPanels\savedata\LauncherData.fp") 
--- 	launcherData = execute (readLine ld)
--- 	close ld
--- 		
--- )	
-
--- print (	 "Launcher Data - " + launcherdata as string)
-
--- if launcherData != undefined then
--- (
--- 	--grab data
--- 	mainFPFolder = launcherData[1]
--- )
-	
--- global FP_DataLocation 
--- global FP_BaseLocation 
--- global FP_RCLocation 
-	
---set locations
--- FP_DataLocation	= (mainFPFolder + "\FlowPanels\_base\FlowSaveData.ms")
--- FP_BaseLocation = (mainFPFolder + "\FlowPanels\_base\FlowToolsBase.ms")
--- FP_RCLocation 	= (mainFPFolder + "\FlowPanels\_base\FlowRCMenu.ms")
--- 	
-
-
 		
+----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------	
+	
 Try(cui.UnregisterDialogBar flowProjectHelper)catch()
 try(destroydialog flowProjectHelper)catch()
 
@@ -57,25 +9,11 @@ global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath s
 global curProjectFolder = ""
 --Set Tool Image file
 bitmapBannerFile = (imgfolder + "banner.jpg")
-	
-	
-----------------------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------- // Tools Save Data
---Tools Save Data 
-	--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowSaveData.ms"
--- 	filein FP_DataLocation
-		
-		
-----------------------------------------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------------------- // Tool Settings
---Tool Settings 
-	--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowToolsBase.ms"
--- 	filein FP_BaseLocation		
 		
 ----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------	
 	
-Rollout flowProjectHelper "Project Helper"
+Rollout flowProjectHelper "Project Manager"
 (
 		
 	local newArr = #()
@@ -87,32 +25,45 @@ Rollout flowProjectHelper "Project Helper"
 	local subsfol_array = #()
 	local refObjs = #()
 		
-	local areatag = #("_Art", "_Design", "_Inst", "_Weapon", "_Veh", "_Test", "")
+	local areatag = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "")
+	local areasuf = #("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
+	local arealab = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "null")
+	
+	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile align:#center gamma:1.0
 		
-	bitmap bitmapBannerUi 						width:335 height:68 fileName:bitmapBannerFile align:#center gamma:1.0
 		
-		
-	Group "Project Directory"
+	Group "Current Project"
 	(
 		dropdownlist ddl_proj "" 				items:#()
-		button btn_crt "New"					width:75	height:24	across:4
-		button btn_open "Open"					width:75	height:24
-		button btn_edit	"Refresh"				width:75	height:24
-		button btn_swtc	"Switch"				width:75	height:24
+		
+	)
+	Group "Project Helper"
+	(
+		
+		edittext edt_proj_nam "Name:"			width:280						across:2
+		colorpicker clr_prj_clr ""				align:#right
+		button btn_crt "Create"					width:65	height:24	across:5
+		button btn_open "Open"					width:65	height:24
+		button btn_edit	"Refresh"				width:65	height:24
+		button btn_dele	"Delete"				width:65	height:24
+		button btn_swtc	"Switch"				width:65	height:24
 	)
 		
 	Group "Directory Helper"
 	(	
 		checkbutton chk_sel_nam "Auto-Name"		width:65					align:#left			across:3
 		edittext edt_dir_name ""				width:180 	height:20		align:#center
-		dropdownList ddl_area_suf ""			width:62					align:#right		items:#("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
-		radiobuttons rad_are_type ""			labels:#("_Art", "_Design", "_Inst", "_Weapon", "_Vehicle", "_Test", "null")	columns:5 	offset:[5,0]
-		button btn_crt_cat "+ Category"			width:70	height:24 		offset:[2,0]	across:6
+		dropdownList ddl_area_suf ""			width:62	height:20		items:areasuf				align:#right	
+		label lbl_blank_01 "Asset Type:"		align:#left
+		button btn_crt_cat "+ Category"			width:70	height:24 		offset:[2,0]		across:6
 		button btn_crt_scn "+ Level"			width:45	height:24		offset:[7,0]
 		button btn_crt_are "+ Area"				width:50	height:24		offset:[1,0]
 		button btn_crt_prp "+ Prop"				width:45	height:24		offset:[-5,0]
 		button btn_crt_veh "+ Vehicle"			width:60	height:24		offset:[-5,0]
-		button btn_crt_wea "+ Weapon"			width:60	height:24		offset:[6,0]
+		button btn_crt_wea "+ Weapon"			width:60	height:24		offset:[6,0]		
+		label lbl_blank_02 "Asset Label:"		align:#left
+		radiobuttons rad_are_type ""			default:8 	height:24		labels:arealab		columns:4 row:2 	offset:[5,0]
+		label lbl_blank_03 ""					width:20 	height:5
 	)
 		
 	Group "Directory Viewer"
@@ -124,13 +75,14 @@ Rollout flowProjectHelper "Project Helper"
 		listbox lst_areas "Areas List - "	
 	)
 		
-	Group "Filter Viewer"
+	Group "Viewer Filters"
 	(
-		checkbutton chk_art "_Art" 			width:60	height:24	across:5
-		checkbutton chk_dsn "_Design"		width:62	height:24
-		checkbutton chk_inst "_Inst"		width:62	height:24
-		checkbutton chk_veh "_Vehicle"		width:62	height:24
-		checkbutton chk_wea "_Weapon"		width:62	height:24
+		checkbutton chk_art "_Art" 			width:58	height:24	across:6
+		checkbutton chk_dsn "_Design"		width:58	height:24
+		checkbutton chk_inst "_Inst"		width:58 	height:24
+		checkbutton chk_prop "_Prop"		width:58	height:24
+		checkbutton chk_veh "_Vehicle"		width:58	height:24
+		checkbutton chk_wea "_Weapon"		width:58	height:24	offset:[5,0]
 		
 	)
 		
@@ -146,8 +98,7 @@ Rollout flowProjectHelper "Project Helper"
 		button btn_lod_ava "Avatar XRef"			width:100			across:3		
 		button btn_lod_met "Metrics XRef"			width:100
 		checkbutton chk_asObj "XRefObject Import"		width:100
-		
-		
+			
 		dropdownList ddl_refs ""	 			width:200 across:6
 		label lbl_space ""
 		label lbl_space2 ""
@@ -180,8 +131,7 @@ Rollout flowProjectHelper "Project Helper"
 			appendIfUnique levels val
 				
 		)		
-	)
-		
+	)		
 		
 	--Toggle Reference Buttons
 	fn ToggleRefButtons toggle = 
@@ -602,6 +552,8 @@ Rollout flowProjectHelper "Project Helper"
 			else ( edt_dir_name.text = "...")
 		)
 		else (edt_dir_name.enabled = true )
+		
+		
 	)
 		
 	on chk_sel_nam changed state do 
@@ -622,7 +574,7 @@ Rollout flowProjectHelper "Project Helper"
 		else (edt_dir_name.enabled = true )		
 	)
 		
-		
+	--remove XRef
 	on btn_rmv_ref pressed do 
 	(
 		
@@ -648,6 +600,7 @@ Rollout flowProjectHelper "Project Helper"
 		catch( print "unable to remove item"; arr = #("No Scenes Found"); ddl_refs.items = arr)
 	)
 		
+	--update XRef
 	on btn_upd_ref pressed do 
 	( 
 			
@@ -745,6 +698,7 @@ Rollout flowProjectHelper "Project Helper"
 	--folders list 
 	on ddl_folder selected i do 
 	(
+		
 		--reset drop down list
 		ddl_subfol.selection = 1 
 			
@@ -852,49 +806,62 @@ Rollout flowProjectHelper "Project Helper"
 	--create new prop asset
 	on btn_crt_prp pressed do 
 	(	
-			
-		--create and Label
-		tagname = ""
-		if (ddl_area_suf.selection != 1) then 
+		--Check and create Prop directory
+		if ddl_folder.items[ddl_folder.selection] != "Props" then 
 		(
-			tagname = ddl_area_suf.items[ddl_area_suf.selection] as string
+			messageBox "Can't Save Props into this Folder! Please select the { Props } - [ Category ]."
 		)
-			
-		areaname = (edt_dir_name.text)
-			
-		newloc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + areaname as string) 
-			
-		areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
-			
-			
-		--create prop directory 
-		makeDir (newloc + "\\_max"  as string)
-		makeDir (newloc + "\\_painter"  as string)
-		makeDir (newloc + "\\_painter\\bake"  as string)
-		makeDir (newloc + "\\_painter\\bake\\high"  as string)
-		makeDir (newloc + "\\_painter\\bake\\low"  as string)
-		makeDir (newloc + "\\_designer"  as string)
-		makeDir (newloc + "\\_zbrush"  as string) 
-		makeDir (newloc + "\\models"  as string)
-		makeDir (newloc + "\\models\\"  as string + areatag[rad_are_type.state] as string)
-		makeDir (newloc + "\\pref"  as string)
-		makeDir (newloc + "\\textures"  as string)	
-			
-		--save file 
-		loc = (newloc + "\\models\\" + areatag[rad_are_type.state] as string + "\\" + areaname as string + ".max") 
-			
-			
-		if selection.count > 0 then 
+		else if ddl_subfol.selection == 1 then 
 		(
-			saveNodes selection loc --quiet:true
-		)
-		else 
+			messageBox "Please select the correct - [ Sub-Category // Level ]."
+		)			
+		else
 		(
-			print "Nothing is Selected"
-		)
 			
-		--get Project levels and filter types 
-		GetProjectLevels()
+			--create and Label
+			tagname = ""
+			if (ddl_area_suf.selection != 1) then 
+			(
+				tagname = ddl_area_suf.items[ddl_area_suf.selection] as string
+			)
+				
+			areaname = (edt_dir_name.text)
+				
+			newloc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + areaname as string) 
+				
+			areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
+				
+				
+			--create prop directory 
+			makeDir (newloc + "\\_max"  as string)
+			makeDir (newloc + "\\_painter"  as string)
+			makeDir (newloc + "\\_painter\\bake"  as string)
+			makeDir (newloc + "\\_painter\\bake\\high"  as string)
+			makeDir (newloc + "\\_painter\\bake\\low"  as string)
+			makeDir (newloc + "\\_designer"  as string)
+			makeDir (newloc + "\\_zbrush"  as string) 
+			makeDir (newloc + "\\models"  as string)
+			makeDir (newloc + "\\models\\"  as string + areatag[rad_are_type.state] as string)
+			makeDir (newloc + "\\pref"  as string)
+			makeDir (newloc + "\\textures"  as string)	
+				
+			--save file 
+			loc = (newloc + "\\models\\" + areatag[rad_are_type.state] as string + "\\" + areaname as string + ".max") 
+				
+				
+			if selection.count > 0 then 
+			(
+				saveNodes selection loc --quiet:true
+			)
+			else 
+			(
+				print "Nothing is Selected"
+			)
+				
+			--get Project levels and filter types 
+			GetProjectLevels()
+				
+		)
 	)		
 		
 	--open level's directory in windows 
@@ -929,37 +896,102 @@ Rollout flowProjectHelper "Project Helper"
 		
 	--Create New Project Button 
 	on btn_crt pressed do 
-	(
-			
+	(	
+		--folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)
 		--project directory 
-		if (folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined then
+		--check if projet name is empty 
+		if (edt_proj_nam.text == "") then 
 		(
-			--macros.run "Tools" "CreateDefaultProject" 
-			pathConfig.doProjectSetupStepsUsingDirectory folder 
-			pathConfig.setCurrentProjectFolder folder
-				
-			--create the Areas Folder Structure
-			makeDir (folder + "\\scenes\\Areas\\All" )
-			makeDir (folder + "\\scenes\\Areas\\Characters" )
-			makeDir (folder + "\\scenes\\Areas\\Characters\\All Characters" )
-			makeDir (folder + "\\scenes\\Areas\\Exteriors" )
-			makeDir (folder + "\\scenes\\Areas\\Exteriors\\All Exteriors" )
-			makeDir (folder + "\\scenes\\Areas\\Interiors" )
-			makeDir (folder + "\\scenes\\Areas\\Interiors\\All Interiors" )
-			makeDir (folder + "\\scenes\\Areas\\Props" )
-			makeDir (folder + "\\scenes\\Areas\\Props\\All Props" )
-			makeDir (folder + "\\scenes\\Areas\\Vehicles" )
-			makeDir (folder + "\\scenes\\Areas\\Vehicles\\All Vehicles" )
-			makeDir (folder + "\\scenes\\Areas\\Weapons" )
-			makeDir (folder + "\\scenes\\Areas\\Weapons\\All Weapons" )
-			makeDir (folder + "\\scenes\\Areas\\zTestGrounds" )
-			makeDir (folder + "\\scenes\\Areas\\zTestGrounds\\All Test Grounds" )
-				
-			--Reload Projects List
-			ReloadProjectList()
-				
-		)	
+			Messagebox "Invalid Name - Please type something."
 			
+		)
+		else
+		(
+			if (folder = getSavePath  caption:"Set Project Directory" filename:(GetDir #scripts)) != undefined  then 
+			(
+					
+				--New Directory 
+				newDir = "Prj_" + edt_proj_nam.text 
+				
+				--filter string name here 
+				--take out spaces and replace them for _ 
+				
+				folder = (folder + "\\" + newDir as string)
+					
+				--macros.run "Tools" "CreateDefaultProject" 
+				pathConfig.doProjectSetupStepsUsingDirectory folder 
+				pathConfig.setCurrentProjectFolder folder
+					
+				--create the Areas Folder Structure
+				makeDir (folder + "\\scenes\\Areas\\All" )
+				makeDir (folder + "\\scenes\\Areas\\Characters" )
+				makeDir (folder + "\\scenes\\Areas\\Characters\\All Characters" )
+				makeDir (folder + "\\scenes\\Areas\\Exteriors" )
+				makeDir (folder + "\\scenes\\Areas\\Exteriors\\All Exteriors" )
+				makeDir (folder + "\\scenes\\Areas\\Interiors" )
+				makeDir (folder + "\\scenes\\Areas\\Interiors\\All Interiors" )
+				makeDir (folder + "\\scenes\\Areas\\Props" )
+				makeDir (folder + "\\scenes\\Areas\\Props\\All Props" )
+				makeDir (folder + "\\scenes\\Areas\\Vehicles" )
+				makeDir (folder + "\\scenes\\Areas\\Vehicles\\All Vehicles" )
+				makeDir (folder + "\\scenes\\Areas\\Weapons" )
+				makeDir (folder + "\\scenes\\Areas\\Weapons\\All Weapons" )
+				makeDir (folder + "\\scenes\\Areas\\zTestGrounds" )
+				makeDir (folder + "\\scenes\\Areas\\zTestGrounds\\All Test Grounds" )
+					
+					
+				--Reload Projects List
+				ReloadProjectList()
+					
+				--create new max start file and load it 
+				loc = (folder + "\\scenes\\" + "maxstart.max") as string 
+					
+				if selection.count > 0 then 
+				(
+					saveNodes selection loc --quiet:true
+				)
+				else 
+				(
+					print "Nothing is Selected"
+				)
+					
+			)
+			else (print "No Project was Created. ")
+			
+			--clear 
+			 edt_proj_nam.text = ""
+			
+		)				
+			
+	)
+		
+	--Open Project Button 
+	on btn_open pressed do 
+	(
+		print "DING"
+		
+		ShellLaunch curProjectFolder "explorer.exe"
+		
+	)
+		
+	--Delete Directory 
+	on btn_dele pressed do 
+	(
+		delDir=dotNetClass "system.IO.directory"
+			
+		if delDir.exists(curProjectFolder) then (		
+			
+			--release path 
+			pth = curProjectFolder
+						
+			--reload // reset List
+			ddl_proj.selection = 1
+				
+			delDir.delete (pth) true
+				
+			--reload List
+			ReloadProjectList()
+		)
 	)
 		
 	--refrsh list 
@@ -1289,6 +1321,6 @@ Rollout flowProjectHelper "Project Helper"
 
 
 
-CreateDialog flowProjectHelper	width:350 height:700 
+CreateDialog flowProjectHelper	width:360 height:800 
 	
 cui.registerDialogBar	flowProjectHelper	style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true
