@@ -1,4 +1,6 @@
 
+
+
 --------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------// LOAD PRESET LIST
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -276,4 +278,64 @@ fn SetAutoSettings val intgr =
 (
 	auto_FP_Settings[intgr] = val
 )	
+	
+
+------------------------------------------------------------------------------------------------------------- 
+------------------------------------------------------------------------------------------------------------- 
+	
+	global FlowDataStructure
+	
+	--New Save System -- Initial Test 
+	fn FlowDataStructure =  
+	(
+		xmlDoc = dotNetObject "system.xml.xmlDocument"
+		xmlWriter = dotNetClass "system.xml.xmlWriter"	
+		
+		--create Root Element 
+		DatEle = xmlDoc.createElement ("FlowDataElement")
+			
+		toolPathEle = xmlDoc.createElement "mainFPFolder"
+		autoSettings = xmlDoc.createElement "AutoSettings"
+			
+		--new attribute - toolset location 
+		att_path = xmlDoc.createAttribute("path")
+		att_path.Value = mainFPFolder
+			
+		--new attribute - autosettings 
+		att_qExp = xmlDoc.createAttribute("QuickExport")
+		att_qExp.Value = (auto_FP_Settings[1] as string)
+		
+		att_fbxE = xmlDoc.createAttribute("FBXExport")
+		att_fbxE.Value = (auto_FP_Settings[2] as string)
+		
+		
+		--add to element 
+		toolPathEle.Attributes.Append(att_path)				
+		autoSettings.Attributes.Append(att_qExp)			
+		autoSettings.Attributes.Append(att_fbxE)	
+			
+		--add to xml doc 
+		DatEle.appendChild toolPathEle
+		DatEle.appendChild autoSettings
+		xmlDoc.appendChild DatEle
+			
+		xmlDoc.save (mainFPFolder+"\\FlowPanels\\savedata\\xmlData.xml")
+			
+		showProperties xmlDoc
+		showMethods xmlDoc 
+			
+			
+			
+	)	
+	
+
+
+FlowDataStructure()
+
+
+
+
+
+
+
 	

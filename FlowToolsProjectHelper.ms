@@ -97,7 +97,7 @@ Rollout flowProjectHelper "Project Manager"
 		
 		button btn_lod_ava "Avatar XRef"			width:100			across:3		
 		button btn_lod_met "Metrics XRef"			width:100
-		checkbutton chk_asObj "XRefObject Import"		width:100
+		checkbutton chk_asObj "Import as Object"		width:100
 			
 		dropdownList ddl_refs ""	 			width:200 across:6
 		label lbl_space ""
@@ -118,6 +118,8 @@ Rollout flowProjectHelper "Project Manager"
 	-----------------------------------------------------------------------------
 	timer tick_LauncherUpdate "" 			interval:500
 		
+
+	
 	--Filter levels list
 	fn LevelFilter arr1 arr2 i = 
 	(
@@ -152,42 +154,43 @@ Rollout flowProjectHelper "Project Manager"
 	(
 		pureRefLocation = pinterestLocation = ""
 		
-		if subsfol_array[1] != undefined then 
+		if subsfol_array.count > 0 and ddl_folder.selection != 1 then 
 		(			
 			pureRefLocation = (subsfol_array[1] as string  + "pref\\_Ref.pur") 
+			pinterestLocation = (subsfol_array[1] as string + "pref\\_Pinterest.url")
 				
 			if (doesFileExist pureRefLocation) then  
 			(
 				ToggleRefButtons true
 					
-				print subsfol_array[1] as string
+-- 				print subsfol_array[1] as string
 			)
 			else
 			(
 				ToggleRefButtons false
-				print "Error - PureRef file was not found"
-			)	
-					
-		)		
-		
-		if subsfol_array[1] != undefined then 
-		(			
-			pinterestLocation = (subsfol_array[1] as string + "pref\\_Pinterest.url")
+-- 				print "Error - PureRef file was not found"
+			)				
 				
 			if (doesFileExist pinterestLocation) then  
 			(
 				ToggleRefButtons true
 					
-				print subsfol_array[1] as string
+-- 				print subsfol_array[1] as string
 			)
 			else
 			(
 				ToggleRefButtons false
 					
-				print "Error - Pinterest Board file was not found"
+-- 				print "Error - Pinterest Board file was not found"
 			)	
 					
 		)
+		else
+		(
+			pureRefLocation = pinterestLocation = ""
+			ToggleRefButtons false
+				
+		)	
 		
 	)
 		
@@ -196,7 +199,7 @@ Rollout flowProjectHelper "Project Manager"
 	(
 			
 		curProjectFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
-		
+			
 		levels = getFiles((curProjectFolder as string + "\\*.max"))
 			
 		for i = 1 to levels.count do 
@@ -541,6 +544,7 @@ Rollout flowProjectHelper "Project Manager"
 		
 	on tick_LauncherUpdate tick do 
 	(
+		--filters list
 		filsList = #(chk_art.state, chk_dsn.state, chk_inst.state, chk_prop.state, chk_veh.state, chk_wea.state)
 		--update status 
 		--UpdateToolsetStatus()		
@@ -684,6 +688,41 @@ Rollout flowProjectHelper "Project Manager"
 
 	)
 		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	-- UI COMMANDS -- DROPDOWNLISTS
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	--project name selected 
+	on ddl_proj selected i do 
+	(
+		subsfol_array = #()
+		ddl_subfol.items = #()
+			
+		--get Project levels and filter types 
+		GetProjectLevels()
+			
+		--reload pref button status 
+		CheckIfReferenceExists()
+		--reset drop down list
+		ddl_folder.selection = 1
+			
+		--set array
+		curProjectFolder = substituteString curProjectFolder "\\" "/"
+		print curProjectFolder	
+		
+		--save launcher data 
+		SetLauncherData curProjectFolder 10
+		SetLauncherData ddl_proj.selection 11
+			
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
+		
+	)
+		
 	--sub-folders list 
 	on ddl_subfol selected i do
 	(
@@ -725,6 +764,20 @@ Rollout flowProjectHelper "Project Manager"
 		SaveLauncherData toolFolder	
 		
 	)
+		
+	
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	-- UI COMMANDS -- BUTTONS
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+		
+		
+	-------------------------------------------------------------------------------------------------------------Directory Helper ----
+	----------------------------------------------------------------------------------------------------------------------------------
 		
 	--create new category 
 	on btn_crt_cat pressed do 
@@ -901,6 +954,10 @@ Rollout flowProjectHelper "Project Manager"
 			
 	) 
 		
+	-----------------------------------------------------------------------------------------------------------Project Dir Helper ----
+	----------------------------------------------------------------------------------------------------------------------------------
+	
+	
 	--Create New Project Button 
 	on btn_crt pressed do 
 	(	
@@ -946,10 +1003,6 @@ Rollout flowProjectHelper "Project Manager"
 				makeDir (folder + "\\scenes\\Areas\\zTestGrounds" )
 				makeDir (folder + "\\scenes\\Areas\\zTestGrounds\\All Test Grounds" )
 					
-					
-				--Reload Projects List
-				ReloadProjectList()
-					
 				--create new max start file and load it 
 				loc = (folder + "\\scenes\\" + "maxstart.max") as string 
 					
@@ -964,10 +1017,20 @@ Rollout flowProjectHelper "Project Manager"
 					
 			)
 			else (print "No Project was Created. ")
-			
 			--clear 
 			 edt_proj_nam.text = ""
-			
+				
+			--Reload Projects List
+			ReloadProjectList()
+				
+-- 				
+-- 			--select new Project 
+-- 			ddl_proj.selected = folder
+-- 				
+-- 			--save launcher data 
+-- 			SetLauncherData folder 10
+-- 			SetLauncherData ddl_proj.selection 11
+				
 		)				
 			
 	)
@@ -975,8 +1038,6 @@ Rollout flowProjectHelper "Project Manager"
 	--Open Project Button 
 	on btn_open pressed do 
 	(
-		print "DING"
-		
 		ShellLaunch curProjectFolder "explorer.exe"
 		
 	)
@@ -984,21 +1045,43 @@ Rollout flowProjectHelper "Project Manager"
 	--Delete Directory 
 	on btn_dele pressed do 
 	(
-		delDir=dotNetClass "system.IO.directory"
 			
-		if delDir.exists(curProjectFolder) then (		
-			
-			--release path 
-			pth = curProjectFolder
+		if (querybox "Are you sure you want to Delete this Project?" beep:false) then 
+		(		
+			if ( querybox "Are you 100% you want to Delete this Project?" beep:false) then 			
+			(
+				delDir = dotNetClass "system.IO.directory"
+				if delDir.exists(curProjectFolder) then 
+				(							
+					--release path 
+					pth = curProjectFolder
+								
+					--reload // reset List
+					ddl_proj.selection = 1
 						
-			--reload // reset List
-			ddl_proj.selection = 1
-				
-			delDir.delete (pth) true
-				
-			--reload List
-			ReloadProjectList()
+					try 
+					(
+						delDir.delete (pth) true
+					)
+					catch (messageBox "Unable to Delete, Folder is open or in use in another App")
+						
+					--reload // reset List
+					ddl_proj.selection = 1	
+					
+					--set array
+					curProjectFolder = substituteString curProjectFolder "\\" "/"
+					print curProjectFolder	
+						
+					--save launcher data 
+					SetLauncherData curProjectFolder 10
+					SetLauncherData ddl_proj.selection 11
+						
+					--reload List
+					ReloadProjectList()
+				)
+			)
 		)
+		else()
 	)
 		
 	--refrsh list 
@@ -1007,7 +1090,8 @@ Rollout flowProjectHelper "Project Manager"
 		--Reload Projects List
 		ReloadProjectList()
 	)
-	
+		
+	--Switch Project  
 	on btn_swtc pressed do 
 	(
 		--pathconfig.SaveTo(curProjectFolder)
@@ -1048,6 +1132,9 @@ Rollout flowProjectHelper "Project Manager"
 -- 			)
 			
 	)
+	
+	----------------------------------------------------------------------------------------------------------------Level Filters ----
+	----------------------------------------------------------------------------------------------------------------------------------
 	
 	
 	--level filter - art 
@@ -1137,25 +1224,6 @@ Rollout flowProjectHelper "Project Manager"
 		SaveLauncherData toolFolder	
 	)	
 		
-	--project name selected 
-	on ddl_proj selected i do 
-	(
-		subsfol_array = #()
-		ddl_subfol.items = #()
-			
-		--get Project levels and filter types 
-		GetProjectLevels()
-			
-		--reload pref button status 
-		CheckIfReferenceExists()
-		--reset drop down list
-		ddl_folder.selection = 1
-			
-		--save 'mainFPFolder' 
-		SaveLauncherData toolFolder	
-		
-	)
-		
 	--load pure ref - button
 	on btn_lod_pref pressed do 
 	(
@@ -1177,20 +1245,23 @@ Rollout flowProjectHelper "Project Manager"
 	--load pinterest board -- 
 	on btn_lod_pint pressed do 
 	(
-		pinterestLocation = (subsfol_array[1] + "pref\\_Pinterest.url")
-				
-		if (doesFileExist pinterestLocation) then  
-		(
-			print pinterestLocation as string 
-			ShellLaunch pinterestLocation ""
-		)
-		else
+		if subsfol_array.count > 1 then 
 		(
 			
-			print "invalid"
+			pinterestLocation = (subsfol_array[1] + "pref\\_Pinterest.url")
+					
+			if (doesFileExist pinterestLocation) then  
+			(
+				print pinterestLocation as string 
+				ShellLaunch pinterestLocation ""
+			)
+			else
+			(
+				
+				print "invalid"
+			)
+			
 		)
-		
-		
 	)
 		
 	--XRef Avatar - Load 	
@@ -1225,6 +1296,7 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)
 		
+	--load metrics scene
 	on btn_lod_met pressed do 
 	(
 		--temp load maxstart.max scene -- create a custom metrics scene 
@@ -1250,9 +1322,10 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)
 		
-	--------------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------TOOL OPEN / CLOSE -----
 	--------------------------------------------------------------------------------------------------------------------------------------
 		
+	--on toolset open 
 	on flowProjectHelper open do 
 	(
 		
@@ -1288,8 +1361,8 @@ Rollout flowProjectHelper "Project Manager"
 		CheckIfReferenceExists()	
 			
 		--sets level selection for subfolder load
-		ddl_proj.selected = ddl_proj.items[1]
-			
+		--ddl_proj.selected = launcherData[10] --ddl_proj.items[1]
+		ddl_proj.selection = launcherData[11]
 		--get Project levels and filter types 
 		GetProjectLevels()
 			

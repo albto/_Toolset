@@ -40,8 +40,11 @@
 	)
 	else 
 	(
-		launcherData = #("", 1, 1)
+		launcherData = #("", 1, 1, false, false, false, false, false, false, "", 1)
 	)
+		
+	-----------------------------------------------------------------------------------------------------------LAUNCHER DATA -- END --
+	----------------------------------------------------------------------------------------------------------------------------------
 		
 	global FP_DataLocation
 	global FP_BaseLocation	
@@ -100,7 +103,6 @@
 	--Tools Save Data 
 		--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowSaveData.ms"
 		filein FP_DataLocation
-			
 			
 	----------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------- // Tool Settings
@@ -322,6 +324,8 @@ rcMenu LauncherSettingsMenu
 	
 	rollout edt "Tools Launcher"
 	(
+		
+		
 		local appImages = "UVWUnwrapView_24i.bmp"
 		local appAlphas = "UVWUnwrapView_24a.bmp"
 		local newArr = #()
@@ -397,7 +401,7 @@ rcMenu LauncherSettingsMenu
 					
 			)		
 		)
-				
+			
 		--Saves Flow Panels Global Settings
 		fn SaveLauncherData location = 
 		(		
@@ -473,6 +477,7 @@ rcMenu LauncherSettingsMenu
 			)
 		)
 			
+		--close tool 
 		fn closeToolHelper val = 
 		(
 			--visualize open dialogs 
@@ -490,6 +495,7 @@ rcMenu LauncherSettingsMenu
 			)
 		)
 			
+		--Generate Open Dialogs list 
 		fn GetOpenDialogsList = 
 		(		
 			--generate list items --
@@ -987,6 +993,8 @@ rcMenu LauncherSettingsMenu
 			
 		on edt open do 
 		(
+			FlowDataStructure()		
+			
 			if mainFPFolder != undefined then
 			(
 					
