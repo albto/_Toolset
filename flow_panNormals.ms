@@ -6,11 +6,13 @@
 			
 		Group "Set Weighted Normals"
 		(
-			spinner 	 spnSegs "Segments"				range:[0,100,0] 			type:#integer
+			Button btn_Sel_Cha "Select Chamfers" 	width:110 height:30			across:2
+			checkbutton chk_Sho_Cha "Set Weighted On" 		width:110 height:30
+			spinner 	 spn_Segs_Amn "Segments"		range:[0,100,1] 			type:#integer
 			spinner 	 spnAmnt "Amount" 				range:[0,1,0.02]			type:#float
-			spinner 	 spnDpth "Depth" 				range:[0,1,0.5]				type:#float
+			spinner 	 spnDpth "Depth" 				range:[0.0,1.0,0.65]		type:#float
 			spinner 	 spnThrs "Smooth Threshold" 	range:[0,360,65.0]			type:#float
-			dropdownlist lstSmth "Smoothing" 			items:#("Off", "Smoothed Edges", "Unsmoothed Edges")		across:2
+			dropdownlist lstSmth "Smoothing" 			selection:3 items:#("Off", "Smoothed Edges", "Unsmoothed Edges")		across:2
 			dropdownList lstMiTp "Mitering Type" 		items:#("Quad", "Uniform", "Patch", "Radial", "Tri")			
 			dropdownList lstAmTp "Amount Type" 			items:#("Fixed", "By Crease Weight", "Legacy", "By Weight") across:2
 			dropdownList lstDpTp "Depth Type" 			items:#("Fixed", "By Weight")
@@ -18,6 +20,7 @@
 -- 			spinner spnAmnt "Amount" 			range:[0,1,0.02]	type:#float
 				
 			Button cmdSetWeight "Set Weighted Chamfer" width:190 height:30
+			
 				
 		)
 			
@@ -30,7 +33,21 @@
 		)	
 			
 		--------------------------------------------------------------------------------------------------------------------------------------
-			
+		
+	on btn_Sel_Cha pressed do 
+	(
+		str = for o in geometry where ((findItem (for m in o.modifiers collect classOf m) chamfer) > 0)collect o
+		
+		for i in str do 
+		(
+			--print i
+			selectmore i 
+		)
+				
+		
+	)
+
+		
 		On cmdReset pressed do 
 		(
 				
@@ -51,6 +68,7 @@
 
 		On cmdSetWeight pressed do 
 		(
+			
 			start = timeStamp()
 				
 			undo on 
@@ -64,28 +82,35 @@
 				
 			for i in selcount do 
 			(
-				if(i.modifiers.count > 0 )then
+				if (i.modifiers[#Chamfer]) != undefined then
 				(	
 					for obj in i.modifiers do
 					(
 						--print obj.name
 						ind = (modPanel.getModifierIndex i obj)
 							
-						i.chamfer.segments = spnSegs.value
-						i.chamfer.amount = spnAmnt.value
+						i.chamfer.segments 	= (spn_Segs_Amn.value as float)
+						i.chamfer.amount 	= (spnAmnt.value as float)
+						i.chamfer.tension 	= (spnDpth.value as float)
+						i.chamfer.smoothingoption = (lstSmth.selection-1) as integer
+						i.chamfer.depthType = (lstDpTp.selection-1) as integer
+						i.chamfer.smoothingoption = (lstSmth.selection-1) as integer
+						i.chamfer.miteringType  = (lstMiTp.selection-1) as integer
+						i.chamfer.amountType = (lstAmTp.selection-1) as integer
+						--i.chamfer.depthType = (lstDpTp.selection-1)
 					)					
 						
 				)
 				else
 				(
 					--set chamfer modifier parameters
-					chmMod.segments = spnSegs.value
-					chmMod.amount = spnAmnt.value
-					chmMod.depth = spnDpth.value
-					chmMod.depthType = (lstDpTp.selection-1)
-					chmMod.smoothingoption = (lstSmth.selection-1)
-					chmMod.miteringType  = (lstMiTp.selection-1)
-					chmMod.amountType = (lstAmTp.selection-1)
+					chmMod.segments = (spn_Segs_Amn.value as float)
+					chmMod.amount = (spnAmnt.value as float)
+					chmMod.tension = (spnDpth.value as float)
+					chmMod.depthType = (lstDpTp.selection-1) as integer
+					chmMod.smoothingoption = (lstSmth.selection-1) as integer
+					chmMod.miteringType  = (lstMiTp.selection-1) as integer
+					chmMod.amountType = (lstAmTp.selection-1) as integer
 						
 					chmMod.smoothtype = 0
 					chmMod.smooththreshold = 65.0
@@ -98,9 +123,11 @@
 					--add chamfer modifier 
 					addModifier i (copy chmMod)
 						
-					--add weighted normals
-					addModifier i (copy wgtMod)			
-						
+					if chk_Sho_Cha.checked then 
+					(
+						--add weighted normals
+						addModifier i (copy wgtMod)			
+					)						
 				)
 					
 			)	

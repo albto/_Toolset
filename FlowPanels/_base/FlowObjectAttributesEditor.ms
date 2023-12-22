@@ -3,22 +3,33 @@
 -- 	callbacks.removeScripts id:#FAO_
 -- 	--Add a new callback script which will call --callbacks.notificationParam() before selected nodes are deleted --and thus will print the deleted objects to the Listener:
 -- 	callbacks.addScript #nodeCreated " AutoLayer()" id:#MXSHelp
--- 	global flowCore 	
--- 	filein (@"C:\Program Files\Autodesk\3ds Max 2022\scripts\Startup\XMLGenerator.ms")
--- 	--load unity layers xml file
--- 	flowIns = flowCore()
 	
 	
 	try(closeRolloutFloater theNewFloater) catch()
 	--CreateDialog uiPan 
-	global theNewFloater = newRolloutFloater "Flow Attributes Scene Helper" 460 860
+	global theNewFloater = newRolloutFloater "Flow Attributes Scene Helper" 460 880
 
+	global srl_Stats
 
 	--Attributes System - Global Strings
 	global  FlowAttributes 	 = "FlowAttributes"
 	
-	global 	FlowAddAtt      = "IBGUnityAttributesAdd"
+	global 	FlowAddAtt      = "IBGUnityAttributesAdd" 
 	global 	FlowRmvAtt 		= "IBGUnityAttributesDelete"
+		
+	-----------------------------------------------------------------------------------------------------------------------------------------
+	-- 
+	-----------------------------------------------------------------------------------------------------------------------------------------
+		
+		
+	--load unity layers xml file
+	filein (mainFPFolder + "\\FlowPanels\\_base\\XMLGenerator.ms" as String) 
+	flowIns = flowCore()
+	flowIns.LoadXml()
+		
+	-----------------------------------------------------------------------------------------------------------------------------------------
+	-----------------------------------------------------------------------------------------------------------------------------------------
+		
 		
 	ObjectTypes = #("Characters", "Exteriors", "Interiors", 
 	"Lights", "Props", "Structures", "Terrain", 
@@ -34,14 +45,19 @@
 	colorDict = Dictionary #(#Characters, color 125 89 23) #(#Exteriors, color 61 135 6) #(#Interiors, color 135 59 8) #(#Lights, color 28 149 177) #(#Props, color 176 26 26) #(#Structures, color 148 177 27) #(#Terrain, color 225 88 199) #(#Vehicles, color 8 8 136)#(#VertexAnims, color 85 28 177)#(#Weapons, color 227 153 153)                      
 		
 		
-		
-		
 	LayersList = #()
 	TagsList = #()
 	AttrList = #()
+	--write to file
+	fps = #()
+	obs = #()
 		
-	rollout srl_Stats "Attributes-Object Helper"
+	rollout srl_Stats "Unity Attributes Helper"
 	(
+		
+		
+		
+		
 		--obj = lst_focObj.items[item] as string 
 		local selectedMesh 
 		local list = #()
@@ -61,8 +77,8 @@
 			button btn_selLst "Select List"							width:84	height:30	align:#left across:5
 			button btn_isoObj "Isolate List"						width:83	height:30	
 			button btn_endIso "End Isolate"							width:83	height:30	
-			button btn_isoSel "Hide List"							width:83	height:30	
-			button btn_clrsel "UnHide List"							width:83	height:30
+			button btn_hidSel "Hide List"							width:83	height:30	
+			button btn_unhsel "UnHide List"							width:83	height:30
 		)
 		Group "Objects List:"
 		(
@@ -74,10 +90,16 @@
 			edittext edt_name ""									width:215	height:25								align:#right
 					
 			colorpicker pck_wirClr "" 								width:96	height:10 	align:#right pos:[10,424]	modal:false	across:3
-			checkbutton chk_test "Auto-Load Attributes"				width:120	height:18   align:#right pos:[315,190] 	checked:true
+			checkbutton chk_test "Auto-Load Attributes"				width:120	height:18   align:#right pos:[315,190] 	checked:false
 			button btn_stats "Show Attributes"						width:160	height:25 	align:#right pos:[275,460]
 		)
-		Group "Attributes Initialtion Settings:"
+		Group "Unity Layers Helper"
+		(
+			dropdownlist ddl_lay_gen ""								height:30	items:LayersList	across:2
+			button btn_lay_gen "Create Layer"						width:90	height:25 	align:#right pos:[227,515]
+			button btn_all_gen "Sync All"							width:90	height:25 	align:#right pos:[320,515]
+		)		
+		Group "Initialtion and Conversion Settings:"
 		(		
 			dropdownList ddl_iniLay "layer"							height:30	items:LayersList									across:4
 			dropdownList ddl_iniTyp "type"							height:30	items:ObjectTypes
@@ -89,12 +111,14 @@
 			button chk_cnAtt "Convert-Attribute"					width:105	height:25		align:#right 	
 			button chk_cnTag "Convert-Tag"							width:105	height:25		align:#right 	
 				
-			checkbutton chk_onNew "Init w/ Settings"				width:105	height:24		align:#left 		checked:true	across:3
-			checkbutton chk_lowt "Init and Prep"					width:105	height:24		align:#left 		checked:true
-			checkbutton chk_flpr "EMPTY BUTTON"						width:105	height:24		align:#right
 		)	
 		Group "Attributes Setter:"
 		(
+			checkbutton chk_onNew "Use Init Settings"				width:105	height:24		align:#left 		checked:true	across:4
+			checkbutton chk_inPre "Init and Prep"					width:105	height:24		align:#left 		checked:true
+			checkbutton chk_inMod "Init w/o Modifier"						width:105	height:24		align:#right
+			checkbutton chk_inSet "Init from Preset"						width:105	height:24		align:#right
+			
 			button btn_addObj "Add to Selected"					width:32 height: 32 align:#align_topcleft images:#("PhysX_Main_24i.bmp","PhysX_Main_241.bmp",33,1,2,1,1,true,false  ) ToolTip:"Add to Selected" across:4
 			button btn_genObj "Add to Scene Objects"			width:32 height: 32 align:#align_topcleft images:#("PhysX_Main_24i.bmp","PhysX_Main_241.bmp",33,30,2,1,1,true,false  ) ToolTip:"Add to Scene Objects" 
 			button btn_rmvObj "Remove from Selected"			width:32 height: 32 align:#align_topcleft images:#("ViewportNavigationControls_24i.bmp","ViewportNavigationControls_24i.bmp",46,5,6,3,3,true,false  ) ToolTip:"Remove from Selected"
@@ -114,6 +138,7 @@
 			
 		-- location = @""
 		------------------------------------------------------------------------------------------------
+		--load and distribute xml data to tags dropdownList
 		fn LoadTagDataFromXml root = 
 		(
 			TagsList = #()
@@ -146,6 +171,7 @@
 		)
 			
 		------------------------------------------------------------------------------------------------		
+		--load and distribute xml data to layers dropdownList
 		fn LoadLayerDataFromXml root = 
 		(
 			LayersList = #()
@@ -174,10 +200,12 @@
 			--pass data
 			ddl_filLay.items = LayersList
 			ddl_iniLay.items = LayersList
+			ddl_lay_gen.items = LayersList
 			
 		)
 			
-		------------------------------------------------------------------------------------------------		
+		------------------------------------------------------------------------------------------------	
+		--load and distribute xml data to attributes dropdownList
 		fn LoadAttributeDataFromXml root = 
 		(
 			AttrList = #()
@@ -209,38 +237,48 @@
 			
 		)
 		------------------------------------------------------------------------------------------------
-		--
+		--import data from the unity xml 
 		fn ImportDataFromUnity = 
 		(
-			--load unity layers xml file
-			filein (getDir #startupScripts + "\\XmlGenerator.ms")
-			flowIns = flowCore()
+			--load xml data 
 			flowIns.LoadXml()
-				
-			--Load data 
+			
+			--Load layers data 
 			LoadLayerDataFromXml flowIns.xmlDoc.DocumentElement name:"Layers"
 				
-			--Load data 
+			--Load tags data 
 			LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
-			
-			--Load data 
+				
+			--Load attributes data 
 			LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
-			
-			
+				
 			--print ("Layers List - " + LayersList as string)
 			--print ("Tags List - " + TagsList as string)
 			--print ("Attributes List - " + AttrList as string)
-			
-			
+				
 		)
 			
-
+		--Load prop attributes from selection 
+		fn GetUnityPropVal nod = 
+		(
+			local str 
+			try 
+			(
+				str = (getUserPropVal nod "Unity Attributes" asString:true)
+			)
+			catch ("FlowError - { Can't Find ::Flow_Attribute_Objects:: }")
+			return str 
+		)
+		
 		fn SelectObjectsBy objAttr objFilter = 
 		(	
 			for i in geometry do 
 			(
-				
-				if i.modifiers[#Unity_Attributes] != undefined then 
+				str = (getUserPropVal i "Unity Attributes" asString:true)
+							
+				--print (doesUserPropExist i "Unity Attributes")						
+						
+				if (str != undefined) do
 				(
 					
 					if objAttr == objFilter then 
@@ -259,9 +297,7 @@
 				
 			)
 		)
-		
-		
-		
+			
 		--refresh attribute objects list 
 		fn RefreshAttributeObjectsList = 
 		(
@@ -275,74 +311,108 @@
 			(
 				1:(	
 					--print "None"
-					for i in Geometry do 
+					for i in objects do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+							
+						--print (doesUserPropExist i "Unity Attributes")						
+						
+						if (str != undefined) do
 						(
-							o += 1
-								
+							o += 1	
+							--print str[o]
 							list[o] = i.name as string 
-								
 						)
+							
 					)
 				)
 				2:(	
 					--print "Layers"	
 					list = #()
-					for i in geometry do 
+					for i in objects do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						if str != undefined do 
 						(
-							if i.modifiers[#Unity_Attributes].gameData.GameLayers == ddl_filLay.selection then 
-							(	
+							if (propValArr[3]) == ddl_filLay.selection then 
+							(
 								o+=1
 									
 								list[o] = i.name as string 
 								lst_focObj.items = list
 							)
+							continue
 						)
 					)
 				)
 				3:(
 					--print "Type"
-					for i in geometry do 
+					for i in objects do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						if str != undefined do 
 						(
-							if i.modifiers[#Unity_Attributes].gameData.ObjectTypes == ddl_filObj.selection then 
-							(	
+							if (propValArr[4]) as string ==  ddl_filObj.selection as string then 
+							(
 								o+=1
 									
 								list[o] = i.name as string 
 								lst_focObj.items = list
 							)
+							continue
 						)
-						
 					)
 				)
 				4:(	
-					--print "Attr"	
-					)		
-				5:
-				(
-					--print "Tags"
-					for i in geometry do 
-					(						
-						if i.modifiers[#Unity_Attributes] != undefined then 
+					--print "Attr"
+					for i in objects do 
+					(
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						if str != undefined do 
 						(
-							if i.modifiers[#Unity_Attributes].gameData.Tags == ddl_filTag.selection then 
-							(	
+							--print  (propValArr[16]) 
+							if (propValArr[16]) == ddl_filAtt.selection then 
+							(
 								o+=1
 									
 								list[o] = i.name as string 
 								lst_focObj.items = list
 							)
+							continue
+						)						
+					)				
+				)		
+				5:
+				(
+					--print "Tags"
+					for i in objects do 
+					(						
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string)
+							
+						if str != undefined do 
+						(
+							if (propValArr[2]) == ddl_filTag.selection then 
+							(	
+									o+=1
+										
+									list[o] = i.name as string 
+									lst_focObj.items = list
+								
+							)
+							continue
 						)
 					)
 				)
 				default:
 				(
-					print"..."	
+					--print"..."	
 					
 				)
 			)			
@@ -355,76 +425,98 @@
 		fn GetSelectedObjectAttribute = 
 		(
 			lst_objAtt.items = #()
-			fps = #()
+			fps = undefined
 			stats  = #()
+			edt_name.text = ("")
 				
 			for i in selection as array do 
 			(
-				--load attributes from object
-				fps = execute (getUserPropVal i "Unity Attributes" asString:true) 
-					
-				if fps != undefined then
+				propVals = getUserPropVal i "Unity Attributes" asString:true
+				
+				if propVals != undefined do 
 				(
+					--load attributes from object
+					fps = execute(propVals) 
+				)
 					
+				if fps == undefined then 
+				(
+					stats[1] = ("No Data = { no data  }")
+					lst_objAtt.items = stats	
+						
+					--selected name
+					edt_name.text = (selection[1].name + " - No Attributes")
 					
-					for o = 1 to fps.count-2 do
-					(
-						if o == 2 then --name layers
+					edt_refLst.text = ("  { " + (ObjectTypes) as string + " }")
+				)
+				else if fps != undefined then
+				(					
+					if fps.count > 1 then 
+					(						
+						
+						for o = 1 to fps.count-2 do
 						(
-							if fps[30].count > 0 then 
+							if o == 2 then --name layers
 							(
-								stats[o] = (gameData[o] as string + " = { " + (fps[30][fps[o]]) as string + " }") as string
+								if fps[30] != undefined do 
+								(
+									if fps[30].count > 0 then 
+									(
+										stats[o] = (gameData[o] as string + " = { " + (fps[30][fps[o]]) as string + " }") as string
+									)
+									else(
+										stats[o] = "{ Error Loading Data }"
+									)
+								)
 							)
-							else(
-								stats[o] = "{ Error Loading Data }"
-							)
-						)
-						else if o == 3 then --name tags 
-						(
-							if fps[29].count > 0 then 
+							else if o == 3 then --name tags 
 							(
-								stats[o] = (gameData[o] as string + " = { " + (fps[29][fps[o]]) as string + " }") as string
+								if fps[29] != undefined do 
+								(
+									if fps[29].count > 0 then 
+									(
+										stats[o] = (gameData[o] as string + " = { " + (fps[29][fps[o]]) as string + " }") as string
+									)
+									else(
+										stats[o] = "{ Error Loading Data }"
+									)
+								)
 							)
-							else(
-								stats[o] = "{ Error Loading Data }"
+							else if o == 4 then --name object types
+							(
+								stats[o] = (gameData[o] as string + " = { " + (ObjectTypes[fps[o]]) as string + " }") as string
+							)
+							else if o == 16 then --name tags 
+							(
+								stats[o] = (gameData[o] as string + " = { " + (AttrList[fps[16]]) as string + " }") as string
+							)
+							else
+							(
+								stats[o] = (gameData[o] as string + " = { " + fps[o] as string + " }") as string
 							)
 						)
-						else if o == 4 then --name object types
-						(
-							stats[o] = (gameData[o] as string + " = { " + (ObjectTypes[fps[o]]) as string + " }") as string
-						)
-						else
-						(
-							stats[o] = (gameData[o] as string + " = { " + fps[o] as string + " }") as string
-						)
-					)
-					
+					)					
 					--print stats 
 					
 					--show attributes
 					lst_objAtt.items = stats
 					--selected name
 					edt_name.text = (selection[1].name + " - Attributes")
-				)				
-			)
-				
-			if selection.count <= 0 then 
-			(
-				edt_name.text = ("")
-			)
-			else if selection.count == 1 then 
-			(				
-				--no attributes found 
-				if fps.count == 0 or fps == undefined then 
+				)							
+				if selection.count <= 0 then 
 				(
-					stats[1] = ("No Data = { no data  }")
-					lst_objAtt.items = stats
+					edt_name.text = ("")
 				)
-			)
-			else 
-			(
-				stats[1] = ("No Data = { no data  }")
-				lst_objAtt.items = stats
+-- 				else if selection.count == 1 then 
+-- 				(				
+-- 						stats[1] = ("No Data = { no data  }")
+-- 						lst_objAtt.items = stats
+-- 				)
+-- 				else 
+-- 				(
+-- 					stats[1] = ("No Data = { no data  }")
+-- 					lst_objAtt.items = stats
+-- 				)
 			)
 		)
 			
@@ -433,7 +525,7 @@
 		(
 			--Attributes list 
 			obs = #() 
-			clearSelection()
+			--clearSelection()
 			if item != undefined and item > 0 then 
 			(
 				iName = lst_focObj.items[item]
@@ -468,6 +560,7 @@
 					)
 				)	
 			)
+				
 		)
 			
 		--show attributes button 
@@ -476,61 +569,7 @@
 			--show selected objects attributes
 			GetSelectedObjectAttribute()
 		)
-			
-		--generate objects selected 
-		on btn_addObj pressed do 
-		(
-				
--- 			for i in selection as Array do 
--- 			(
--- 				if (classof i) == EditablePolyMesh then 
--- 				(										
--- 						
 
--- 						
--- 				)
--- 			)	
-			macros.run FlowAttributes FlowAddAtt
-			
-			--check if they want to use init w/ type 
-			if chk_onNew.checked then 
-			(
-				obs = #() 				
-				for o in selection as array do 
-				(
-						
-					o.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_iniTyp.selection
-					o.modifiers[#Unity_Attributes].gameData.ObjectAttributes = ddl_iniAtt.selection				
-					o.modifiers[#Unity_Attributes].gameData.GameLayers = ddl_iniLay.selection	
-						
-					obs = execute (getUserPropVal o "Unity Attributes" asString:true)	
-						
-					--changed setting
-					obs[4] = ddl_iniTyp.selection
-						
-					--changed setting
-					obs[16] = ddl_filAtt.selection
-						
-					--changed setting
-					obs[3] = ddl_iniLay.selection
-						
-					--record settings	
-					setUserPropVal o "Unity Attributes" obs 
-						
-					--set object wirecolor 
-					o.wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
-						
-				)	
-			)
-			if selection.count >= 1 then
-			(
-				--refresh list 
-				RefreshAttributeObjectsList()
-				--show selected objects attributes
-				GetSelectedObjectAttribute()				
-			)
-		)
-			
 		--convert to type button 
 		on chk_cnvrt pressed do 
 		(
@@ -540,12 +579,8 @@
 			for i in selection as array do 
 			(
 					
-				i.modifiers[#Unity_Attributes].gameData.ObjectTypes = ddl_iniTyp.selection
-				i.modifiers[#Unity_Attributes].gameData.ObjectAttributes = ddl_iniAtt.selection				
-				i.modifiers[#Unity_Attributes].gameData.GameLayers = ddl_iniLay.selection
-					
 				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
-				--print obs
+				
 				--changed setting
 				obs[4] = ddl_iniTyp.selection
 					
@@ -556,15 +591,6 @@
 			
 			if selection.count >= 1 then
 			(
-					
-				--set object wirecolor 
-				selection[1].wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
-				pck_wirClr.color = selection[1].wirecolor
-					
-				--selected name
-				edt_name.text = (selection[1].name + " - Attributes")
-				edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
-					
 				--refresh list 
 				RefreshAttributeObjectsList()
 				--show selected objects attributes
@@ -583,13 +609,10 @@
 				
 			for i in selection as array do 
 			(
-					
-				i.modifiers[#Unity_Attributes].gameData.ObjectAttributes = ddl_iniAtt.selection
-					
 				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
 				
 				--changed setting
-				obs[16] = ddl_filAtt.selection
+				obs[16] = ddl_iniAtt.selection
 					
 				--record settings	
 				setUserPropVal i "Unity Attributes" obs 
@@ -616,17 +639,18 @@
 				
 			for i in selection as array do 
 			(
+				if (getUserPropVal i "Unity Attributes" asString:true) != undefined then 
+				(
+					--load Selection's Unity Attributes 
+					obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
+						
+					--changed setting
+					obs[3] = ddl_iniLay.selection
 					
-				i.modifiers[#Unity_Attributes].gameData.GameLayers = ddl_iniLay.selection
-					
-				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
-				
-				--changed setting
-				obs[3] = ddl_iniLay.selection
-					
-				--record settings	
-				setUserPropVal i "Unity Attributes" obs 
-					
+					--record settings	
+					setUserPropVal i "Unity Attributes" obs 
+				)
+				else(continue)
 			)
 			
 			if selection.count >= 1 then
@@ -651,10 +675,9 @@
 			for i in selection as array do 
 			(
 					
-				i.modifiers[#Unity_Attributes].gameData.Tags = ddl_iniTag.selection
-					
+				--load Selection's Unity Attributes 
 				obs = execute (getUserPropVal i "Unity Attributes" asString:true)	
-				
+					
 				--changed setting
 				obs[2] = ddl_iniTag.selection
 					
@@ -675,14 +698,140 @@
 			
 			
 		)
+					
+		--generate objects selected 
+		on btn_addObj pressed do 
+		(
+			--create array
+			obs = #() 	
+			for o in selection as array do 
+			(		
+				--check if they want to set attributes without modifier
+				if chk_inMod.checked then 
+				(
+						str = getUserPropVal o "Unity Attributes" asString:true
+						if str != undefined do 
+						(
+							obs = execute(str as string)
+						)
+							
+						-- set settings --------------------
+						------------------------------------
+						obs [1] 	=false
+						obs [2] 	=1
+						obs [3] 	=1
+						obs [4] 	=1
+						obs [5] 	=1
+						obs [6] 	=true 			
+						obs [7] 	=true
+						obs [8]		=false	
+						obs [9] 	=false	
+						obs [10] 	=false	
+						obs [11] 	=false
+						obs [12]	=false
+						obs [13] 	=1
+						obs [14] 	=1	
+						obs [15] 	=1	
+						obs [16] 	=1
+						obs [17] 	=false	
+						obs [18] 	=1
+						obs [19] 	=true     
+						obs [20] 	=false 			
+						obs [21] 	=true			
+						obs [22] 	=true 				
+						obs [23] 	=false			
+						obs [24] 	=false 	
+						obs [25] 	=1 	
+						obs [26] 	=2
+						obs [27]	=2
+						obs [28] 	="None"
+						obs [29] 	=LayersList
+						obs [30] 	=TagsList
+							
+						--record settings	
+						setUserPropVal o "Unity Attributes" obs 
+						
+				)
+				else 
+				(		
+					macros.run FlowAttributes FlowAddAtt
+				)
+					
+				--check if they want to use init w/ type 
+				if chk_onNew.checked then 
+				(						
+					str = getUserPropVal o "Unity Attributes" asString:true
+					if str != undefined do 
+					(
+						obs = execute(str)
+						--print obs
+					)						
+						
+					--check if they want to set attributes without modifier 
+					if chk_inMod.checked then 
+					(
+						--changed setting
+						obs[4] = ddl_iniTyp.selection
+							
+						--changed setting
+						obs[16] = ddl_filAtt.selection
+							
+						--changed setting
+						obs[3] = ddl_iniLay.selection
+							
+						--changed setting
+						obs[2] = ddl_iniTag.selection
+					)
+					else 
+					(
+						--set modifier settings
+						o.modifiers[#Unity_Attributes].gameData.ObjectTypes 		= ddl_iniTyp.selection
+						o.modifiers[#Unity_Attributes].gameData.ObjectAttributes 	= ddl_iniAtt.selection				
+						o.modifiers[#Unity_Attributes].gameData.GameLayers 			= ddl_iniLay.selection	
+						o.modifiers[#Unity_Attributes].gameData.Tags 				= ddl_iniTag.selection						
+							
+						--changed setting
+						obs[4] = ddl_iniTyp.selection
+							
+						--changed setting
+						obs[16] = ddl_filAtt.selection
+							
+						--changed setting
+						obs[3] = ddl_iniLay.selection
+							
+						--changed setting
+						obs[2] = ddl_iniTag.selection
+							
+						--set object wirecolor 
+						o.wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
+					)
+						
+					--record settings	
+					setUserPropVal o "Unity Attributes" obs 
+						
+				)
+			)
+				
+			if selection.count >= 1 then
+			(
+				--refresh list 
+				RefreshAttributeObjectsList()
+				--show selected objects attributes
+				GetSelectedObjectAttribute()				
+			)
+				
+		)
 			
 		--generate objects in scene 
 		on btn_genObj pressed do 
 		(
 				
-			for i in objects do 
+			for i in geometry do 
 			(
-				if (classof i) == EditablePolyMesh then 
+				str = (getUserPropVal i "Unity Attributes" asString:true)
+				--print str 
+							
+				if (str == undefined) then
 				(					
 					--print (i.name + " is missing attributes modifier" )
 					
@@ -704,15 +853,18 @@
 				
 			for i in selection as Array do 
 			(
-				if i.modifiers[#Unity_Attributes] != undefined or i.modifiers[1] == EmptyModifier() then 
+				str = (getUserPropVal i "Unity Attributes" asString:true)
+				--print str 
+							
+				if (str != undefined) then
 				(		
 					macros.run FlowAttributes FlowRmvAtt
 				)
 			)
 				
+			clearSelection()
 			--refresh list 
 			RefreshAttributeObjectsList()
-				
 			--show selected objects attributes
 			GetSelectedObjectAttribute()
 				
@@ -723,7 +875,10 @@
 		(
 			for i in objects do 
 			(
-				if i.modifiers[#Unity_Attributes] != undefined  then 
+				str = (getUserPropVal i "Unity Attributes" asString:true)
+				--print str 
+							
+				if (str != undefined) then
 				(	
 					--print (i.name + " is missing attributes modifier" )
 					selectmore i
@@ -733,11 +888,12 @@
 				)
 			)	
 				
+				
+			clearSelection()
 			--refresh list 
 			RefreshAttributeObjectsList()
-				
 			--show selected objects attributes
- 			GetSelectedObjectAttribute()
+			GetSelectedObjectAttribute()
 				
 		)
 			
@@ -776,9 +932,7 @@
 		(
 			--selected item 
 			SelectedItem item
-			
-			max tool zoomextents
-			
+				
 		)
 			
 		--refresh list 
@@ -787,6 +941,10 @@
 			--refresh list 
 			RefreshAttributeObjectsList()
 		)
+			
+		--------------------------------------------------------------------------------------------------------------------------------		
+			
+		--------------------------------------------------------------------------------------------------------------------------------
 			
 		--Object type list - selected 
 		on ddl_filObj selected i do 
@@ -806,6 +964,15 @@
 			SelectedItem lst_focObj.Selection
 		)
 			
+		--Object Att list - selected 
+		on ddl_filAtt selected i do 
+		(
+			--refresh list 
+			RefreshAttributeObjectsList()
+			--selected item 
+			SelectedItem lst_focObj.Selection
+		)
+			
 		--Object Tag list - selected 
 		on ddl_filTag selected i do 
 		(
@@ -815,20 +982,26 @@
 			SelectedItem lst_focObj.Selection
 		)
 			
+		--------------------------------------------------------------------------------------------------------------------------------		
+			
+		--------------------------------------------------------------------------------------------------------------------------------
+			
 		--select list 
 		on btn_selLst pressed do 
-		(
-			list = #()
- 			clearSelection()
+		(			
 				
 			case chk_filObj.state of 
 			(
 				1:
 				(
 					--print "None"
-					for o in objects do 
+					for o in geometry do 
 					(					
-						if o.modifiers[#Unity_Attributes] != undefined then 
+						
+						str = (getUserPropVal (o as object)  "Unity Attributes" asString:true)
+							
+							
+						if (str != undefined) then
 						(
 							selectmore o				
 						)
@@ -843,19 +1016,22 @@
 				2:
 				(
 					--print "Layers"
-					for i in objects do 
+					for i in geometry do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						if str != undefined do 
 						(
-							if i.modifiers[#Unity_Attributes].gameData.GameLayers == ddl_filLay.selection then 
+							if (propValArr[3]) == ddl_filLay.selection then 
 							(	
 								selectmore i
 							)
-						)
-						else 
-						(	
-							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
-						)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)						
 					)
 					--refresh list 
 					RefreshAttributeObjectsList()
@@ -863,18 +1039,21 @@
 				3:
 				(
 					--print "Type"
-					for i in objects do 
+					for i in geometry do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						if str != undefined do 
 						(
-							if i.modifiers[#Unity_Attributes].gameData.ObjectTypes == ddl_filObj.selection then 
+							if (propValArr[4]) == ddl_filObj.selection then 
 							(	
 								selectmore i
 							)
-						)
-						else 
-						(	
-							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
 						)
 					)
 					--refresh list 
@@ -883,18 +1062,34 @@
 				)
 				4:(
 					--print "Attr"
+					for i in geometry do 
+					(
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						if (propValArr[16]) == ddl_filAtt.selection then 
+						(	
+							selectmore i
+						)
+						else 
+						(	
+							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+						)
+					)
+
 					)
 				5:
 				(
 					--print "Tag"
-					for i in objects do 
+					for i in geometry do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
-						(
-							if i.modifiers[#Unity_Attributes].gameData.Tags == ddl_filTag.selection then 
-							(	
-								selectmore i
-							)
+						str = (getUserPropVal i "Unity Attributes" asString:true)
+						propValArr = execute (str as string )
+							
+						
+						if (propValArr[2]) == ddl_filTag.selection then 
+						(	
+							selectmore i
 						)
 						else 
 						(	
@@ -911,7 +1106,7 @@
 		--isolate list
 		on btn_isoObj pressed do 
 		(
-			list = #()
+ 			list = #()
  			clearSelection()
 				
 			case chk_filObj.state of 
@@ -919,9 +1114,11 @@
 				1:
 				(
 					--print "None"
-					for o in objects do 
+					for o in geometry do 
 					(					
-						if o.modifiers[#Unity_Attributes] != undefined then 
+						str = GetUnityPropVal o
+						
+						if (str != undefined) then 
 						(
 							selectmore o				
 							IsolateSelection.EnterIsolateSelectionMode()
@@ -937,23 +1134,50 @@
 				2:
 				(
 					--print "Layers"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(
+							if (propValArr[3]) == ddl_filLay.selection then 
+							(	
+								selectmore i				
+								IsolateSelection.EnterIsolateSelectionMode()
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
 				)
 				3:
 				(
 					--print "Type"
-					for i in objects do 
+					for i in geometry do 
 					(
-						if i.modifiers[#Unity_Attributes] != undefined then 
-						(
-							if i.modifiers[#Unity_Attributes].gameData.ObjectTypes == ddl_filObj.selection then 
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[4]) == ddl_filObj.selection then 
 							(	
 								selectmore i				
 								IsolateSelection.EnterIsolateSelectionMode()
+								
 							)
-						)
-						else 
-						(	
-							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
 						)
 					)
 					--refresh list 
@@ -962,6 +1186,53 @@
 				)
 				4:(
 					--print "Attr"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(	
+							if (propValArr[16]) == ddl_filAtt.selection then 
+							(	
+								selectmore i				
+								IsolateSelection.EnterIsolateSelectionMode()
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
+				)
+				5:(
+					--print "Tag"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(	
+							if (propValArr[2]) == ddl_filTag.selection then 
+							(	
+								selectmore i				
+								IsolateSelection.EnterIsolateSelectionMode()
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
 				)
 			)
 
@@ -973,10 +1244,274 @@
 			IsolateSelection.ExitIsolateSelectionMode()
 		)
 			
+		--hide list
+		on btn_hidSel pressed do 
+		(
+			list = #()
+ 			clearSelection()
+				
+			case chk_filObj.state of 
+			(
+				1:
+				(
+					--print "None"
+					for o in geometry do 
+					(					
+						upv = GetUnityPropVal o
+						
+						if (upv != undefined) then 
+						(
+							selectmore o				
+							hide o
+							continue
+						)
+						else 
+						(
+							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"
+						)
+					) 		
+					--refresh list 
+					RefreshAttributeObjectsList()					
+				)
+				2:
+				(
+					--print "Layers"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[3]) == ddl_filLay.selection then 
+							(	
+								selectmore i				
+								hide i
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
+				)
+				3:
+				(
+					--print "Type"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[4]) == ddl_filObj.selection then 
+							(	
+								selectmore i				
+								hide i
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
+					
+				)
+				4:(
+					--print "Attr"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(						
+							if (propValArr[16]) == ddl_filAtt.selection then 
+							(	
+								selectmore i				
+								hide i 
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+				)
+				5:(
+					--print "Tag"
+					for i in geometry do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[2]) == ddl_filTag.selection then 
+							(	
+								selectmore i				
+								hide i 
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+				)
+			)
+		)
+			
+		--unhide list
+		on btn_unhSel pressed do 
+		(
+			list = #()
+ 			clearSelection()
+				
+			case chk_filObj.state of 
+			(
+				1:
+				(
+					--print "None"
+					for o in objects do 
+					(					
+						str = GetUnityPropVal o
+						
+						if (str != undefined) then 
+						(
+							selectmore o				
+							unhide o
+							continue
+						)
+						else 
+						(
+							print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"
+						)
+					) 		
+					--refresh list 
+					RefreshAttributeObjectsList()					
+				)
+				2:
+				(
+					--print "Layers"
+					for i in objects do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[3]) == ddl_filLay.selection then 
+							(	
+								selectmore i				
+								unhide i
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
+				)
+				3:
+				(
+					--print "Type"
+					for i in objects do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[4]) == ddl_filObj.selection then 
+							(	
+								selectmore i				
+								unhide i 
+								
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+					--refresh list 
+					RefreshAttributeObjectsList()
+					
+				)
+				4:(
+					--print "Attr"
+					for i in objects do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(	
+							if (propValArr[16]) == ddl_filAtt.selection then 
+							(	
+								selectmore i				
+								unhide i 
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+				)
+				5:(
+					--print "Tag"
+					for i in objects do 
+					(
+						--get unity prop value 
+						upv = GetUnityPropVal i
+						propValArr = execute (upv as string )
+							
+						if upv != undefined do 
+						(		
+							if (propValArr[2]) == ddl_filTag.selection then 
+							(	
+								selectmore i				
+								unhide i 
+							)
+							else 
+							(	
+								print "FlowError - { Can't Find ::Flow_Attribute_Objects:: }"	
+							)
+						)
+					)
+				
+				)
+			)
+		)
+			
+		--------------------------------------------------------------------------------------------------------------------------------		
+			
+		--------------------------------------------------------------------------------------------------------------------------------
+			
 		on srl_stats open do 
 		(
-			
-			try 
+			--try 
 			(
 				--import unity data
 				ImportDataFromUnity()
@@ -988,7 +1523,7 @@
 				SelectedItem lst_focObj.selection
 					
 			)
-			catch(print "Trouble Loading Attribute-Objects List")
+			--catch(print "Trouble Loading Attribute-Objects List")
 		)
 		
 		
@@ -1033,9 +1568,6 @@
 				RemoveRollout srl_Stats theNewFloater	
 			)	
 			
-			
-			
-			
 		)		
 		
 		
@@ -1048,3 +1580,514 @@
 -- 	RemoveRollout srl_Stats theNewFloater
 	
 	
+	
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+		
+		
+	--callbacks
+	callbacks.removeScripts id:#flowCallbacks
+		
+	callbacks.addScript #filePostOpenProcess "srl_Stats.RefreshAttributeObjectsList()" id:#flowCallbacks
+				
+	--callbacks
+	callbacks.removeScripts id:#flowAttCallbacks
+		
+	--callbacks.addScript #postModifierAdded "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks	
+		
+	--callbacks.addScript #preModifierAdded "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks
+	
+	callbacks.addScript #modPanelObjPostChange "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+
+macroScript IBGUnityAttributesAdd
+category:"FlowAttributes"
+toolTip:"Add Unity Attributes"
+(			
+
+	fn AddUnityAttribute = 
+	(
+			m = EmptyModifier()
+			m.name = "Unity Attributes"
+				
+			for i in selection as array do 
+			(
+				--filter modifier
+				mdf = i.modifiers[#Unity_Attributes]
+					
+				if( (classOf mdf) == (classof m)) then
+				(
+					try (deleteModifier i mdf ) catch()
+				)
+			)
+			
+			Global UnityAttributes = attributes gameData
+			(
+					
+				parameters Param0 rollout:General
+				(
+					Preserve_Hierarchy 		type:#boolean ui:chk_preHier 
+					Generate_Prefab_Asset 	type:#boolean ui:chk_IsPrefab 
+					Tags					type:#integer ui:ddl_Tags 
+					GameLayers				type:#integer ui:ddl_Lyrs 
+					ObjectAttributes		type:#integer ui:ddl_oAtr 
+					ProcGenType				type:#integer ui:ddl_procTyp 
+					ObjectTypes				type:#integer ui:ddl_ObjT 
+					Mesh_Compression		type:#integer ui:ddl_MshComp		
+					Generate_Colliders 		type:#boolean ui:chk_Cols 	
+					Generate_Lightmaps 		type:#boolean ui:chk_Lmaps 	
+					Import_BlendShapes 		type:#boolean ui:chk_Blnd 					
+					Import_Animation       	type:#boolean ui:chk_Amin	
+					Import_Cameras			type:#boolean ui:chk_Cams
+					Import_Lights			type:#boolean ui:chk_Lght
+					Import_Visibility		type:#boolean ui:chk_Visi	
+					NormalsImport			type:#integer ui:ddl_Nmls 		
+					MaterialCreationMode	type:#integer ui:ddl_MCM	
+					MaterialLocation		type:#integer ui:ddl_MLoc	
+					MaterialName 			type:#integer ui:ddl_MNam
+					MaterialSearch			type:#integer ui:ddl_MSea
+					fileScale				type:#integer ui:spn_filScale 
+					BakeXformConversion     type:#boolean ui:chk_BakeXform
+					UseFileUnits 			type:#boolean ui:chk_fileUnits
+					UseFileScale 			type:#boolean ui:chk_fileScale
+					SortHierarchy			type:#boolean ui:chk_SortHier 
+					KeepQuads 				type:#boolean ui:chk_KeepQads  
+					SwapChannels			type:#boolean ui:chk_SwapChn   
+					Category 				type:#string ui:edt_subFolder
+					
+				)--end Param1
+					
+					
+					
+				Rollout General "Unity Attributes"
+				(	
+						
+					--Presets
+					local externalFn = #("", "", "")
+					local externalMod = #("", "", "", "")
+					local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
+					local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Snapable", "ProcGenAsset", "Dummy")
+					local ProcGenType = #("None","StartRoom", "Hallway", "BossRoom", "Room", "EndRoom") 
+					local MeshComp = #("Off", "Low", "Medium", "High")
+					local NormalsType = #("Import", "Calculate", "None")
+					local MaterialsMode = #("None", "Standard (Legacy)", "Import Via Description")
+					local MaterialsLoc = #("External", "InPrefab")
+					local MaterialsNam = #("BasedOnTexture", "BasedOnMaterial", "BasedOnModel")
+					local MaterialsSea = #("Local", "Recursive-Up", "Everywhere")
+					local CategoryName = "None"
+					local GameTags = #()
+					local Layers = #() 
+						
+					--write to file
+					local fps = #()
+					local obs = #()	
+					-----------------------------------------------------------------------------------------------------------
+						
+					-----------------------------------------------------------------------------------------------------------	
+						
+					--Save Settings -- 
+					dropdownList ddl_prst "Presets:"		items:ObjectTypes
+					button btn_save "Save"		width:40	height:20	align:#left	across:3
+					button btn_updt "Update"	width:50	height:20	align:#center
+					button btn_load "Load"		width:40	height:20	align:#right
+					
+					button btn_clrs "Save and Clear" 			width:140	height:20	align:#center
+						
+					--------------------------------------------------------------------------------------	
+						
+						
+					Group "Properties:"
+					(
+						checkbox chk_preHier "Preserve Hierarchy" 		checked:Preserve_Hierarchy
+						checkbox chk_SortHier "Sort Hierarchy" 			checked:SortHierarchy
+						checkbox chk_IsPrefab "Create Prefab" 			checked:Generate_Prefab_Asset
+							
+						checkbox chk_fileUnits "Use File Units" 		checked:UseFileUnits
+						checkbox chk_fileScale "Use File Scale" 		checked:UseFileScale
+						spinner spn_filScale "File Scale"				range:[0, 1000, fileScale]	type:#integer
+						
+						checkbox chk_BakeXform "Bake Axis Conversion" 	checked:BakeXformConversion
+							
+					)
+					
+					Group "Identification:"
+					(
+						dropdownlist ddl_Tags "Tag:"					items:GameTags	
+						dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
+						dropdownList ddl_ObjT "Object Type:" 			items:ObjectTypes
+						edittext 	 edt_subFolder "Category:"			text:CategoryName	labelOnTop:true
+					)
+					
+					Group "Gameplay Settings:"
+					(
+						dropdownList ddl_oAtr "Object Attributes:"		items:ObjectAttributes
+						dropdownList ddl_procTyp "ProcGen Type:"		items:ProcGenType		enabled:false
+						dropdownList ddl_ObjC "Object Component:" 		items:ObjectTypes
+					)
+					
+					Group "Settings:"
+					(
+						dropdownlist ddl_MshComp "Mesh Compression:" 	items:MeshComp
+						checkbox chk_Cols "Generate Colliders" 			checked:Generate_Colliders
+						checkbox chk_Lmaps "Generate Lightmaps" 		checked:Generate_Lightmaps
+						
+						checkbox chk_KeepQads "Keep Quads" 				checked:KeepQuads
+						checkbox chk_SwapChn "Swap Channels" 			checked:SwapChannels			
+						
+						checkbox chk_Amin "Import Animation" 			checked:Import_Animation
+						checkbox chk_Blnd "Import BlendShapes" 			checked:Import_BlendShapes
+						checkbox chk_Cams "Import Cameras" 				checked:Import_Cameras
+						checkbox chk_Lght "Import Lights" 				checked:Import_Lights
+						checkbox chk_Visi "Import Visibility" 			checked:Import_Visibility
+						dropdownlist ddl_Nmls "Normals Import:"			items:NormalsType	
+						dropdownlist ddl_MCM "Material Creation Mode:"	items:MaterialsMode
+						dropdownlist ddl_MLoc "Material Location"		items:MaterialsLoc
+						dropdownlist ddl_MNam "Material Name"			items:MaterialsNam
+						dropdownlist ddl_MSea "Material Search"			items:MaterialsSea
+					)	
+						
+					---------------------------------------------------------------------------------
+					--FUNCTIONS -- PRESETS
+					---------------------------------------------------------------------------------	
+					
+					---------------------------------------------------------------------------------
+						
+					
+					-----------------------------------------------------------------------------------------------------------
+					-- Gather Data from XML file -- Unity Data Hook-up 
+					-----------------------------------------------------------------------------------------------------------
+					
+					fn ImportDataFromUnity = 
+					(
+						srl_Stats.ImportDataFromUnity()
+							
+						--Load data  - - Layers 
+						ddl_Lyrs.items = LayersList
+						Layers = LayersList
+							
+						--Load data  - - Tags
+						ddl_Tags.items = TagsList
+						GameTags = TagsList
+							
+						--Load data  - - Attributes
+						ddl_oAtr.items = AttrList
+					)
+
+						
+					--sets the Settings to be saved
+					fn SetObjectSettings i val= 
+					(
+						fps[i] = val
+					)	
+						
+					fn SaveObjectSettings =
+					(
+						--load data from unity xml 
+						ImportDataFromUnity()
+						
+						
+						--Save Settings
+						for i in selection as Array do 
+						(
+								
+							--set settings	
+							SetObjectSettings 1 Generate_Prefab_Asset
+							SetObjectSettings 2 ddl_Tags.selection
+							SetObjectSettings 3	ddl_Lyrs.selection 
+							SetObjectSettings 4 ddl_ObjT.selection
+							SetObjectSettings 5 ddl_MshComp.selection
+							SetObjectSettings 6 Generate_Colliders 			
+							SetObjectSettings 7 Generate_Lightmaps
+							SetObjectSettings 8 Import_Animation	
+							SetObjectSettings 9 Import_BlendShapes	
+							SetObjectSettings 10 Import_Cameras	
+							SetObjectSettings 11 Import_Lights	
+							SetObjectSettings 12 Import_Visibility	
+							SetObjectSettings 13 ddl_Nmls.selection	
+							SetObjectSettings 14 ddl_MCM.selection	
+							SetObjectSettings 15 ddl_MLoc.selection	
+							SetObjectSettings 16 ddl_oAtr.selection	
+							SetObjectSettings 17 Preserve_Hierarchy	
+							SetObjectSettings 18 (fileScale)				
+							SetObjectSettings 19 BakeXformConversion     
+							SetObjectSettings 20 UseFileUnits 			
+							SetObjectSettings 21 SortHierarchy			
+							SetObjectSettings 22 KeepQuads 				
+							SetObjectSettings 23 SwapChannels			
+							SetObjectSettings 24 UseFileScale 	
+							SetObjectSettings 25 ddl_MNam.selection 	
+							SetObjectSettings 26 ddl_MSea.selection 
+							SetObjectSettings 27 ddl_procTyp.selection
+							SetObjectSettings 28 edt_subFolder.text
+							SetObjectSettings 29 Layers
+							SetObjectSettings 30 GameTags
+								
+								
+							--record settings	
+							setUserPropVal i "Unity Attributes" fps 
+								
+							for i = 1 to fps.count do
+							(
+								--print ("SavedSetttings -[" + ((i) as string) + "] = { " + fps[i] as string + " }" )
+								
+								if (classof fps[i]) == array then(
+									--print ("["+i as string +"]" + " is an aray")
+									--print ("["+i as string +"]'s" + " count = " + fps[i].count as string)
+								)
+								
+							)
+						)
+					)
+							
+					fn LoadObjectSettings =
+					(
+						--load data from unity xml
+						ImportDataFromUnity()
+							
+							
+						for i in selection as array do 
+						(
+							obs = execute (getUserPropVal i "Unity Attributes" asString:true)
+								
+							--Load Settings 
+							chk_IsPrefab.checked 	= obs[1]
+							ddl_Tags.selection 		= obs[2]
+							ddl_Lyrs.selection 		= obs[3] 
+							ddl_ObjT.selection		= obs[4]
+							ddl_MshComp.selection	= obs[5]
+							chk_Cols.checked		= obs[6]
+							chk_Lmaps.checked 		= obs[7]
+							chk_Amin.checked 		= obs[8]
+							chk_Blnd.checked 		= obs[9]
+							chk_Cams.checked 		= obs[10]
+							chk_Lght.checked 		= obs[11]
+							chk_Visi.checked 		= obs[12]
+							ddl_Nmls.selection 		= obs[13]
+							ddl_MCM.selection 		= obs[14]
+							ddl_MLoc.selection 		= obs[15]
+							ddl_oAtr.selection		= obs[16]
+							chk_preHier.checked 	= obs[17]
+							spn_filScale.value 		= obs[18]
+							chk_BakeXform.checked	= obs[19]
+							chk_fileUnits.checked	= obs[20]
+							chk_SortHier.checked	= obs[21]
+							chk_KeepQads.checked	= obs[22]
+							chk_SwapChn.checked		= obs[23]
+							chk_fileScale.checked	= obs[24]
+							ddl_MNam.selection		= obs[25]
+							ddl_MSea.selection 		= obs[26]
+							ddl_procTyp.selection	= obs[27]
+							edt_subFolder.text		= obs[28]
+								
+							if (classOf obs[29]) == array then
+							(
+								if obs[29].count > 0 then 
+								(
+									--print "Loading from Memory  - layers"
+									--print (obs[29] as string)
+									Layers = obs[29]
+									ddl_Lyrs.items = Layers
+								)
+							)
+								
+							if (classOf obs[30]) == array then 
+							(
+								if obs[30].count > 0 then 
+								(
+									--print "Loading from Memory - tags"
+									--print (obs[30] as string)							
+									GameTags = obs[30]
+									ddl_Tags.items = GameTags
+								)
+							)					
+								
+							--record settings	
+							setUserPropVal i "Unity Attributes" obs 
+								
+						)
+						
+					)
+						
+					on General open do
+					(									
+						--Load Settings
+						try 
+						(	
+							--load tool settings
+							LoadObjectSettings()
+							--Save Settings 
+							SaveObjectSettings()							
+						) 
+						catch
+						(  
+							print "Brand New Object Detected - Applying Default Settings"
+							
+							chk_preHier.checked		= true
+							chk_IsPrefab.checked 	= false
+							ddl_Tags.selection 		= 1
+							ddl_Lyrs.selection 		= 1
+							ddl_ObjT.selection		= 1
+							ddl_MshComp.selection	= 2
+							chk_Cols.checked		= false
+							chk_Lmaps.checked 		= false
+							chk_Amin.checked 		= false
+							chk_Blnd.checked 		= false
+							chk_Cams.checked 		= false
+							chk_Lght.checked 		= false
+							chk_Visi.checked 		= false
+							ddl_Nmls.selection 		= 1
+							ddl_MCM.selection 		= 2
+							ddl_MLoc.selection 		= 2
+							ddl_MNam.selection		= 1
+							ddl_MSea.selection 		= 2
+							ddl_oAtr.selection		= 1
+							chk_preHier.checked 	= false
+							spn_filScale.value 		= 1
+							chk_BakeXform.checked	= true
+							chk_fileUnits.checked	= false
+							chk_fileScale.checked 	= true
+							chk_SortHier.checked	= true
+							chk_KeepQads.checked	= false
+							chk_SwapChn.checked		= false
+							ddl_procTyp.selection 	= 1
+							edt_subFolder.text		= "None"
+								
+								
+							--Save Settings Applied
+							SaveObjectSettings()
+								
+						)
+							
+					)
+					
+					on chk_preHier changed state do
+					(
+						Preserve_Hierarchy = state
+						--print state
+					)
+						
+					on chk_IsPrefab changed state do
+					(
+						Generate_Prefab_Asset = state
+						--print state
+					)
+						
+					on ddl_Tags selected val do
+					(
+						Tags = val
+					)
+					
+					on ddl_Lyrs selected val do 
+					(
+						GameLayers = val 
+					)
+					
+					on ddl_ObjT selected val do 
+					(
+						ObjectTypes = val 
+					)
+					
+					on ddl_oAtr selected val do 
+					(
+						if val == 6 then
+						(
+							ddl_procTyp.enabled = true
+						)
+						else(ddl_procTyp.enabled = false)
+							
+						ObjectAttributes = val 
+					)	
+					
+					on spn_filScale changed val do 
+					(
+						fileScale = val+1		
+					)
+					
+					on ddl_MshComp selected val do 
+					(
+						Mesh_Compression = val
+					)
+					
+					on edt_subFolder entered val do
+					(
+						CategoryName = val
+					)
+					
+					on edt_subFolder entered val do
+					(
+						CategoryName = val
+					)
+						
+					on btn_save pressed do
+					(
+						--Save Settings 
+						SaveObjectSettings()
+					)
+					
+					on btn_clrs pressed do 
+					(
+						--Save Settings 
+						SaveObjectSettings()
+						
+						macros.run "FlowAttributes" "IBGUnityAttributesClear"
+						
+					)
+						
+					on btn_updt pressed do
+					(
+						--load data from unity xml 
+						ImportDataFromUnity()
+							
+						--Save Settings 
+						SaveObjectSettings()
+					)
+					on btn_load pressed do
+					(
+						--Set Unity Attributes
+						LoadObjectSettings()
+					)
+						
+					--------------------------------------------------------------------------------------
+						
+					--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+						
+						
+				)--end MeshInfo Rollout
+				
+				
+			)--end posAttribs
+			
+			--add modifier -- needs optimizing 
+			modPanel.addModToSelection (m) ui:on
+			for i in selection as array do 
+			(
+				--add the attribute in the first modifier
+				custAttributes.add i.modifiers[1] UnityAttributes 
+				
+			)
+			
+	)
+
+	
+	on execute do 
+	(
+		AddUnityAttribute()
+	)
+			
+
+)
+

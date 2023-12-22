@@ -1,68 +1,13 @@
-
-
-	global launcherData = #()
 	----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------
-	global mainFPFolder = getThisScriptFilename()
+	global mainFPFolder = getThisScriptFilename()		
 		
-	----------------------------------------------------------------------------------------------------------------------------------
-	global str = getThisScriptFilename()
-
-		
-		
-	global launcherFolder = getfilenamepath str  
+	global launcherFolder = getfilenamepath mainFPFolder  
 	
-	global toolFolder = substituteString launcherFolder "\FlowPanels\_base" ""
-	global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str
-		
-	global strMyFolder = ""
-	----------------------------------------------------------------------------------------------------------------------------------
-		
-	-----------------------------------------------------------------------------------------------------------LAUNCHER DATA -- SET --
-	----------------------------------------------------------------------------------------------------------------------------------
-	-- Auto-Load Lauincher Data on Start-up
-		
-	--this is redundant 
-	if (doesFileExist(toolFolder + "\FlowPanels\savedata\LauncherData.fp")) then	
-	(
-		ld = openfile (toolFolder + "\FlowPanels\savedata\LauncherData.fp") 
-		launcherData = execute (readLine ld)
-		close ld
-			
-	)	
+	global mainFPFolder = substituteString launcherFolder "\\FlowPanels\\_base" ""
+	global flowIns
 	
-	print (	 "Launcher Data - " + launcherdata as string)
 	
-	if launcherData != undefined then
-	(
-		--grab data
-		mainFPFolder = launcherData[1]
-	)
-	else 
-	(
-		launcherData = #("", 1, 1, false, false, false, false, false, false, "", 1)
-	)
-		
-	-----------------------------------------------------------------------------------------------------------LAUNCHER DATA -- END --
-	----------------------------------------------------------------------------------------------------------------------------------
-		
-	global FP_DataLocation
-	global FP_BaseLocation	
-	global FP_RCLocation 
-		
-		
-	--set locations
-	FP_DataLocation	= (mainFPFolder as string + "\FlowPanels\_base\FlowSaveData.ms" ) as string
-	FP_BaseLocation = (mainFPFolder as string + "\FlowPanels\_base\FlowToolsBase.ms") as string
-	FP_RCLocation 	= (mainFPFolder as string + "\FlowPanels\_base\FlowRCMenu.ms") as string
-	FP_Functions 	= (mainFPFolder as string + "\\FlowFunctions\\FlowFunctions.ms") as string
-	FP_Create		= (mainFPFolder as string + "\\FlowFunctions\\FlowCreator.ms") as string
-	FP_Attributes 	= (mainFPFolder as string + "\\FlowFunctions\\FlowObjectAttributes.ms") as string
-		
-	--Set Tool Image file
-	bitmapBannerFile = (imgfolder + "banner.jpg")
-		
-		
 	----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------
 
@@ -96,27 +41,28 @@
 
 	fn UnSubscribe = callbacks.removeScripts id:#MXSHelp
 		
-			
+	----------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------- // Tools Load Data
+		
+	-- Data Load Function -- 
+	-- CODE HERE -- 
 		
 	----------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------- // Tools Save Data
 	--Tools Save Data 
-		--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowSaveData.ms"
-		filein FP_DataLocation
+	filein (mainFPFolder + "\FlowPanels\\_base\\FlowSaveData.ms" as string)
 			
 	----------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------- // Tool Settings
 	--Tool Settings 
-		--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowToolsBase.ms"
-		filein FP_BaseLocation		
+	filein (mainFPFolder + "\\FlowPanels\\_base\\FlowToolsBase.ms" as string)	
 			
 	----------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------- // Tool Settings
 	--Load Tools Data 
-		--"G:\Dropbox\[main access]\3ds_Scripts\Alberto_Tools\_Toolset\FlowPanels\_base\FlowToolsBase.ms"
-		filein FP_Functions	
-		filein FP_Create		
-		filein FP_Attributes
+	filein (mainFPFolder + "\\FlowFunctions\\FlowFunctions.ms" as string) 
+	filein (mainFPFolder + "\\FlowFunctions\\FlowCreator.ms" as string)   
+	filein (mainFPFolder + "\\FlowFunctions\\FlowObjectAttributes.ms" as string)
 			
 	----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------
@@ -200,7 +146,7 @@ rcMenu LauncherSettingsMenu
 			ShellLaunch "https://github.com/albto/_Toolset" ""
 		)
 	)
-	
+	--Reload toolset
 	on itmReloadTool picked do 
 	(
 		filein (getThisScriptFilename() as string)
@@ -215,6 +161,7 @@ rcMenu LauncherSettingsMenu
 			source_file = (" \"C:\\Users\\albto\\Documents\\_Toolset\\FlowPanels\\_base\\XmlGenerator" + ".ms" + "\"")  
 			dest_folder = (" \"C:\\Program Files\\Autodesk\\3ds Max " + currentMaxVersion[8] as string +"\\scripts\\Startup\\XmlGenerator" + ".ms" + "\"") -- "%ProgramFiles%\Autodesk\scripts\startup\XMLGenerator.ms") 
 				
+			
 			txt = ("copy" + " " + source_file + " " + dest_folder) as string 
 			f = (createFile (mainFPFolder + "\\FlowPanels\\_base\\Install_XmlGenerator.bat"))
 			format "%\n" txt to:f
@@ -294,9 +241,10 @@ rcMenu LauncherSettingsMenu
 	(
 		currentMaxVersion = maxversion()		
 		
-		try 
+		--try 
 		(
 			source_file = (" \"C:\\Users\\albto\\OneDrive\\Documents\\GitHub\\_Toolset\\FlowPanels\\_base\\XmlGenerator" + ".ms" + "\"")  
+			
 			dest_folder = (" \"C:\\Program Files\\Autodesk\\3ds Max " + currentMaxVersion[8] as string +"\\scripts\\Startup\\XmlGenerator" + ".ms" + "\"") -- "%ProgramFiles%\Autodesk\scripts\startup\XMLGenerator.ms") 
 				
 			txt = ("copy" + " " + source_file + " " + dest_folder) as string 
@@ -311,7 +259,7 @@ rcMenu LauncherSettingsMenu
 			--run batch file
 			ShellLaunch bat ""
 		)
-		catch(print "Could not find 'Install_XmlGenerator.bat' file")			
+		--catch(print "Could not find 'Install_XmlGenerator.bat' file")			
 	)
 	
 
@@ -347,16 +295,7 @@ rcMenu LauncherSettingsMenu
 			label lbl_title  ""					align:#center	height:20	
 		)
 			
-			
-		Group "Toolset"
-		(
-			edittext edt_find "" 				 	height:20 				align:#left 	fieldwidth:280  	enalbed:false				multiline:false											across:2
-			button btn_find "Find" 					height:20 	width:20	align:#right 	images:#(appImages, appAlphas,30,7,8,1,1) 		ToolTip: "Find Toolset Folder"	
-			button btn_lau "Launch"					height:24	width:75 																	ToolTip: "Find Toolset Folder"														across:4
-			button btn_clos "Close"					height:24	width:75																	ToolTip: "Find Toolset Folder"
-			button btn_rest "Reset"					height:24	width:75 																	ToolTip: "Find Toolset Folder"
-			button btn_empt "Mini Launcher"			height:24	width:75 	align:#right													ToolTip: "Find Toolset Folder"
-		)	
+
 		
 		Group "Open Dialogs List:"
 		(
@@ -381,7 +320,16 @@ rcMenu LauncherSettingsMenu
 			button btn_app_12 "Tag" 				height:52 	width:52	images:#(appImages, appAlphas,27,7,8,1,1) 		ToolTip: "Attributes Helper"
 				
 		)
-			
+					
+		Group "Toolset"
+		(
+			edittext edt_find "" 				 	 height:20 				align:#left 	fieldwidth:280  	enalbed:false				multiline:false											across:2
+			button btn_find "Find" 					 height:20 	width:20	align:#right 	images:#(appImages, appAlphas,30,7,8,1,1) 		ToolTip: "Find Toolset Folder"	
+			button btn_lau "Launch"					 height:24		width:75 																	ToolTip: "Find Toolset Folder"														across:4
+			button btn_clos "Close"					 height:24		width:75																	ToolTip: "Find Toolset Folder"
+			button btn_rest "Reset"					 height:24		width:75 																	ToolTip: "Find Toolset Folder"
+			button btn_empt "Mini Launcher"			 height:24		width:75 	align:#right													ToolTip: "Find Toolset Folder"
+		)		
 			
 		--TICK-----------------------------------------------------------------------
 		-----------------------------------------------------------------------------

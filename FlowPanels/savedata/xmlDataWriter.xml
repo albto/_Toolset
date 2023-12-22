@@ -1,0 +1,111 @@
+﻿<FlowToolsXMLData>
+	<Toolset_Data
+		value="SavedData">
+		<_root
+			value="C:\Users\albto\OneDrive\Documents\GitHub\_Toolset" />
+		<currentCategory
+			value="9" />
+		<currentLevel
+			value="2" />
+		<Art_Filter
+			value="false" />
+		<Design_Filter
+			value="false" />
+		<Inst_Filter
+			value="false" />
+		<Prop_Filter
+			value="false" />
+		<Vehicle_Filter
+			value="false" />
+		<Weapon_Filter
+			value="false" />
+		<currentSelectedProject
+			value="G:/Dropbox/[main access]/3ds_Max_Source/_3ds Max - Projects/Prj_Buho_BathHouse/" />
+		<projectListSelection
+			value="2" />
+	</Toolset_Data>
+	<Global_Settings_Data
+		value="GlobalData">
+		<settingsRecorder
+			value="true" />
+		<autoDock
+			value="true" />
+		<autoCollapse
+			value="true" />
+		<rolledUpOnStart
+			value="true" />
+		<toolsetClosePos
+			value="[-2,108]" />
+		<OrganizePanel_Active
+			value="false" />
+		<CreatePanel_Active
+			value="true" />
+		<ModelingPanel_Active
+			value="true" />
+		<NormalPanel_Active
+			value="true" />
+		<PaintingPanel_Active
+			value="true" />
+		<SubstancePanel_Active
+			value="true" />
+		<ExportPanel_Active
+			value="true" />
+		<ImportPanel_Active
+			value="true" />
+		<ViewportPanel_Active
+			value="true" />
+		<PrefabPanel_Active
+			value="true" />
+		<toolsetSize
+			value="[260,300]" />
+	</Global_Settings_Data>
+	<Auto_Settings_Data
+		value="FlowPanelsAuto-Data">
+		<quickExport
+			value="true" />
+		<fbxTypeExport
+			value="true" />
+		<objTypeExport
+			value="false" />
+		<autoTypeExport
+			value="false" />
+		<useSelectionsName
+			value="true" />
+		<UnityExport
+			value="false" />
+		<exportTypeString
+			value=".FBX" />
+		<prefixText
+			value="msh" />
+		<exportLocation
+			value="D:/Projects/Project3D/Assets/Art/Geometry" />
+		<renameObjectsSetting
+			value="false" />
+		<lastExportSelection
+			value="1" />
+		<lastImportSelection
+			value="" />
+		<importList
+			value="#()" />
+		<importFileType
+			value="" />
+		<importListLastSelection
+			value="1" />
+		<pirmitiveScale
+			value="1.0" />
+		<unitType
+			value="" />
+		<meterUnitType
+			value="false" />
+		<centimeterUnitType
+			value="false" />
+		<inchUnitType
+			value="false" />
+		<lastExportFolder
+			value="" />
+		<batchExportToggle
+			value="false" />
+		<bypassNaming
+			value="true" />
+	</Auto_Settings_Data>
+</FlowToolsXMLData>

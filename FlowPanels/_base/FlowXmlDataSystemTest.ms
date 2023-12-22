@@ -11,15 +11,12 @@ rollout tst_saveload "save and load"
 			
 		DatEle = xmlDoc.createElement "FlowDataElement"
 		flwDataTest = xmlDoc.createElement (edt_name.text as string )
-				
-		
-		
+			
 			
 		xmlDoc.appendChild DatEle 
 		DatEle.appendChild flwDataTest	
 			
-		xmlDoc.save "C:\\Users\\albto\\OneDrive\\Documents\\GitHub\\_Toolset\\FlowPanels\\savedata\\xmlData.xml"
-		
+		xmlDoc.save "C:\\Users\\albto\\OneDrive\\Documents\\GitHub\\_Toolset\\FlowPanels\\savedata\\xmlDataTest.xml"
 			
 		showProperties xmlDoc
 		showMethods xmlDoc 

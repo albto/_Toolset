@@ -7,13 +7,16 @@ try(destroydialog flowProjectHelper)catch()
 
 global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str	
 global curProjectFolder = ""
+global curCategoryFolder = ""
+global curLevelFolder = ""
 --Set Tool Image file
 bitmapBannerFile = (imgfolder + "banner.jpg")
 		
 ----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------	
+
 	
-Rollout flowProjectHelper "Project Manager"
+Rollout flowProjectHelper "Project Manager"  
 (
 		
 	local newArr = #()
@@ -28,9 +31,14 @@ Rollout flowProjectHelper "Project Manager"
 	local areatag = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "")
 	local areasuf = #("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
 	local arealab = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "null")
-	
-	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile align:#center gamma:1.0
+	--create an empty select level
+	local selLevel = 1
+	--create an empty select category				
+	local selCat = 1
+	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile align:#center gamma:1.0 
 		
+		
+	--subRollout sub_roll_a "" 
 		
 	Group "Current Project"
 	(
@@ -39,7 +47,6 @@ Rollout flowProjectHelper "Project Manager"
 	)
 	Group "Project Helper"
 	(
-		
 		edittext edt_proj_nam "Name:"			width:280						across:2
 		colorpicker clr_prj_clr ""				align:#right
 		button btn_crt "Create"					width:65	height:24	across:5
@@ -70,9 +77,13 @@ Rollout flowProjectHelper "Project Manager"
 	(		
 		dropdownList ddl_folder "Categories" 						across:2
 		dropdownList ddl_subfol "Levels" 			
-		button btn_opn_cat "Open Category's Directory"			width:155	height:15	across:2	
-		button btn_opn_lvl "Open Level's Directory"				width:155	height:15
+		button btn_opn_cat "Open Categories"			width:125	height:15	offset:[15,0]	across:4	
+		button btn_cat_del "Del"						width:25	height:15	offset:[25,0]
+		button btn_opn_lvl "Open Level"					width:125	height:15	offset:[30,0]
+		button btn_lvl_del "Del"						width:25	height:15	offset:[25,0]
 		listbox lst_areas "Areas List - "	
+		button btn_iso_lvl "Isolate Selected"	width:100	height:25	offset:[-30,0] across:2
+		button btn_new_win "Delete Selected"	width:100	height:25	offset:[-80,0]
 	)
 		
 	Group "Viewer Filters"
@@ -83,7 +94,6 @@ Rollout flowProjectHelper "Project Manager"
 		checkbutton chk_prop "_Prop"		width:58	height:24
 		checkbutton chk_veh "_Vehicle"		width:58	height:24
 		checkbutton chk_wea "_Weapon"		width:58	height:24	offset:[5,0]
-		
 	)
 		
 	Group "Reference Assets"
@@ -118,8 +128,6 @@ Rollout flowProjectHelper "Project Manager"
 	-----------------------------------------------------------------------------
 	timer tick_LauncherUpdate "" 			interval:500
 		
-
-	
 	--Filter levels list
 	fn LevelFilter arr1 arr2 i = 
 	(
@@ -149,6 +157,7 @@ Rollout flowProjectHelper "Project Manager"
 		btn_opn_lvl.enabled = toggle
 	)
 		
+	
 	--update load pref buttons 
 	fn CheckIfReferenceExists = 
 	(
@@ -370,27 +379,32 @@ Rollout flowProjectHelper "Project Manager"
 					appendIfUnique clean_sfol_array str as string 
 				)
 				
-				--pass sub folder names to the list 
-				ddl_subfol.items = clean_sfol_array
-				
-				subsfol_array = (GetDirectories (curProjectFolder + "\\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
-				
-				if subsfol_array.count >= 1 then 
+				if clean_sfol_array.count >= 1 then 
 				(
-					--grab all sub folders 
-					for f in subsfol_array do 
-					(
-						join subsfol_array (GetDirectories (f +"*"))
-						
-					)
-						
-					--find all max files in sub folders
-					for l in subsfol_array do 
-					(
-						join newLevels (getFiles (l + "\\*.max"))
-					)
 					
+					--pass sub folder names to the list 
+					ddl_subfol.items = clean_sfol_array
+					
+					subsfol_array = (GetDirectories (curProjectFolder + "\\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
+					
+					if subsfol_array.count >= 1 then 
+					(
+						--grab all sub folders 
+						for f in subsfol_array do 
+						(
+							join subsfol_array (GetDirectories (f +"*"))
+							
+						)
+							
+						--find all max files in sub folders
+						for l in subsfol_array do 
+						(
+							join newLevels (getFiles (l + "\\*.max"))
+						)
+						
+					)
 				)
+				else( )
 			)					
 		)
 		else
@@ -493,6 +507,10 @@ Rollout flowProjectHelper "Project Manager"
 	)
 		
 	--Load Flow Panels Data
+	fn XMLDataLoader = 
+	(
+		
+	)
 		
 	--sets the Settings to be saved
 	fn SetLauncherData val intgr = 
@@ -643,11 +661,13 @@ Rollout flowProjectHelper "Project Manager"
 -- 			hiddenNodes = #()
 -- 			hiddenLayers = #()
 	)
+
 	--Areas List -- when double clicked 
 	on lst_areas selected i do 
 	(
 		if i != 0 then 
 		(
+			
 			--print lst_areas.items[i]
 			--print levels
 			--print i
@@ -659,6 +679,8 @@ Rollout flowProjectHelper "Project Manager"
 	on lst_areas doubleClicked i do 
 	(
 		loadMaxFile levels[i] useFileUnits:true quietmode:true
+		--launch new max window 
+		--print (levels[i] as string)  
 	)
 		
 	
@@ -686,6 +708,119 @@ Rollout flowProjectHelper "Project Manager"
 		
 		
 
+	)
+	
+	--Areas List - Buttons -------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------------------
+		
+	--new button tests 
+	on btn_new_win pressed do 
+	(
+		if (querybox "Are you sure you want to Delete this {Area}?" beep:false) then 
+		(		
+			if ( querybox "Are you 100% you want to Delete this {Area}?" beep:false) then 			
+			(
+				try 
+				(
+						
+					str = substituteString levels[lst_areas.selection] "\\" "\\\\"
+					print str 
+					deleteFile (str)
+						
+					--get Project levels and filter types 
+					GetProjectLevels()
+						
+				)
+				catch (messageBox "Unable to Delete, Folder is open or in use in another App")
+			)
+		)
+		else()
+	)
+		--new button tests 
+	on btn_iso_lvl pressed do 
+	(	
+		
+		--filter string array 
+		if levels.count != 0 do 
+		(
+		
+-- 	 		print maxFileName
+-- 			print levels[lst_areas.selection]
+			if (lst_areas.selection >= 1) then
+			(
+				str = FilterString levels[lst_areas.selection] "\\" 
+			)
+			else 
+			(
+				str = #()
+			)
+-- 			for i = 1 to str.count do 
+-- 			(
+-- 				print (i as string + " - " + str[i])as string 
+-- 			)
+			
+			--print ddl_folder.selected 
+			
+			if (ddl_folder.selected as string) != "Show All" then 
+			(
+				
+-- 		 		for i =1 to str.count do 
+-- 		 		(
+-- 		 			print (i as string + " - " + str[i]) as string
+-- 		 		)
+				
+-- 		 		print clean_sfol_array.count
+				
+				for i = 1 to clean_sfol_array.count where MatchPattern clean_sfol_array[i] pattern:str[10] do 
+				(
+-- 		 			print i 
+					selLevel = i
+				)
+				--set subfolders list to selected area's Level
+				ddl_subfol.selection = selLevel
+				GetProjectLevels()
+					
+			)
+			else if (ddl_folder.selected as string) == "Show All" then 
+			(
+				
+				--print str[9]
+				
+				for i = 1 to clean_fold_arr.count where MatchPattern (clean_fold_arr[i]as string)  pattern:str[9] do 
+				(
+ 		 			--print clean_fold_arr[i] as string 
+					--print i
+					selCat = i
+				)
+-- 					
+				for i = 1 to clean_sfol_array.count where MatchPattern (clean_sfol_array[i]as string) pattern:str[10] do 
+				(
+					--print (clean_sfol_array[i]as string)
+		 			--print i 
+					selLevel = i
+				)
+					
+-- 				--set subfolders list to selected area's Level
+-- 				ddl_folder.enabled = true 
+-- 				OpenLevelDirectory true
+				ddl_folder.selection = selCat
+				ddl_subfol.selection = selLevel
+-- 					 				
+				GetProjectLevels()
+					
+			)
+				
+		--set array
+		SetLauncherData ddl_folder.selection 2
+			
+		--set array
+		SetLauncherData ddl_subfol.selection 3
+		
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
+			
+				
+		)
 	)
 		
 	----------------------------------------------------------------------------------------------------------------------------
@@ -787,9 +922,12 @@ Rollout flowProjectHelper "Project Manager"
 		makeDir (curProjectFolder+ "scenes\Areas\\" + areaname as string)
 		
 		areaname = edt_dir_name.text			
+		catDir = curProjectFolder+ "scenes\Areas\\" + areaname as string 
 		
-		makeDir (curProjectFolder+ "scenes\Areas\\" + areaname as string)
+		makeDir (catDir)
 			
+		--create prop directory 
+		makeDir (catDir + ("\\All " + areaname ) as string)
 			
 		--Reload Projects List
 		ReloadProjectList()
@@ -924,6 +1062,7 @@ Rollout flowProjectHelper "Project Manager"
 		)
 	)		
 		
+		
 	--open level's directory in windows 
 	on btn_opn_lvl pressed do 
 	(
@@ -949,11 +1088,50 @@ Rollout flowProjectHelper "Project Manager"
 			
 		ShellLaunch "explorer.exe" (catDir[1] as string ) 
 			
-			
+		--create prop directory 
+		makeDir (newloc + "\\_max"  as string)
+		makeDir (newloc + "\\_painter"  as string)
 			
 			
 	) 
 		
+	--delete selected category 
+	on btn_cat_del pressed do 
+	(
+		
+		if ddl_folder.selection == 1 then 
+		(
+			return false 
+		)
+		else
+		(
+			if (querybox "Are you sure you want to Delete this {Category}?" beep:false) then 
+			(		
+				if ( querybox "Are you 100% you want to Delete this {Category}?" beep:false) then 			
+				(
+					try 
+					(
+						delDir = dotNetClass "system.IO.directory"
+						dirname = (clean_fold_arr[ddl_folder.selection] as string)		
+						dirSel = (curProjectFolder + "\scenes\Areas\\" + dirname)  
+						
+						delDir.delete (dirSel) true
+							
+						--get Project levels and filter types 
+						GetProjectLevels()
+							
+						ddl_folder.selection = 1
+					)
+					catch (messageBox "Unable to Delete, Folder is open or in use in another App")
+				)
+			)
+			else()
+			
+		)
+	)
+	
+	
+	
 	-----------------------------------------------------------------------------------------------------------Project Dir Helper ----
 	----------------------------------------------------------------------------------------------------------------------------------
 	
@@ -1151,7 +1329,6 @@ Rollout flowProjectHelper "Project Manager"
 		SaveLauncherData toolFolder	
 	)
 		
-		
 	--level filter - design 
 	on chk_dsn changed state do 
 	(
@@ -1209,8 +1386,7 @@ Rollout flowProjectHelper "Project Manager"
 		SaveLauncherData toolFolder	
 	)
 		
-		
-	--level filter - wea 
+	--level filter - weapon
 	on chk_wea changed state do 
 	(
 		GetProjectLevels()
@@ -1351,6 +1527,14 @@ Rollout flowProjectHelper "Project Manager"
 			arr = #("No Scenes Found")
 		)	
 			
+		--load filters 
+		chk_art.state 	= launcherData[4]
+		chk_dsn.state 	= launcherData[5]
+		chk_inst.state	= launcherData[6]
+		chk_prop.state 	= launcherData[7]
+		chk_veh.state 	= launcherData[8]
+		chk_wea.state 	= launcherData[9]
+			
 		--set Xref Scences list
 		ddl_refs.items = arr
 			
@@ -1373,6 +1557,7 @@ Rollout flowProjectHelper "Project Manager"
 			
 		--get Project levels and filter types 
 		GetProjectLevels()
+			
 		if mainFPFolder != undefined then
 		(
 			if (doesFileExist (mainFPFolder + "\FlowPanels_v8.ms") ) then
@@ -1411,14 +1596,14 @@ Rollout flowProjectHelper "Project Manager"
 		)	
 			
 	)
-			
+		
 	on flowProjectHelper resized theSize do
 	(
 		--edt.width 	= theSize.x
 		--edt.height 	= theSize.y
 		
 	)
-	
+		
 	on flowProjectHelper close do 
 	(
 		callbacks.removeScripts id:#MXSHelp
@@ -1426,11 +1611,15 @@ Rollout flowProjectHelper "Project Manager"
 		--save 'mainFPFolder' 
 		SaveLauncherData toolFolder	
 	)
-
+		
+		
 )	
 
 
-
-CreateDialog flowProjectHelper	width:360 height:800 
+CreateDialog flowProjectHelper width:360 height:840 style:#(#style_titlebar,  #style_border, #style_sysmenu, #style_resizing, #style_minimizebox, #style_maximizebox, #style_sunkenedge) autoLayoutOnResize:true 
 	
-cui.registerDialogBar	flowProjectHelper	style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true
+-- addRollout  flowProjectToolsRO fPH
+
+
+
+-- cui.registerDialogBar	flowProjectHelper	style:#(#cui_floatable, #cui_handles, #cui_dock_vert, #style_resizing, #style_toolwindow) lockHeight:false lockWidth:false autoLayoutOnResize:true

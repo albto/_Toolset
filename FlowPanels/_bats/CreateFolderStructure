@@ -1,0 +1,16 @@
+@echo off 
+mkdir "Characters\"
+mkdir "Characters\_test_area"
+mkdir "Characters\Clothing"
+mkdir "Characters\Skin"
+mkdir "Characters\Accessories"
+mkdir "Environments\"
+mkdir "Environments\Wood"
+mkdir "Environments\Masonry"
+mkdir "Environments\Stone"
+mkdir "Environments\Decals"
+mkdir "Environments\Metal"
+mkdir "Environments\Glass"
+mkdir "Environments\Crystal"
+mkdir "Environments\"
+

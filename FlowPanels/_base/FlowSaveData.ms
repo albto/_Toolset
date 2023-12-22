@@ -1,4 +1,48 @@
 
+	global launcherData = #()
+		
+	----------------------------------------------------------------------------------------------------------------------------------
+-- 	global str = getThisScriptFilename()
+
+-- 		
+-- 		
+-- 	global launcherFolder = getfilenamepath str  
+-- 	
+ 	global toolFolder = mainFPFolder--substituteString launcherFolder "\FlowPanels\_base" ""
+ 	global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str
+		
+	global strMyFolder = ""
+	
+
+
+	----------------------------------------------------------------------------------------------------------------------------------
+		
+	-----------------------------------------------------------------------------------------------------------LAUNCHER DATA -- SET --
+	----------------------------------------------------------------------------------------------------------------------------------
+	-- Auto-Load Lauincher Data on Start-up
+		
+	--this is redundant 
+	if (doesFileExist(mainFPFolder + "\FlowPanels\savedata\LauncherData.fp")) then	
+	(
+		ld = openfile (mainFPFolder + "\FlowPanels\savedata\LauncherData.fp") 
+		launcherData = execute (readLine ld)
+		close ld
+		print (	 "Launcher Data - " + launcherdata as string)
+	)		
+		
+	if launcherData != undefined then
+	(
+		--grab data
+		mainFPFolder = launcherData[1]
+	)
+	else 
+	(
+		launcherData = #("", 1, 1, false, false, false, false, false, false, "", 1)
+	)
+		
+	-----------------------------------------------------------------------------------------------------------LAUNCHER DATA -- END --
+	----------------------------------------------------------------------------------------------------------------------------------
+		
 
 
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -278,61 +322,241 @@ fn SetAutoSettings val intgr =
 (
 	auto_FP_Settings[intgr] = val
 )	
-	
+
+
+
+
+	global FP_DataLocation
+	global FP_BaseLocation	
+	global FP_RCLocation 
+		
+		
+	--set locations
+	FP_DataLocation	= (mainFPFolder as string + "\FlowPanels\_base\FlowSaveData.ms" ) as string
+	FP_BaseLocation = (mainFPFolder as string + "\FlowPanels\_base\FlowToolsBase.ms") as string
+	FP_RCLocation 	= (mainFPFolder as string + "\FlowPanels\_base\FlowRCMenu.ms") as string
+	FP_Functions 	= (mainFPFolder as string + "\\FlowFunctions\\FlowFunctions.ms") as string
+	FP_Create		= (mainFPFolder as string + "\\FlowFunctions\\FlowCreator.ms") as string
+	FP_Attributes 	= (mainFPFolder as string + "\\FlowFunctions\\FlowObjectAttributes.ms") as string
+		
+
+
+-------------------------------------------------------------------------------------------------------------
+-- Globals --------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+
+global FlowDataStructure
+global LoadLauncherDataFromXml
+global ImportFlowSavedData
+
 
 ------------------------------------------------------------------------------------------------------------- 
+------------------------------------------------------------------------------------------New Save System----
 ------------------------------------------------------------------------------------------------------------- 
-	
-	global FlowDataStructure
-	
-	--New Save System -- Initial Test 
-	fn FlowDataStructure =  
+
+--New Save System -- Create New Xml 
+fn FlowDataStructure =  
+(
+	--Variables 
+	LauncherDataNames = #("_root", "currentCategory", "currentLevel", "Art_Filter", "Design_Filter", 
+		"Inst_Filter", "Prop_Filter", "Vehicle_Filter", "Weapon_Filter", "currentSelectedProject", "projectListSelection")
+		
+	FlowPanelsDataNames = #("quickExport", "fbxTypeExport", "objTypeExport", "autoTypeExport", "useSelectionsName", "UnityExport", 
+		"exportTypeString", "prefixText", "exportLocation", "renameObjectsSetting", "lastExportSelection", "lastImportSelection", 
+		"importList", "importFileType", "importListLastSelection", "pirmitiveScale", "unitType", "meterUnitType", "centimeterUnitType", 
+		"inchUnitType", "lastExportFolder", "batchExportToggle", "bypassNaming")
+		
+	ToolsGlobalDataNames = #("settingsRecorder", "autoDock", "autoCollapse", "rolledUpOnStart", "toolsetClosePos", "OrganizePanel_Active", 
+		"CreatePanel_Active", "ModelingPanel_Active", "NormalPanel_Active", "PaintingPanel_Active", "SubstancePanel_Active", "ExportPanel_Active", 
+		"ImportPanel_Active", "ViewportPanel_Active", "PrefabPanel_Active", "toolsetSize")	
+		
+		
+	--declare objects 	
+	xmlDoc = dotNetObject "system.xml.xmlDocument"
+	xmlWriter = dotNetClass "system.xml.xmlWriter"	
+	xmlSettings = dotNetObject "system.xml.xmlWriterSettings"
+	xmlEncoding = dotNetClass "system.Text.Encoding"
+		
+	-------------------------------------------------------
+	-- XML WRITER DOC ---------------------------Begin-----	
+	-------------------------------------------------------	
+		
+	xmlSettings.Encoding = xmlEncoding.UTF8
+	xmlSettings.Indent = true
+	xmlSettings.IndentChars = ("\t")
+	xmlSettings.OmitXmlDeclaration = true
+	xmlSettings.NewLineOnAttributes = true
+		
+	xmlWrtPath = (mainFPFolder+"\\FlowPanels\\savedata\\xmlDataWriter.xml" as string)
+		
+	--try 
 	(
-		xmlDoc = dotNetObject "system.xml.xmlDocument"
-		xmlWriter = dotNetClass "system.xml.xmlWriter"	
+		--Create Writer Document --path		--settings 
+		doc = xmlWriter.Create xmlWrtPath xmlSettings
+			
+		--Start Element -- Begin 
+		doc.WriteStartElement "FlowToolsXMLData"
+			
+		--toolset data - Begin 
+		-- Write an element (this one is the root).
+        doc.WriteStartElement "Toolset_Data"
+			
+		-- Write the genre attribute.
+		doc.WriteAttributeString "value" "SavedData"
 		
-		--create Root Element 
-		DatEle = xmlDoc.createElement ("FlowDataElement")
+		for i = 1 to launcherData.count do 
+		(
+			--Write the title.
+			doc.WriteStartElement (LauncherDataNames[i] as string)
+			doc.WriteAttributeString ("value") (launcherData[i] as string)
 			
-		toolPathEle = xmlDoc.createElement "mainFPFolder"
-		autoSettings = xmlDoc.createElement "AutoSettings"
+			--toolset data - End 
+			doc.WriteEndElement()
+		)		
 			
-		--new attribute - toolset location 
-		att_path = xmlDoc.createAttribute("path")
-		att_path.Value = mainFPFolder
+		--Document - End 
+		doc.WriteEndElement()
 			
-		--new attribute - autosettings 
-		att_qExp = xmlDoc.createAttribute("QuickExport")
-		att_qExp.Value = (auto_FP_Settings[1] as string)
-		
-		att_fbxE = xmlDoc.createAttribute("FBXExport")
-		att_fbxE.Value = (auto_FP_Settings[2] as string)
-		
-		
-		--add to element 
-		toolPathEle.Attributes.Append(att_path)				
-		autoSettings.Attributes.Append(att_qExp)			
-		autoSettings.Attributes.Append(att_fbxE)	
+		--toolset data - Begin 
+		-- Write an element (this one is the root).
+        doc.WriteStartElement "Global_Settings_Data"
 			
-		--add to xml doc 
-		DatEle.appendChild toolPathEle
-		DatEle.appendChild autoSettings
-		xmlDoc.appendChild DatEle
+		-- Write the genre attribute.
+		doc.WriteAttributeString "value" "GlobalData"
 			
-		xmlDoc.save (mainFPFolder+"\\FlowPanels\\savedata\\xmlData.xml")
+		for i = 1 to FP_Global_Settings.count do 
+		(
+			--Write the title.
+			doc.WriteStartElement (ToolsGlobalDataNames[i] as string)
+			doc.WriteAttributeString ("value") (FP_Global_Settings[i] as string)
 			
-		showProperties xmlDoc
-		showMethods xmlDoc 
+			--toolset data - End 
+			doc.WriteEndElement()
+		)
+			
+		--Document - End 
+		doc.WriteEndElement()
+			
+		--toolset data - Begin 
+		-- Write an element (this one is the root).
+        doc.WriteStartElement "Auto_Settings_Data"
+			
+		-- Write the genre attribute.
+		doc.WriteAttributeString "value" "FlowPanelsAuto-Data"
+			
+		for i = 1 to auto_FP_Settings.count do 
+		(
+			--Write the title.
+			doc.WriteStartElement (FlowPanelsDataNames[i] as string)
+			doc.WriteAttributeString ("value") (auto_FP_Settings[i] as string)
+			
+			--toolset data - End 
+			doc.WriteEndElement()
+		)
+			
+		--Document - End 
+		doc.WriteEndElement()
 			
 			
+		--showMethods xmlEncoding
+		--showProperties xmlEncoding
 			
-	)	
+		doc.Flush()
+		doc.Close()
+	)
+	--Catch("Failed to Save Data")
+	-- XML WRITER DOC -----------------------------End-----
+	-------------------------------------------------------		
+			
+	--
+					
+)	
 	
-
-
+--Create Xml File 
 FlowDataStructure()
 
 
+------------------------------------------------------------------------------------------------
+--Load data from XML 
+------------------------------------------------------------------------------------------------
+fn LoadLauncherDataFromXml root = 
+(
+	TagsList = #()
+	childNodes=root.childNodes
+		
+	for i = 0 to childNodes.Count-1 do 
+	(
+		ele = childNodes.ItemOf[i]
+		eleName = ele.getAttribute "value"
+			
+		if eleName == "SavedData" then
+		(
+			eleChildren = ele.childNodes
+				
+			for i = 0 to eleChildren.count-1 do 
+			(
+				child = eleChildren.ItemOf[i]
+				print (child.name as string + " = " + (child.getAttribute "value") as string)
+			)
+		)
+			
+	)
+		
+)
+
+
+------------------------------------------------------------------------------------------------
+--IMPORT XML AND LOAD DATA  
+------------------------------------------------------------------------------------------------		
+	
+fn ImportFlowSavedData = 
+(
+		
+	--load unity layers xml file
+	struct flowData
+	(
+		public
+			
+		xmlDoc = dotNetObject "system.xml.xmlDocument",
+			
+		fn Constructor = 
+		(
+			
+			return xmlDoc	
+		),
+		
+		function LoadXml = 
+		(
+			--load XML
+			xmlDoc.load (mainFPFolder+"\\FlowPanels\\savedata\\xmlDataWriter.xml" as string)
+						
+			--PLACE THIS IN THE STARTUP FOLDER
+			if xmlDoc != undefined then
+			(
+				print ("Xml " + xmlDoc.name + " - Loaded")
+			)
+		),
+			
+		Initialize = Constructor()
+			
+	)
+		
+	flowDat = flowData()
+	flowDat.LoadXml()
+		
+	--Load data 
+	LoadLauncherDataFromXml flowDat.xmlDoc.DocumentElement name:"SavedData"
+		
+		
+	--print ("Layers List - " + LayersList as string)
+	--print ("Tags List - " + TagsList as string)
+	--print ("Attributes List - " + AttrList as string)
+		
+)
+
+--load data 
+ImportFlowSavedData()
 
 
 

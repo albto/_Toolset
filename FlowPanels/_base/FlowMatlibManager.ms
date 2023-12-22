@@ -45,25 +45,30 @@
 			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[145,40]
 				
 			
-			edittext 		edt_mat_name "Material Name:" 								width:280													offset:[00,17]	
-			checkbutton 	chk_ab_map "ab"												width:30							across:8				offset:[-15,00]				
-			checkbutton 	chk_rg_map "rg"												width:30													offset:[-35,00]	
-			checkbutton 	chk_nm_map "nm"												width:30													offset:[-55,00]				
-			checkbutton 	chk_op_map "op"												width:30													offset:[-75,00]	
-			checkbutton 	chk_mt_map "mt"												width:30													offset:[-95,00]	
-			checkbutton 	chk_ao_map "ao"												width:30													offset:[-115,00]	
-			checkbutton 	chk_hg_map "hg"												width:30													offset:[-135,00]	
-			checkbutton 	chk_em_map "em"												width:30													offset:[-155,00]	
-			checkbutton 	chk_bk_map "  "												width:30													offset:[57,-26]		enabled:false
-			label 			lbl_space 	""												height:5
+			edittext 		edt_mat_name "Selected Material:" 							width:280													offset:[00,17]	
+			label 			lbl_space1 	"Active Nodes: "							height:30					across:9						offset:[10,0]
+			checkbutton 	chk_ab_map "ab"											width:30													offset:[15,00]				
+			checkbutton 	chk_rg_map "rg"											width:30													offset:[0,00]	
+			checkbutton 	chk_nm_map "nm"											width:30													offset:[-15,00]				
+			checkbutton 	chk_op_map "op"											width:30													offset:[-30,00]	
+			checkbutton 	chk_mt_map "mt"											width:30													offset:[-45,00]	
+			checkbutton 	chk_ao_map "ao"											width:30													offset:[-60,00]	
+			checkbutton 	chk_hg_map "hg"											width:30													offset:[-75,00]	
+			checkbutton 	chk_em_map "em"											width:30													offset:[-90,00]	
+			checkbutton 	chk_bk_map "  "											width:30													offset:[122,-35]		enabled:false
+			
+			label 			lbl_space2	""											height:5
 		)
 			
 		Group "Material Toolkit: "
 		(
-			checkbutton chk_mtlb_slnt "Open SME"									height:25 					across:3		checked:false   	offset:[-40,0]
-			button 		btn_comb_mats "Create Combined MultiMat"					height:25 														offset:[-70,0]
-			button 		btn_apnd_mtl  "Add Selected Material to Current MatLib"		height:25														offset:[-30,0]
+			edittext 	edt_mmtl_name "New Material Name:"	 						width:260 	height:20 		across:1				text:"Rename Me"
+			checkbutton chk_mtlb_slnt "Open SME"									height:25 					across:4		checked:false   	offset:[-20,0]
+			button 		btn_comb_mats "Create Multi-Mat"							height:25 														offset:[-20,0]
+			button 		btn_new_mtl  "Import Material"								height:25														offset:[3,0]
+			button 		btn_sub_mtl  "Import Substance"								height:25														offset:[0,0]
 			--timer 	tck_updt_mtlb ""		interval:100
+			
 			spinner 	spn_uv_ctrl "UVs Scaler"   									width:280		           	range:[0, 1000, 100]				offset:[00,00]
 			
 		)
@@ -180,7 +185,7 @@
 			(
 				print ("no " + map as string + " is present")	
 				
-				bmp_img.filename = "C:\Users\albto\OneDrive\Documents\GitHub\_Toolset\FlowPanels\_base\error.png"
+				bmp_img.filename = (mainFPFolder + "\\FlowPanels\\_images\\error.png")
 				p = (bitmap 132	132 color:(color 0 0 0 0))
 				print p.hasAlpha 
 				print (getChannel p [0,0] #UVCoords)
@@ -304,23 +309,33 @@
 		(
 			num =  rad_dbg_maps.state
 				
-			str = mapArr[num].sourcemap.filename
-			print str
-			shelllaunch "explorer.exe" str	
-				
+			if mapArr.count > 0 then 
+			(	
+				if mapArr[num] != undefined then 
+				(
+					str = mapArr[num].sourcemap.filename
+					print str
+					shelllaunch "explorer.exe" str
+				)					
+			)
 		)
 		
 		on btn_open_maps pressed do 
 		(
 			num =  rad_dbg_maps.state
 				
-			str = mapArr[1].sourcemap.filename
-			str = substituteString str (getFilenameFile str + getFilenameType str) ""
-				
-			print qx_fldr
-			print str
-			shelllaunch "explorer.exe" str	
-				
+			if mapArr.count > 0 then 
+			(	
+				if mapArr[1] != undefined then 
+				(
+					str = mapArr[1].sourcemap.filename
+					str = substituteString str (getFilenameFile str + getFilenameType str) ""				
+						
+					print qx_fldr
+					print str
+					shelllaunch "explorer.exe" str	
+				)
+			)	
 		)
 			
 		--create new preset 
@@ -380,8 +395,7 @@
 		(
 			--create combined multi-mat
 			objMats = for i in selection as array where i.mat != undefined collect i.mat
-			print objMats.count
-			
+			format ("The materials count is % \n") objMats.count
 				
 			if objMats.count > 1 then 
 			(
@@ -396,7 +410,7 @@
 				viewNode = sme.GetView (sme.activeView)
 				sme.SetMtlInParamEditor mm
 				newMat = copy (sme.GetMtlInParamEditor())
-				newMat.name = "_Combined_Mat_Test"
+				newMat.name = edt_mmtl_name.text
 				
 				matPos = [20,20]
 				viewnode.createnode newMat &matPos
@@ -405,11 +419,12 @@
 				(
 					s.mat = newMat
 				)
-				print "created new multimaterial"
+					
+				format ("A new Multi-Material has been created % \n") newMat.name
 					
 			)
 			else(
-				print "only has one material"
+				print "A single material has been found, discarding request" 
 			)
 				
 		)
@@ -450,7 +465,7 @@
 		--On library list item selected 
 		on lst_crnt_mtlb selected item do 
 		(
-			
+			format ("Selected %") item.name 
 		)
 			
 		on rad_dbg_maps changed state do 
@@ -571,29 +586,32 @@
 				
 			if sel != undefined then
 			(
-				lib = loadTempMaterialLibrary (lst_crnt_mtlb.items[1] as string)
-				
-				
-				objMats = #()
-				objMats = for i in sel where i.mat != undefined collect i.mat
-					
-				print ("matLib name > " + lib[1] as string)
-					
-				print ("selected mat name > " + objMats[1] as string)
-					
-				for i in selection do 
+				for i in selection as array do 
 				(
-					--append material test 
-					append (lib) (objMats[1])
+					lib = loadTempMaterialLibrary (lst_crnt_mtlb.selected as string)
+					
+					
+					objMats = #()
+					objMats = for i in sel where i.mat != undefined collect i.mat
+						
+					--print ("matLib name = " + lib[i].mat as string)
+						
+					--print ("selected mat name = " + slection.mat as string)
+						
+					for i in selection do 
+					(
+						--append material test 
+						append (lib) (i.mat)
+					)
+					
+					saveTempMaterialLibrary lib (lst_crnt_mtlb.selected as string)
+					
+					--load Material Libraries
+					LoadCustomMLs()	
+					
+					--Load Library
+					LoadSelectedLibraryFromList()
 				)
-				
-				saveTempMaterialLibrary lib (lst_crnt_mtlb.items[1] as string)
-				
-				--load Material Libraries
-				LoadCustomMLs()	
-				
-				--Load Library
-				LoadSelectedLibraryFromList()
 			)
 		)
 			
