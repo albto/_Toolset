@@ -1043,7 +1043,7 @@ tooltip:"Select Faces By Angle"
 macroScript AlignPivotToDirection
 category:"FlowFunctions"
 tooltip:"Align Pivot to Direction"
-buttonText:"APD"
+buttonText:"Align Pivot to Direction"
 (
 	global miauuAlignObjectToVector
 	local objToAlignArr = #()

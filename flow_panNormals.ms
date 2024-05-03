@@ -16,11 +16,8 @@
 			dropdownList lstMiTp "Mitering Type" 		items:#("Quad", "Uniform", "Patch", "Radial", "Tri")			
 			dropdownList lstAmTp "Amount Type" 			items:#("Fixed", "By Crease Weight", "Legacy", "By Weight") across:2
 			dropdownList lstDpTp "Depth Type" 			items:#("Fixed", "By Weight")
--- 			spinner spnAmnt "Amount" 			range:[0,1,0.02]	type:#float
--- 			spinner spnAmnt "Amount" 			range:[0,1,0.02]	type:#float
 				
 			Button cmdSetWeight "Set Weighted Chamfer" width:190 height:30
-			
 				
 		)
 			
