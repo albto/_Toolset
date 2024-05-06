@@ -591,6 +591,48 @@ toolTip:"Add Unity Attributes"
 
 
 
+macroScript IBGUnityAttributesClean
+category:"FlowAttributes"
+toolTip:"Clean-Up Attributes Modifier"
+(
+			
+	--filter modifier
+	mdf = selection[1].modifiers[#Editable_Poly]
+
+	mainName = selection[1].name
+	origSel = selection[1]
+
+
+	if (classOf origSel == Editable_Poly) then
+	(
+		modPanel.setCurrentObject origSel.baseobject 
+		subObjectLevel = 5 
+		polyop.SetFaceSelection origSel #all
+		
+		faces = polyop.getFaceSelection origSel
+		print ("Number of faces: " + faces as string)
+		polyop.detachFaces origSel faces delete:false asNode:true name:(mainName + "_cleaned") actualNodeList:&a newNodes:&b
+		
+		subObjectLevel = 0 
+		
+		delete selection
+		select (getNodeByName (mainName + "_cleaned") )
+		
+		--delete origSel
+		
+		--select a 
+		
+		--print (origNodes as string)
+		
+		--a = maxOps.CloneNodes (selection) clonetype:#copy  actualNodeList:origNodes newNodes:newNodes
+		--a.name = origNodes[1].name
+	)
+	else(
+			
+	)
+	
+)
+
 
 
 

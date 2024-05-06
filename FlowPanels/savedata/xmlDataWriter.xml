@@ -72,7 +72,7 @@
 		<useSelectionsName
 			value="true" />
 		<UnityExport
-			value="false" />
+			value="true" />
 		<exportTypeString
 			value=".FBX" />
 		<prefixText
