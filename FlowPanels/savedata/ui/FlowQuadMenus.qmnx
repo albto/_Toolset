@@ -261,4 +261,19 @@
     <CreateMenuAction MenuId="6d9d357a-3e7c-4751-b0a7-a969bd85e8c2" Id="9a90a409-fc2e-411d-86f2-6c166e8ea3ce" ActionId="647394-FlowConnectAutoRing`Ribbon - Modeling" BeforeId="afe780f0-e1c5-4ccd-ae5e-d709e83640c0"/>
     <CreateMenuAction MenuId="6d9d357a-3e7c-4751-b0a7-a969bd85e8c2" Id="09900084-cda6-4c26-a64a-81e49179bbf7" ActionId="647394-FlowConnect`PolyTools" BeforeId="9a90a409-fc2e-411d-86f2-6c166e8ea3ce"/>
     <CreateMenuSeparator MenuId="6d9d357a-3e7c-4751-b0a7-a969bd85e8c2" Id="82260176-7059-41c1-8a16-78da26c89846" BeforeId="09900084-cda6-4c26-a64a-81e49179bbf7"/>
+    <CreateMenuAction MenuId="b8a72e19-546b-4b31-8afe-0a847c8de8f2" Id="27157556-4587-417f-ab7e-fd87d66c719b" ActionId="1259304063-50074" BeforeId="7ac10c11-b575-44c9-b38a-bbfe74612dd6"/>
+    <CreateMenuSeparator MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="35310032-19f6-44fc-8e29-2130c8dcceae" BeforeId="f4a4889a-74bf-418f-90db-0b67dafff80f"/>
+    <CreateMenuAction MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="204cd2ad-2728-409a-abd8-a3301ad008ac" ActionId="647394-Vertex_Paint`Modifiers" BeforeId="72d31f3b-5d2d-4175-b4ad-ec6e5ffa0752"/>
+    <CreateMenuSeparator MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="17c74f04-3cbb-4b0e-bc22-38566dc94e69" BeforeId="72d31f3b-5d2d-4175-b4ad-ec6e5ffa0752"/>
+    <CreateMenuAction MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="ae3a5500-2d66-4725-ba75-a64dbd3bfbc6" ActionId="647394-VertexPaint_PaintChannelUp`VertexPaint" BeforeId="17c74f04-3cbb-4b0e-bc22-38566dc94e69"/>
+    <CreateMenuAction MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="bfe5d7ee-249a-424b-b70e-d4d0d429e150" ActionId="647394-VertexPaint_PaintChannelDown`VertexPaint" BeforeId="17c74f04-3cbb-4b0e-bc22-38566dc94e69"/>
+    <CreateMenuAction MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="aa57dc47-90a0-4f5b-aadb-d148d8763892" ActionId="647394-VertexPaint_PaintMode`VertexPaint" BeforeId="ae3a5500-2d66-4725-ba75-a64dbd3bfbc6"/>
+    <CreateMenuAction MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="0b42d9a1-d0fa-4a99-a7c0-1aca2f7b391e" ActionId="647394-VertexPaint_PickMode`VertexPaint" BeforeId="aa57dc47-90a0-4f5b-aadb-d148d8763892"/>
+    <CreateMenuAction MenuId="6d9d357a-3e7c-4751-b0a7-a969bd85e8c2" Id="775aa7cf-80cd-4dd5-9d17-6e36d20f85bd" ActionId="647394-PerserveUVs`Ribbon - Modeling" BeforeId="5d064d5d-82b2-4eab-ae0b-ccad9422a9cd"/>
+    <CreateMenuSeparator MenuId="6d9d357a-3e7c-4751-b0a7-a969bd85e8c2" Id="426c5748-59cc-4375-8d95-1bd7c6402fcf" BeforeId="5d064d5d-82b2-4eab-ae0b-ccad9422a9cd"/>
+    <MoveItem DestinationId="f8c3d547-6454-4601-80b4-9aa10e485b10" ItemId="96d154c8-a7c9-4c90-984d-c9a8cf5a9e84" BeforeId="62ca481f-3c7b-449a-b27e-c21789eb0314"/>
+    <MoveItem DestinationId="f8c3d547-6454-4601-80b4-9aa10e485b10" ItemId="96d154c8-a7c9-4c90-984d-c9a8cf5a9e84" BeforeId="9aca9b5f-7f3a-4b0a-b9c9-290544de3000"/>
+    <MoveItem DestinationId="f8c3d547-6454-4601-80b4-9aa10e485b10" ItemId="9aca9b5f-7f3a-4b0a-b9c9-290544de3000" BeforeId="2541cf9a-b64e-43dd-9d10-10a298cb8d29"/>
+    <MoveItem DestinationId="f8c3d547-6454-4601-80b4-9aa10e485b10" ItemId="bd0c751a-c1a2-484f-bd3e-914da3bbb8a1" BeforeId="efc91fb9-0a71-4781-a437-6cc49537e5be"/>
+    <CreateMenuSeparator MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="024e7cbd-375b-47a4-acbd-27b3cda90e3b" BeforeId="22851bb1-8fd1-4650-96cc-6ff1bee76c1b"/>
 </MaxQuadMenuTransformations>

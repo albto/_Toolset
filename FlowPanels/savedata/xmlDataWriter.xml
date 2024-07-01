@@ -4,11 +4,11 @@
 		<_root
 			value="C:\Users\albto\OneDrive\Documents\GitHub\_Toolset" />
 		<currentCategory
-			value="9" />
+			value="4" />
 		<currentLevel
-			value="1" />
+			value="4" />
 		<Art_Filter
-			value="false" />
+			value="true" />
 		<Design_Filter
 			value="false" />
 		<Inst_Filter
@@ -35,7 +35,7 @@
 		<rolledUpOnStart
 			value="true" />
 		<toolsetClosePos
-			value="[-2,108]" />
+			value="[334,108]" />
 		<OrganizePanel_Active
 			value="false" />
 		<CreatePanel_Active
@@ -80,15 +80,15 @@
 		<exportLocation
 			value="D:/Projects/Project3D/Assets/Art/Geometry" />
 		<renameObjectsSetting
-			value="false" />
+			value="true" />
 		<lastExportSelection
 			value="1" />
 		<lastImportSelection
-			value="" />
+			value="D:/Projects/Project3D/Assets/Art/Geometry" />
 		<importList
-			value="#()" />
+			value="#(&quot;D:/Projects/Project3D/Assets/Art/Geometry/.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Vehicles/veh_02_Main/veh_02_Main.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Interior/main_sponza/Main.1_Sponza/NewSponza_Main_Yup_002.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Interior/main_sponza/Main.1_Sponza/NewSponza_Main_Zup_002.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Interior/main_sponza/Meshes/Sponza_Modular.FBX&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Buildings/Bunker_Hill_Monument/Bunker_Hill_Monument.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Buildings/Main_Buildings/Main_Buildings.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Buildings/Main_High_School/Main_High_School.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Paths/Main_Monument_Park_Paths/Main_Monument_Park_Paths.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Streets/Main_Roads/Main_Roads.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Streets/Main_Sidewalks/Main_Sidewalks.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Streets/Main_Streets/Main_Streets.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Vista/H-02_Buildings_Mesh_Vista/H-02_Buildings_Mesh_Vista.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Vista/H-03_Buildings_Mesh_Vista/H-03_Buildings_Mesh_Vista.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Vista/H-04_Buildings_Mesh_Vista/H-04_Buildings_Mesh_Vista.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structure/Vista/Zakim_Bunker_Hill_Memorial_Bridge/Zakim_Bunker_Hill_Memorial_Bridge.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Structures/Buildings/Bunker_Hill_Monument/Bunker_Hill_Monument.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Terrain/Park/Main_Terrain/Main_Terrain.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Terrain/Vista/H-02_Terrain_Vista/H-02_Terrain_Vista.fbx&quot;, &quot;D:/Projects/Project3D/Assets/Art/Geometry/Terrain/Vista/H-03_Terrain_Vista/H-03_Terrain_Vista.fbx&quot;, ...)" />
 		<importFileType
-			value="" />
+			value="1" />
 		<importListLastSelection
 			value="1" />
 		<pirmitiveScale

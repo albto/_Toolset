@@ -282,7 +282,7 @@ rcMenu LauncherSettingsMenu
 	(
 		
 		
-		local appImages = "UVWUnwrapView_24i.bmp"
+		local appImages = (mainFPFolder + "\\FlowPanels\\_images\\FlowToolsIcons_32i.bmp") --"UVWUnwrapView_24i.bmp"
 		local appAlphas = "UVWUnwrapView_24a.bmp"
 		local newArr = #()
 		local levels = #()
@@ -313,19 +313,19 @@ rcMenu LauncherSettingsMenu
 		Group "Tool Helpers"
 		(
 				
-			button btn_app_1 "Organize" 			height:52 	width:52	images:#(appImages, appAlphas,27,1,8,1,1) 		ToolTip: "Scene and Layer Organizer"						across:6
-			button btn_app_2 "Create" 				height:52 	width:52	images:#(appImages, appAlphas,27,2,3,1,1) 		ToolTip: "Object Creation Helper and Script Launcher"
-			button btn_app_3 "Model" 				height:52 	width:52	images:#(appImages, appAlphas,27,3,3,1,1) 		ToolTip: "Modeling Helper"
-			button btn_app_4 "Chamfer" 				height:52 	width:52	images:#(appImages, appAlphas,27,4,8,1,1) 		ToolTip: "Vertex Normal and Chamfering Helper"
-			button btn_app_5 "Paint" 				height:52 	width:52	images:#(appImages, appAlphas,27,5,8,1,1) 		ToolTip: "Vertex Painting Helper"
-			button btn_app_6 "Texture" 				height:52 	width:52	images:#(appImages, appAlphas,27,6,8,1,1) 		ToolTip: "Substance Painter Helper"
+			button btn_app_1 "Organize" 			height:52 	width:52	images:#(appImages, appImages,27,1,26,1,1) 		ToolTip: "Scene and Layer Organizer"						across:6
+			button btn_app_2 "Create" 				height:52 	width:52	images:#(appImages, appImages,27,2,26,1,1) 		ToolTip: "Object Creation Helper and Script Launcher"
+			button btn_app_3 "Model" 				height:52 	width:52	images:#(appImages, appAlphas,27,3,26,1,1) 		ToolTip: "Modeling Helper"
+			button btn_app_4 "Chamfer" 				height:52 	width:52	images:#(appImages, appAlphas,27,4,26,1,1) 		ToolTip: "Vertex Normal and Chamfering Helper"
+			button btn_app_5 "Paint" 				height:52 	width:52	images:#(appImages, appAlphas,27,5,26,1,1) 		ToolTip: "Vertex Painting Helper"
+			button btn_app_6 "Texture" 				height:52 	width:52	images:#(appImages, appAlphas,27,6,26,1,1) 		ToolTip: "Substance Painter Helper"
 				
-			button btn_app_7 "Prefab" 				height:52 	width:52	images:#(appImages, appAlphas,27,9,8,1,1) 		ToolTip: "Prefabs Helper"									across:6
-			button btn_app_8 "Export" 				height:52 	width:52	images:#(appImages, appAlphas,27,8,8,1,1) 		ToolTip: "Export Helper"
-			button btn_app_9 "Import" 				height:52	width:52	images:#(appImages, appAlphas,27,11,8,1,1) 		ToolTip: "Import Helper"
-			button btn_app_10 "Viewport"			height:52 	width:52	images:#(appImages, appAlphas,27,12,8,1,1) 		ToolTip: "Viewport Helper"
-			button btn_app_11 "Manage" 				height:52 	width:52	images:#(appImages, appAlphas,27,10,8,1,1) 		ToolTip: "Project Manager"
-			button btn_app_12 "Tag" 				height:52 	width:52	images:#(appImages, appAlphas,27,7,8,1,1) 		ToolTip: "Attributes Helper"
+			button btn_app_7 "Prefab" 				height:52 	width:52	images:#(appImages, appAlphas,27,9,27,1,1) 		ToolTip: "Prefabs Helper"									across:6
+			button btn_app_8 "Export" 				height:52 	width:52	images:#(appImages, appAlphas,27,8,27,1,1) 		ToolTip: "Export Helper"
+			button btn_app_9 "Import" 				height:52	width:52	images:#(appImages, appAlphas,27,11,27,1,1) 		ToolTip: "Import Helper"
+			button btn_app_10 "Viewport"			height:52 	width:52	images:#(appImages, appAlphas,27,12,27,1,1) 		ToolTip: "Viewport Helper"
+			button btn_app_11 "Manage" 				height:52 	width:52	images:#(appImages, appAlphas,27,10,27,1,1) 		ToolTip: "Project Manager"
+			button btn_app_12 "Tag" 				height:52 	width:52	images:#(appImages, appAlphas,27,7,27,1,1) 		ToolTip: "Attributes Helper"
 				
 		)
 					

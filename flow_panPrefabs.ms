@@ -80,7 +80,14 @@
 			dropdownList lst_obTyp	"Prefab Object Type"		items:#("Structure", "Interior - Wall", "Interior - Ceiling", "Vehicle", "Prop", "Decal", "Dynamic", "Shadow Only", "Mesh Collider")
 			button btn_fndtyp "Select Objects of Type"			height:30
 		)
-		
+			
+		---------------------------------------------------------------------------------------------------------------- INSTANCES
+		group "Prefab Instances:" 
+		(
+			button c_CreateContainers "Create" 					width: 100	height:40	across:2
+			button c_LoadContainer "Load"  						width: 100	height:40
+		)
+			
 		Group "Baker To Texture"
 		(
 				
@@ -94,14 +101,6 @@
 			button prc_geo "LOD Reduction Chain"						width: 100	height:30	across:2	align:#center	
 			button prc_proxy "HLOD Proxy"								width: 100	height:30				align:#center
 		)
-			
-		---------------------------------------------------------------------------------------------------------------- INSTANCES
-		group "Prefab Instances:" 
-		(
-			button c_CreateContainers "Create" 					width: 100	height:40	across:2
-			button c_LoadContainer "Load"  						width: 100	height:40
-		)
-			
 			
 		on btn_OpenSett pressed do 
 		(

@@ -165,7 +165,9 @@ toolTip:"Add Unity Attributes"
 					SortHierarchy			type:#boolean ui:chk_SortHier 
 					KeepQuads 				type:#boolean ui:chk_KeepQads  
 					SwapChannels			type:#boolean ui:chk_SwapChn   
-					Category 				type:#string ui:edt_subFolder
+					Category 				type:#string ui:edt_categFolder
+					Classification 			type:#string ui:edt_classFolder
+					ObjectComponent			type:#integer ui:ddl_ObjT		
 					
 				)--end Param1
 					
@@ -177,8 +179,12 @@ toolTip:"Add Unity Attributes"
 					--Presets
 					local externalFn = #("", "", "")
 					local externalMod = #("", "", "", "")
-					local ObjectTypes = #("Characters", "Exteriors", "Interiors", "Lights", "Props", "Structures", "Terrain", "Vehicles", "VertexAnims", "Weapons" )
-					local ObjectAttributes = #("Standard", "Damageable", "Hackable", "Interactable", "Snapable", "ProcGenAsset", "Dummy")
+					
+					local GameTags = #()
+					local ObjectTypes = #()
+					local ObjectAttributes = #()
+					local Layers = #() 
+					
 					local ProcGenType = #("None","StartRoom", "Hallway", "BossRoom", "Room", "EndRoom") 
 					local MeshComp = #("Off", "Low", "Medium", "High")
 					local NormalsType = #("Import", "Calculate", "None")
@@ -187,8 +193,7 @@ toolTip:"Add Unity Attributes"
 					local MaterialsNam = #("BasedOnTexture", "BasedOnMaterial", "BasedOnModel")
 					local MaterialsSea = #("Local", "Recursive-Up", "Everywhere")
 					local CategoryName = "None"
-					local GameTags = #()
-					local Layers = #() 
+					local ClassificationName = "None"
 						
 					--write to file
 					local fps = #()
@@ -227,7 +232,8 @@ toolTip:"Add Unity Attributes"
 						dropdownlist ddl_Tags "Tag:"					items:GameTags	
 						dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
 						dropdownList ddl_ObjT "Object Type:" 			items:ObjectTypes
-						edittext 	 edt_subFolder "Category:"			text:CategoryName	labelOnTop:true
+						edittext 	 edt_categFolder "Category:"		text:CategoryName		labelOnTop:true
+						edittext 	 edt_classFolder "Classification:"	text:ClassificationName	labelOnTop:true
 					)
 					
 					Group "Gameplay Settings:"
@@ -236,6 +242,7 @@ toolTip:"Add Unity Attributes"
 						dropdownList ddl_procTyp "ProcGen Type:"		items:ProcGenType		enabled:false
 						dropdownList ddl_ObjC "Object Component:" 		items:ObjectTypes
 					)
+					
 					
 					Group "Settings:"
 					(
@@ -271,7 +278,12 @@ toolTip:"Add Unity Attributes"
 					
 					fn ImportDataFromUnity = 
 					(
+						
 						srl_Stats.ImportDataFromUnity()
+						
+						print ("OBJATTR   " + AttrList as string)
+						--print ("ATTRLIST   " + AttrList as string)
+						
 							
 						--Load data  - - Layers 
 						ddl_Lyrs.items = LayersList
@@ -283,6 +295,17 @@ toolTip:"Add Unity Attributes"
 							
 						--Load data  - - Attributes
 						ddl_oAtr.items = AttrList
+						ObjectAttributes = AttrList
+							
+						--Load data  - - Types
+						ddl_ObjT.items = TypeList
+						ObjectTypes = TypeList
+							
+						--Load data  - - Components
+						ddl_ObjC.items = CompList
+							
+						--Load data  - - Something Else 
+							
 					)
 
 						
@@ -330,9 +353,13 @@ toolTip:"Add Unity Attributes"
 							SetObjectSettings 25 ddl_MNam.selection 	
 							SetObjectSettings 26 ddl_MSea.selection 
 							SetObjectSettings 27 ddl_procTyp.selection
-							SetObjectSettings 28 edt_subFolder.text
+							SetObjectSettings 28 edt_categFolder.text
 							SetObjectSettings 29 Layers
 							SetObjectSettings 30 GameTags
+							SetObjectSettings 31 edt_classFolder.text
+							SetObjectSettings 32 ObjectAttributes
+							SetObjectSettings 33 ObjectTypes
+							SetObjectSettings 34 ddl_ObjC.selection
 								
 								
 							--record settings	
@@ -389,8 +416,8 @@ toolTip:"Add Unity Attributes"
 							ddl_MNam.selection		= obs[25]
 							ddl_MSea.selection 		= obs[26]
 							ddl_procTyp.selection	= obs[27]
-							edt_subFolder.text		= obs[28]
-								
+							edt_categFolder.text	= obs[28]
+															
 							if (classOf obs[29]) == array then
 							(
 								if obs[29].count > 0 then 
@@ -412,7 +439,35 @@ toolTip:"Add Unity Attributes"
 									ddl_Tags.items = GameTags
 								)
 							)					
+							
+							edt_classFolder.text	= obs[31]
+
+							
+							if (classOf obs[32]) == array then 
+							(
+								if obs[32].count > 0 then 
+								(
+									--print "Loading from Memory - attributes"
+									--print (obs[32] as string)							
+									ObjectAttributes = obs[32]
+									ddl_oAtr.items = ObjectAttributes
+								)
+							)	
+							
+							if (classOf obs[33]) == array then 
+							(
+								if obs[33].count > 0 then 
+								(
+									--print "Loading from Memory - attributes"
+									--print (obs[32] as string)							
+									ObjectTypes = obs[33]
+									ddl_ObjT.items = ObjectTypes
+								)
+							)
 								
+							ddl_ObjC.selection		= obs[34]
+							
+							
 							--record settings	
 							setUserPropVal i "Unity Attributes" obs 
 								
@@ -447,7 +502,7 @@ toolTip:"Add Unity Attributes"
 							chk_Cams.checked 		= false
 							chk_Lght.checked 		= false
 							chk_Visi.checked 		= false
-							ddl_Nmls.selection 		= 0
+							ddl_Nmls.selection 		= 1
 							ddl_MCM.selection 		= 2
 							ddl_MLoc.selection 		= 2
 							ddl_MNam.selection		= 1
@@ -462,7 +517,8 @@ toolTip:"Add Unity Attributes"
 							chk_KeepQads.checked	= false
 							chk_SwapChn.checked		= false
 							ddl_procTyp.selection 	= 1
-							edt_subFolder.text		= "None"
+							edt_categFolder.text	= "None"
+							edt_classFolder.text 	= "None"
 								
 								
 							--Save Settings Applied
@@ -520,12 +576,12 @@ toolTip:"Add Unity Attributes"
 						Mesh_Compression = val
 					)
 					
-					on edt_subFolder entered val do
+					on edt_categFolder entered val do
 					(
 						CategoryName = val
 					)
 					
-					on edt_subFolder entered val do
+					on edt_categFolder entered val do
 					(
 						CategoryName = val
 					)

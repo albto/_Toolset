@@ -1,4 +1,7 @@
 		
+		
+		local lowFbxPath = ""
+		
 --------------------------------------------------------------------------
 			
 		Group "Substance Painter: "
@@ -9,15 +12,18 @@
 			edittext edittextSubstancePainterPath "" 	width:185 text:defaultSubstancePainterPath tooltip:"Substance Painter application folder path." fieldWidth:160 align:#center
 			button btnSubstancePainterPath "Substance Painter path: " width:200   --pos:[310,77,0] initialDir:defaultSubstancePainterPath 
 			
-			edittext edittextUseSpp "" text:defaultSppPath tooltip:"Path to an existing Substance Painter document. Will be used as source for the custom spp creation." --fieldWidth:140
-			button btnSppPath "Use Existing Spp:"  width:200 --pos:[310,149,0]
-			
 		)
 			
 		Group "Spp Settings: "
 		(
+			edittext edittextUseSpp "" text:defaultSppPath tooltip:"Path to an existing Substance Painter document. Will be used as source for the custom spp creation." --fieldWidth:140
+			button btnSppPath "Use Existing Spp:"  width:200 --pos:[310,149,0]
+			
+			
 			edittext edittextFileName "Exported file name (optional):" 						labelontop:true tooltip:"Allow to use a custom name for the exported file. If none is specified, it will use the first object in alphabetic order." text:"" 
 				
+			
+			
 			button btnExportPath "Export path:"  		width:200 --pos:[310,102,0]
 			edittext edittextFbxExportPath "" 			width:200 text:defaultExportPath 					tooltip:"Path where the meshes are exported/Substance documents are created." fieldWidth:160 align:#center
 				
@@ -27,7 +33,7 @@
 		(
 				
 			checkbox checkboxCreateSubFolder			"Create Project Sub-Folder" 		checked:false 	tooltip:"Will create a dedicated folder in the specified export path"
-			checkbox checkboxExportWithNormalMap 		"Export Normal map" 				checked:true 	tooltip:"Export with Normal map detected in the material"
+			checkbox checkboxExportWithNormalMap 		"Export Normal map" 				checked:false 	tooltip:"Export with Normal map detected in the material"
 			checkbox replaceExistingSpProject 			"Replace SPP" 						checked:false 	tooltip:"A new .spp file will be created (previous version of the document will be removed.)"
 			checkbox displayExporterDialog 				"Quick Export" 						checked:false 	tooltip:"Display 3dsMax FBX export dialog, enable it to modify export settings"
 			checkbox checkboxKillSubstancePainter 		"Close Open Painter Projects" 		checked:true 	tooltip:"Automatically close/relaunch Substance Painter to get file updates. Save SP current document before use!"
@@ -50,8 +56,17 @@
 		-- Get export path from button if input is valid
 		on btnExportPath pressed do 
 		(
-			getExportPath = getSavePath ()
-			ExportPath = getExportPath as string
+			--getExportPath = getSavePath ()
+			
+			str = (maxFilePath as string)
+			
+			str = substituteString str "_max\\_art\\" ""
+			
+			print ("location " + str) as string 
+			
+			ExportPath =  (str + "_painter\\") as string     -- getExportPath as string
+						
+			
 			if (doesFileExist ExportPath) do (
 				edittextFbxExportPath.text = ExportPath
 			)
@@ -175,20 +190,20 @@
 			)
 		)
 
-				on BtnSendToSubstancePainter pressed do
+		on BtnSendToSubstancePainter pressed do
 		(
 			-- Check if something is selected
 			if $ !=undefined then (
 				spVersion = ""
 				-- Check if the user specified a path for SP1 or SP2
-				if (doesFileExist (edittextSubstancePainterPath.text+"\\Substance Painter.exe")) then (
+				if (doesFileExist (edittextSubstancePainterPath.text+"\\Adobe Substance 3D Painter.exe")) then (
 					print "Substance Painter 1 detected"
-					substancePainterFullPath = "\""+edittextSubstancePainterPath.text as string+"\\Substance Painter.exe\""
+					substancePainterFullPath = "\""+edittextSubstancePainterPath.text as string+"\\Adobe Substance 3D Painter.exe\""
 					spVersion = 1
 				)
-				else if (doesFileExist (edittextSubstancePainterPath.text+"\\Substance Painter 2.exe")) then (
+				else if (doesFileExist (edittextSubstancePainterPath.text+"\\Adobe Substance 3D Painter.exe")) then (
 					print "Substance Painter 2 detected"
-					substancePainterFullPath = "\""+edittextSubstancePainterPath.text as string+"\\Substance Painter 2.exe\""
+					substancePainterFullPath = "\""+edittextSubstancePainterPath.text as string+"\\Adobe Substance 3D Painter.exe\""
 					spVersion = 2
 				)
 				else (
@@ -226,22 +241,21 @@
 						-- Set the export path based on folder creation option
 						if (checkboxCreateSubFolder.state == true) then (
 							completeExportPath = (edittextFbxExportPath.text+"\\"+fileName) 
+							makedir (completeExportPath+"\\low\\") 
+							makedir (completeExportPath+"\\high\\") 
+							
 						)
 						else (
 							completeExportPath = edittextFbxExportPath.text
 						)
 						
-						fbxPath = completeExportPath+"\\"+fileName+".FBX"
+						lowFbxPath = completeExportPath+"\\low\\"+fileName+"_low"+".FBX"
 						substancePainterProjectPath = completeExportPath+"\\"+fileName+".spp"
 						
 						-- No "hot reload" possible, here is the workaround: kill SP if option is enabled to allow quick preview for the user
 						if (checkboxKillSubstancePainter.state == true) and spVersion == 1 then (
-							DOSCOMMAND("taskkill /f /im \"Substance Painter.exe\"")
-						)
-						else if (checkboxKillSubstancePainter.state == true) and spVersion == 2 then (
-							DOSCOMMAND("taskkill /f /im \"Substance Painter 2.exe\"")
-						)
-						
+							DOSCOMMAND("taskkill /f /im \"Adobe Substance 3D Painter.exe\"")
+						)				
 						--Delete Substance painter project if it already exists (to replace it) based on the option
 						if (replaceExistingSpProject.state == true) and (doesFileExist substancePainterProjectPath) do (
 							try (
@@ -283,16 +297,19 @@
 						
 						-- Exports the object as fbx with default settings. Display dialog depending on the option settings
 						if (displayExporterDialog.checked == true or firstExport== true) then (
-							exportFile fbxPath  selectedOnly:true 
+							exportFile lowFbxPath  selectedOnly:true
+							
+							
+							
 						)
 						else(
-							exportFile fbxPath  #noPrompt selectedOnly:true 
+							exportFile lowFbxPath  #noPrompt selectedOnly:true 
 						)
 						
 						-- Store the user path
 						global userExportPath = edittextFbxExportPath.text
 						
-						if doesFileExist fbxPath == true do (
+						if doesFileExist lowFbxPath == true do (
 							local firstExport = false
 							print ("Export path: "+completeExportPath)
 							
@@ -308,7 +325,7 @@
 							global userSubstancePainterPath = edittextSubstancePainterPath.text
 							
 							-- Base command
-							substancePainterCmd = " \""+substancePainterProjectPath+"\""+" --export-path "+"\""+completeExportPath+"\""+" --mesh "+" \""+fbxPath+"\""
+							substancePainterCmd = " \""+substancePainterProjectPath+"\""+" --export-path "+"\""+completeExportPath+"\""+" --mesh "+" \""+lowFbxPath+"\""
 							
 							-- Add normal map inputs to the command if available
 							if (checkboxExportWithNormalMap.state  == true and copiedNormalMaps != #()) do(

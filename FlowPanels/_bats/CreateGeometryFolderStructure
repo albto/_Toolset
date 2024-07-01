@@ -1,0 +1,12 @@
+@echo off 
+mkdir "All\"
+mkdir "Characters\"
+mkdir "Decals\"
+mkdir "Exteriors\"
+mkdir "Interiors\"
+mkdir "Props\"
+mkdir "Characters\Accessories"
+mkdir "Structures\"
+mkdir "Vehicles\"
+mkdir "Weapons\"
+mkdir "zTestGrounds"

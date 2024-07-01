@@ -3,7 +3,7 @@ try(destroydialog dRol) catch()
 Global rolA, rolB, rolC, rolD
 
 
-rollout dRol "Bake To Texture Config" 
+rollout dRol "Baking Manager" 
 (
 	
 	------------------------------------------------------------
@@ -24,11 +24,13 @@ rollout dRol "Bake To Texture Config"
 	local rghFilename = ""
 	local nmlFilename = ""
 
+	local ExportPath = ""
+	
 	local Lowpoly
 	local Highpoly
 	
 	local rdyForBake = false
-	
+	local defaultSubstancePainterPath = @"H:\\Program Files\\Adobe Substance 3D Painter"
 		------------------------------------------------------------
 	-- Create New Bake Material -- { Creates material for lowpoly in bake process }  
 	fn CreateNewBakeMaterial material = 
@@ -248,7 +250,7 @@ rollout dRol "Bake To Texture Config"
 		
 	timer globalTime "" interval:500 
 	
-    subRollout subRolls "" width:(dRol.width as float -20) height:880 pos:[10,5]
+    subRollout subRolls "" width:(dRol.width as float -20) height:1280 pos:[10,5]
 		
 	fn switchRolls openedRoll =
         for roll in dRol.rolls where roll != openedRoll do roll.open = false
@@ -271,9 +273,19 @@ rollout dRol "Bake To Texture Config"
 			if chk_high.checked then 
 			(
 				--find high object
-				high = "_High"
-				findHigh = (getNodeByName high)
-				try select findHigh catch()
+				high = "*_High*"
+				arr = #()
+					
+				nameArr = (for i in geometry collect i.name)
+								
+				for val in nameArr where MatchPattern val pattern:high do 
+				(				
+					
+					findHigh = (getNodeByName val)
+				)					
+					
+				--try select findHigh catch()
+				print ("highpoly mesh = " + findHigh as string)
 				
 				--set high
 				Highpoly = findHigh
@@ -285,9 +297,24 @@ rollout dRol "Bake To Texture Config"
 			if chk_low.checked then
 			(
 				--find low object
-				low = "_Low"
-				findLow = (getNodeByName low) 
-				try select findLow catch()
+				low = "*_Low"
+				arr = #()
+					
+				nameArr = (for i in geometry collect i.name)
+					
+				objName = ""
+				
+				for val in nameArr where MatchPattern val pattern:low do 
+				(				
+					print val 
+					objName = val 
+					findLow = (getNodeByName val)
+				)					
+					
+				findLow = getNodeByName objName
+				--try select findHigh catch()
+				print ("lowpoly mesh = " + findLow as string)
+				--try select findLow catch()
 				
 				--set low
 				Lowpoly = findLow
@@ -342,13 +369,15 @@ rollout dRol "Bake To Texture Config"
 		
 		Group "Object Setup:"
 		(
-			edittext edt_high 	"High:"										width: 100	height:20	across:2
-			edittext edt_low 	"Low:"										width: 100	height:20
+			edittext edt_low 	"LP Mesh:"									width: 240	height:20	--across:2
+			edittext edt_high 	"Hp Mesh:"									width: 240	height:20	
+			
 		)
 		
 		Group "Object Generation:"
 		(
-			button btn_genLow	"Generate Lowpoly"						width:180	height:30	align:#center
+			button btn_genLow	"Generate Lowpoly"						width:120	height:30	align:#center	across:2
+			button btn_updLow	"Update Lowpoly"						width:120	height:30	align:#center
 			
 		)
 
@@ -403,6 +432,45 @@ rollout dRol "Bake To Texture Config"
 				
 		)
 
+		
+		on btn_updLow pressed do 
+		(
+			if Lowpoly != undefined then 
+			(
+				-----------------------------------------------------------
+					
+				select Lowpoly
+					
+				FbxExporterSetParam "Triangulate" true 
+				FbxExporterSetParam "UpAxis" "Z"
+				FbxExporterSetParam "SmoothingGroups" true
+				FbxExporterSetParam "TangentSpaceExport" true
+				FbxExporterSetParam "GeomAsBone" false
+				FbxExporterSetParam "Animation" false
+					
+				exportFile dRol.rolE.lowFbxPath #noprompt selectedOnly:true
+					
+				-----------------------------------------------------------
+-- 					
+-- 				select Highpoly 
+-- 					
+-- 				FbxExporterSetParam "Triangulate" false 
+-- 				FbxExporterSetParam "UpAxis" "Z"
+-- 				FbxExporterSetParam "SmoothingGroups" true
+-- 				FbxExporterSetParam "TangentSpaceExport" false	
+-- 				FbxExporterSetParam "GeomAsBone" false
+-- 				FbxExporterSetParam "Animation" false
+-- 					
+-- 				exportFile higFbxPath #noprompt selectedOnly:true
+					
+					
+				-----------------------------------------------------------
+			)
+				
+			
+		)
+		
+		
 
 	)
 		
@@ -726,7 +794,430 @@ rollout dRol "Bake To Texture Config"
 	--TO DO: 
 		--Surface Map Bake Setup
 
+	rollout rolE "Substance Settings"
+	(
+		
+		
+		local lowFbxPath = ""
+		local higFbxPath = ""
+		
+--------------------------------------------------------------------------
+			
+		Group "Substance Painter: "
+		(
+		
+			--GUI
+			bitmap 		bitmapBannerUi 						width:240 	height:52 		fileName:bitmapBannerFile align:#center gamma:1.0
+			edittext 	edt_spp_path "" 					width:200 	offset:[35,0,0]				text:defaultSubstancePainterPath tooltip:"Substance Painter application folder path." fieldWidth:160 align:#center	across:2
+			button 		btn_spp_path "Sync" 					width:45   	offset:[40,0,0]				--pos:[310,77,0] initialDir:defaultSubstancePainterPath 
+				
+		)
+			
+		Group "Spp Settings: "
+		(
+			edittext 	edittextUseSpp 		"" 							width:180		across:2	text:defaultSppPath tooltip:"Path to an existing Substance Painter document. Will be used as source for the custom spp creation." --fieldWidth:140
+			button 		btnSppPath 				"Set .spp"  				width:60 	offset:[35,0,0]
+				
+			edittext 	edittextFileName 		"Exported file name:" 			labelontop:true tooltip:"Allow to use a custom name for the exported file. If none is specified, it will use the first object in alphabetic order." text:"" 
+				
+			button 		btnExportPath 			"Export path:"  					width:200 --pos:[310,102,0]
+			edittext 	edittextFbxExportPath 	"" 									width:200 text:defaultExportPath 					tooltip:"Path where the meshes are exported/Substance documents are created." fieldWidth:160 align:#center
+				
+		)
+			
+		Group "Project Settings: "
+		(
+				
+			checkbutton chk_create_folder				"Create Folder" 					checked:true		across:3 	tooltip:"Will create a dedicated folder in the specified export path"			
+			checkbutton chk_exprt_map 					"Export Map" 						checked:false 					tooltip:"Export with Normal map detected in the material"
+			checkbutton replaceExistingSpProject 		"Replace SPP" 						checked:false 					tooltip:"A new .spp file will be created (previous version of the document will be removed.)"
+			checkbox displayExporterDialog 				"Quick Export" 						checked:false 					tooltip:"Display 3dsMax FBX export dialog, enable it to modify export settings"
+			checkbox checkboxKillSubstancePainter 		"Close Open Painter Projects" 		checked:true 					tooltip:"Automatically close/relaunch Substance Painter to get file updates. Save SP current document before use!"
+				
+			button BtnSendToSubstancePainter 			"Send to Substance Painter" 										tooltip:"Export current selection as FBX and create SP document." width: 200 height: 40 --pos:[80,302,0]
+				
+		)
+			
+			
+		fn SetSubstanceExportPath = 
+		(
+			try 
+			(
+				edittextFileName.text = Lowpoly.name 
+							
+				--getExportPath = getSavePath ()
+				
+				str = (maxFilePath as string)
+				
+				str = substituteString str "_max\\_art\\" ""
+					
+				ExportPath =  (str + "_painter\\") as string     -- getExportPath as string
+				print ExportPath
+				
+				if (doesFileExist ExportPath) then (
+					edittextFbxExportPath.text = ExportPath
+				)
+				else( messageBox "Not in the Correct Directory"
+				)
+				
+			)
+			catch( print "Not in the Correct Directory" )
+			
+		)
+		
+		
+		fn getObjects objectToExport=
+		(
+			-- Get selected objects
+			objectsFromSelection = #()
+			for obj in (selection as array) do (
+				append objectsFromSelection obj
+			)
+			
+			names = for i=1 to objectsFromSelection.count collect (objectsFromSelection[i].name)
+			sort names
+			
+			objectsFromSelectionAlphabeticalOrder = #()
+			
+			-- Sort objects based on name
+			for n=1 to names.count do(
+				for s=1 to objectsFromSelection.count do (
+					if (names[n] == objectsFromSelection[s].name) do (
+						append objectsFromSelectionAlphabeticalOrder objectsFromSelection[s]
+					)
+				)
+			)
+			
+			global objectToExport = objectsFromSelectionAlphabeticalOrder
+		)
+		
+		
+		fn copyNormal sourceObject completeExportPath =
+		(
+			materialsList = #()
+			materialType = ""
+			
+			try(
+				-- Check if the object use several materials
+				if sourceObject.material.materialList != undefined do (
+					materialType = "notClassic"
+					for m = 1 to sourceObject.material.count do (
+						append materialsList sourceObject.material[m]
+					)
+				)
+			)
+			catch (
+				materialType = "classic"
+				append materialsList sourceObject.material
+			)
+			
+			-- Get Normal map(s) from listed material(s)
+			for mat = 1 to materialsList.count do (
+				try (
+					materialName = materialsList[mat].name as string
+				)
+				catch()
+				
+				-- As Substance Painter automatically remove "#" characters in texture sets name we check if we have one
+				try (
+					if findString (materialName) "#" != undefined do (
+						materialName = substituteString materialName "#" "_"
+					)
+				)
+				catch ()
+				
+				if materialType == "classic" then (
+					try (
+						normalToCopy = sourceObject.material.bumpMap.normal_map.filename
+						normalCopied = completeExportPath+"\\"+materialName+"_normal_base.png"
+					)
+					catch (
+						print ("No normal to copy in " + materialsList[mat] as string)
+					)
+				)
+				else if materialType == "notClassic" do (
+					try (
+						normalToCopy = sourceObject.material[mat].bumpMap.normal_map.filename
+						normalCopied = completeExportPath+"\\"+materialName+"_normal_base.png"
+					)
+					catch (
+						print ("No normal to copy in " + materialsList[mat] as string)
+					)
+				)
+					
+				if (normalToCopy != undefined) do (
+					-- If the Normal already exist we remove it
+					if doesFileExist normalCopied  == true do (
+						try (
+							deleteFile normalCopied
+						)
+						catch (
+							print ("Can't remove existing Normal : " + normalCopied)
+						)
+					)
+					if (copyFile normalToCopy normalCopied) do(
+						append copiedNormalMaps normalCopied
+					)
+				)
+			)
+		)
 
+		
+		-- Get Substance Painter path from button if input is valid
+		on btn_spp_path pressed do 
+		(
+			getSubstancePainterPath = getSavePath ()
+			SubstancePainterPath = getSubstancePainterPath as string
+			if (doesFileExist SubstancePainterPath) do (
+				edt_spp_path.text = SubstancePainterPath
+			)
+		)
+		
+		-- Get export path from button if input is valid
+		on btnExportPath pressed do 
+		(
+			SetSubstanceExportPath()
+		)
+		
+		on btnSppPath pressed do 
+		(
+			SppPath = getOpenFileName \ 
+			caption:"Open a .spp File:" \ 
+			types:"Spp files (*.spp)" \
+			if (SppPath != undefined) then 
+			(
+				-- Check file extension to see if it is a .spp
+				SppPathExtension = substring SppPath (SppPath.count-3) 4
+				if SppPathExtension == ".spp" then (
+					edittextUseSpp.text = SppPath
+				)
+				else (
+					messageBox "Please select a .spp file"
+					edittextUseSpp.text = ""
+				)
+			)
+			else
+			(
+				edittextUseSpp.text = ""
+			)
+		)
+			
+		on BtnSendToSubstancePainter pressed do
+		(
+			--select lowpoly object 
+			select Lowpoly 
+			
+			--set export path
+			SetSubstanceExportPath()
+						
+			-- Check if something is selected
+			if $ !=undefined then (
+				spVersion = ""
+				-- Check if the user specified a path for SP1 or SP2
+				if (doesFileExist (edt_spp_path.text+"\\Adobe Substance 3D Painter.exe")) then (
+					print "Substance Painter 1 detected"
+					substancePainterFullPath = "\""+edt_spp_path.text as string+"\\Adobe Substance 3D Painter.exe\""
+					spVersion = 1
+				)
+				else if (doesFileExist (edt_spp_path.text+"\\Adobe Substance 3D Painter.exe")) then (
+					print "Substance Painter 2 detected"
+					substancePainterFullPath = "\""+edt_spp_path.text as string+"\\Adobe Substance 3D Painter.exe\""
+					spVersion = 2
+				)
+				else (
+					messageBox "Substance Painter executable cannot be detected in specified path"
+				)
+				
+				-- Check if specified SP path is valid
+				if (doesFileExist (execute(substancePainterFullPath))) then (
+					if not (doesFileExist ExportPath) do (
+						try (
+							makedir ExportPath
+						)
+						catch(
+							print "Cannot create dir at specified FBX export path"
+						)
+					)
+					
+					if (doesFileExist ExportPath) then (
+						getObjects(objectToExport)
+						select objectToExport
+						print "Object(s) to export: "
+						for i = 1 to objectToExport.count do (
+							print objectToExport[i].name
+						)
+						
+						-- Use the fileName set by the user if available
+						if (Lowpoly.name != "" or Lowpoly.name != undefined) then (
+							lpfileName = Lowpoly.name
+							hpFileName = Highpoly.name
+						)
+						else(
+						-- Use the first object name as filename
+							lpfileName = ((objectToExport[1]).name)
+						)
+						
+						-- Set the export path based on folder creation option
+						if (chk_create_folder.state == true) then 
+						(							
+							completeExportPath = (ExportPath+"\\"+lpfileName) 
+								
+							makedir (completeExportPath+"\\low\\") 
+							makedir (completeExportPath+"\\high\\") 
+							makedir (completeExportPath+"\\maps\\") 
+						)
+						else (
+							completeExportPath = ExportPath
+						)
+						
+						lowFbxPath = completeExportPath+"\\low\\"+lpfileName+".FBX"
+						higFbxPath = completeExportPath+"\\high\\"+hpFileName+".FBX"
+						substancePainterProjectPath = completeExportPath+"\\"+lpfileName+".spp"
+						
+						-- No "hot reload" possible, here is the workaround: kill SP if option is enabled to allow quick preview for the user
+						if (checkboxKillSubstancePainter.state == true) and spVersion == 1 then (
+							DOSCOMMAND("taskkill /f /im \"Adobe Substance 3D Painter.exe\"")
+						)				
+						--Delete Substance painter project if it already exists (to replace it) based on the option
+						if (replaceExistingSpProject.state == true) and (doesFileExist substancePainterProjectPath) do (
+							try (
+								-- Delay necessary to be sure the file is not "read only" anymore due to Substance Painter
+								sleep 3
+								deleteFile substancePainterProjectPath
+							)
+							catch (
+								messageBox "Impossible to remove existing Substance Painter document."
+							)
+						)
+						
+						-- Check if the user specified a custom spp file
+						if (doesFileExist edittextUseSpp.text) and edittextUseSpp.text != "" then (
+							extension = substring edittextUseSpp.text (edittextUseSpp.text.count-3)  4
+							if (extension == ".spp") then (
+								if (copyFile edittextUseSpp.text (completeExportPath+"\\"+fileName+".spp")) then (
+									print "Spp file successfully copied!"
+								)
+								else (
+									messageBox ("Impossible to copy existing .spp file (can be related to administrator rights)."+
+													"\nBe sure to enable \"Replace existing Substance Painter document\" if needed.\n\n"+
+													"An empty Substance Painter document (or the already existing one) will be used instead."
+									)
+								)
+							)
+							else (
+								messageBox "Please specify a path to a valid .spp file.\nAn empty Substance Painter document will be used instead."
+							)
+						)
+						else if edittextUseSpp.text != "" do (
+							messageBox "Spp file path is invalid.\nAn empty Substance Painter document will be used instead."
+						)
+						
+						-- Create export folder if it doesn't exsist
+						if doesFileExist completeExportPath  == false do (
+							makedir completeExportPath
+						)
+						
+						-- Exports the object as fbx with default settings. Display dialog depending on the option settings
+						if (displayExporterDialog.checked == true or firstExport== true) then (
+							
+							
+							select Lowpoly
+							
+							FbxExporterSetParam "Triangulate" true 
+							FbxExporterSetParam "UpAxis" "Z"
+							FbxExporterSetParam "SmoothingGroups" true
+							FbxExporterSetParam "TangentSpaceExport" true
+							FbxExporterSetParam "GeomAsBone" false
+							FbxExporterSetParam "Animation" false
+								
+							exportFile lowFbxPath  selectedOnly:true
+								
+							
+							select Highpoly 
+							
+							FbxExporterSetParam "Triangulate" false 
+							FbxExporterSetParam "UpAxis" "Z"
+							FbxExporterSetParam "SmoothingGroups" true
+							FbxExporterSetParam "TangentSpaceExport" false	
+							FbxExporterSetParam "GeomAsBone" false
+							FbxExporterSetParam "Animation" false
+								
+							exportFile higFbxPath  selectedOnly:true
+								
+						)
+						else(
+							
+							
+							select Lowpoly
+							
+							FbxExporterSetParam "Triangulate" true 
+							FbxExporterSetParam "UpAxis" "Z"
+							FbxExporterSetParam "SmoothingGroups" true
+							FbxExporterSetParam "TangentSpaceExport" true
+							FbxExporterSetParam "GeomAsBone" false
+							FbxExporterSetParam "Animation" false
+								
+							exportFile lowFbxPath #noprompt selectedOnly:true
+								
+							
+							select Highpoly 
+							
+							FbxExporterSetParam "Triangulate" false 
+							FbxExporterSetParam "UpAxis" "Z"
+							FbxExporterSetParam "SmoothingGroups" true
+							FbxExporterSetParam "TangentSpaceExport" false	
+							FbxExporterSetParam "GeomAsBone" false
+							FbxExporterSetParam "Animation" false
+								
+							exportFile higFbxPath #noprompt selectedOnly:true
+							
+							
+						)
+						
+						-- Store the user path
+						global userExportPath = ExportPath
+						
+						if doesFileExist lowFbxPath == true do (
+							local firstExport = false
+							print ("Export path: "+completeExportPath)
+							
+							-- Export the normal maps used in objects' materials is option is enabled
+							if (chk_exprt_map.state  == true) do (
+								copiedNormalMaps = #()
+								for i = 1 to objectToExport.count do (
+									copyNormal objectToExport[i] completeExportPath
+								)
+							)
+							
+							-- Store the user path
+							global userSubstancePainterPath = edt_spp_path.text
+							
+							-- Base command
+							substancePainterCmd = " \""+substancePainterProjectPath+"\""+" --export-path "+"\""+completeExportPath+"\""+" --mesh "+" \""+lowFbxPath+"\""
+							
+							-- Add normal map inputs to the command if available
+							if (chk_exprt_map.state  == true and copiedNormalMaps != #()) do(
+								for nrm = 1 to copiedNormalMaps.count do(
+									substancePainterCmd += (" --mesh-map \""+copiedNormalMaps[nrm]+"\" ")
+								)
+							)
+							
+							print substancePainterCmd
+							
+							ShellLaunch substancePainterFullPath 	(substancePainterCmd)
+						)
+					)
+				)
+				else(
+					messageBox "Please enter a valid path for Substance Painter"
+				)
+			)
+			else(
+				messageBox "Please select an object"
+			)
+		)
+		
+	)
 
 
 	
@@ -762,7 +1253,7 @@ rollout dRol "Bake To Texture Config"
 	
 	------------------------------------------------------------
 	
-    local rolls = #(rolA, rolB, rolC, rolD)
+    local rolls = #(rolA, rolB, rolE) --, rolC, rolD)
 
 	------------------------------------------------------------	
     on dRol open do

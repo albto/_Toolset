@@ -31,23 +31,25 @@
 	-----------------------------------------------------------------------------------------------------------------------------------------
 		
 		
-	ObjectTypes = #("Characters", "Exteriors", "Interiors", 
-	"Lights", "Props", "Structures", "Terrain", 
-	"Vehicles", "VertexAnims", "Weapons" )		
-		
+	ObjectTypes = #()		
 	ObjectAttributes = #()
+	ObjectComponents = #()
 		
 	gameData = #("Is Prefab", "Tags","Layer","Object Type","Mesh Compression","Generate Colliders","Generate Lightmaps","Import Animation",
 		"Import BlendShapes","Import Cameras","Import_Lights","Import Visibility","NormalsImport","Material Creation Mode","Material Location",
 		"ObjectAttributes","Preserve_Hierarchy","fileScale","Bake Xform Conversion","Use File Units","Sort Hierarchy","Keep Quads",
 		"SwapChannels","UseFileScale","Material Name","Material Search","ProcGenType","Category", "TagsList", "LayersList")
 		
-	colorDict = Dictionary #(#Characters, color 125 89 23) #(#Exteriors, color 61 135 6) #(#Interiors, color 135 59 8) #(#Lights, color 28 149 177) #(#Props, color 176 26 26) #(#Structures, color 148 177 27) #(#Terrain, color 225 88 199) #(#Vehicles, color 8 8 136)#(#VertexAnims, color 85 28 177)#(#Weapons, color 227 153 153)                      
+	colorDict = Dictionary #(#Character, color 125 89 23) #(#Exteriors, color 6 61 135) #(#Interior, color 135 59 8) #(#Light, color 28 149 177) #(#Prop, color 176 26 26) #(#Structure, color 225 88 199) #(#Terrain, color 148 177 27) #(#Vehicle, color 8 8 136)#(#VertexAnim, color 85 28 177)#(#Weapons, color 227 153 153)                      
 		
+		clrARR = #(#Character)
 		
 	LayersList = #()
 	TagsList = #()
 	AttrList = #()
+	TypeList = #()
+	CompList = #()
+		
 	--write to file
 	fps = #()
 	obs = #()
@@ -136,6 +138,71 @@
 		-- Gather Data from XML file -- Unity Data Hook-up 
 		------------------------------------------------------------------------------------------------
 			
+		------------------------------------------------------------------------------------------------
+		--load and distribute xml data to types dropdownList
+		fn LoadTypesDataFromXml root = 
+		(
+			TypeList = #()
+			childNodes=root.childNodes
+				
+			for i = 0 to childNodes.Count-1 do 
+			(
+				ele = childNodes.ItemOf[i]
+				eleName = ele.getAttribute "name"
+					
+				if eleName == "Types" then
+				(
+					eleChildren = ele.childNodes
+						
+					for i = 0 to eleChildren.count-1 do 
+					(
+						child = eleChildren.ItemOf[i]
+						
+						--print (child.getAttribute "name")
+						TypeList[i+1] = (child.getAttribute "name")
+					)
+				)
+					
+			)
+				
+			--pass data
+			ddl_filObj.items = TypeList
+			ddl_iniTyp.items = TypeList
+			
+		)
+			
+		------------------------------------------------------------------------------------------------
+		--load and distribute xml data to types dropdownList
+		fn LoadComponentsDataFromXml root = 
+		(
+			CompList = #()
+			childNodes=root.childNodes
+				
+			for i = 0 to childNodes.Count-1 do 
+			(
+				ele = childNodes.ItemOf[i]
+				eleName = ele.getAttribute "name"
+					
+				if eleName == "Components" then
+				(
+					eleChildren = ele.childNodes
+						
+					for i = 0 to eleChildren.count-1 do 
+					(
+						child = eleChildren.ItemOf[i]
+						
+						--print (child.getAttribute "name")
+						CompList[i+1] = (child.getAttribute "name")
+					)
+				)
+					
+			)
+				
+			--pass data
+			ObjectComponents = CompList
+			
+		)
+		
 		-- location = @""
 		------------------------------------------------------------------------------------------------
 		--load and distribute xml data to tags dropdownList
@@ -252,6 +319,12 @@
 			--Load attributes data 
 			LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
 				
+			--Load types data 
+			LoadTypesDataFromXml flowIns.xmlDoc.DocumentElement name:"Types"
+				
+			--Load components data 
+			LoadComponentsDataFromXml flowIns.xmlDoc.DocumentElement name:"Components"
+			
 			--print ("Layers List - " + LayersList as string)
 			--print ("Tags List - " + TagsList as string)
 			--print ("Attributes List - " + AttrList as string)
@@ -523,42 +596,46 @@
 		--Select item from list
 		fn SelectedItem item = 
 		(
-			--Attributes list 
-			obs = #() 
-			--clearSelection()
-			if item != undefined and item > 0 then 
-			(
-				iName = lst_focObj.items[item]
+			if (obs[4] != undefined and ObjectTypes.count > 0) then 
+			( 
 				
-				if (getNodeByName iName) != undefined then
+				--Attributes list 
+				obs = #() 
+				--clearSelection()
+				if item != undefined and item > 0 then 
 				(
-					select (getNodeByName iName)
+					iName = lst_focObj.items[item]
 						
-					obs = execute (getUserPropVal selection[1] "Unity Attributes" asString:true)	
-						
-					if obs.count != 0 then 
+					if (getNodeByName iName) != undefined then
 					(
-						edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
-						pck_wirClr.color = selection[1].wirecolor	
+						select (getNodeByName iName)
 							
-						if chk_test.checked then 
-						(
-							--show selected objects attributes
-							GetSelectedObjectAttribute()	
-						)			
-					)
-					else 
-					(
-						--clear list
-						lst_objAtt.items = #()
-						
-						--selected name
-						edt_name.text = (selection[1].name + " - Attributes")
-						
-						edt_refLst.text = ("  { " + (ObjectTypes[item]) as string + " }")
-						
-					)
-				)	
+						obs = execute (getUserPropVal selection[1] "Unity Attributes" asString:true)	
+							
+							if obs.count != 0 then 
+							(
+								edt_refLst.text = ("  { " + (ObjectTypes[obs[4]]) as string + " }")
+								pck_wirClr.color = selection[1].wirecolor	
+									
+								if chk_test.checked then 
+								(
+									--show selected objects attributes
+									GetSelectedObjectAttribute()	
+								)			
+							)
+							else 
+							(
+								--clear list
+								lst_objAtt.items = #()
+								
+								--selected name
+								edt_name.text = (selection[1].name + " - Attributes")
+								
+								edt_refLst.text = ("  { " + (ObjectTypes[item]) as string + " }")
+								
+							)
+					)	
+				)
 			)
 				
 		)
@@ -803,7 +880,7 @@
 						obs[2] = ddl_iniTag.selection
 							
 						--set object wirecolor 
-						o.wirecolor = (GetDictValue colorDict (execute( "#"+ObjectTypes[ddl_iniTyp.selection] as string)))as color 
+						o.wirecolor = (GetDictValue colorDict clrARR[ddl_iniTyp.selection] ) as color
 					)
 						
 					--record settings	
