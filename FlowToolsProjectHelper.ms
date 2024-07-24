@@ -29,7 +29,7 @@ Rollout flowProjectHelper "Project Manager"
 	local refObjs = #()
 		
 	local areatag = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "")
-	local areasuf = #("no_tag", "_100", "_200", "_300", "_400", "_500", "_600", "_700", "_800", "_900")
+	local areasuf = #("no_tag","_000", "_050", "_100","_150", "_200","_250", "_300","_350", "_400","_450", "_500","_550", "_600","_650", "_700","_750", "_800","_850", "_900","_950", "_Uni")
 	local arealab = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "null")
 	--create an empty select level
 	local selLevel = 1
@@ -305,7 +305,7 @@ Rollout flowProjectHelper "Project Manager"
 				--Set Sub folders
 				folders_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
 					
-				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*"))
+				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\\*"))
 					
 				for t in subsfol_array do 
 				(
@@ -385,7 +385,7 @@ Rollout flowProjectHelper "Project Manager"
 					--pass sub folder names to the list 
 					ddl_subfol.items = clean_sfol_array
 					
-					subsfol_array = (GetDirectories (curProjectFolder + "\\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection]))
+					subsfol_array = (GetDirectories (curProjectFolder + "\\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection] as string))
 					
 					if subsfol_array.count >= 1 then 
 					(
@@ -544,6 +544,25 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)	
 		
+	
+	
+	fn CreateAssetDirectory newloc = 
+	(				
+		--create prop directory 
+			
+		makeDir (newloc + "\\_pref"  as string)
+		makeDir (newloc + "\\models\\_max"  as string)
+		makeDir (newloc + "\\models\\_painter"  as string)
+-- 			makeDir (newloc + "\\models\\_painter\\high"  as string)
+-- 			makeDir (newloc + "\\models\\_painter\\low"  as string)
+		makeDir (newloc + "\\models\\_zbrush"  as string) 
+		makeDir (newloc + "\\models"  as string)
+		makeDir (newloc + "\\textures"  as string)	
+		makeDir (newloc + "\\textures\\_painter"  as string)
+		makeDir (newloc + "\\textures\\_designer"  as string)
+		
+		
+	)
 		
 	----------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------
@@ -992,7 +1011,7 @@ Rollout flowProjectHelper "Project Manager"
 		--create new level directory
 		areaname = edt_dir_name.text
 		makeDir (curProjectFolder + "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
-		
+			
 		--Reload Projects List
 		ReloadProjectList()
 			
@@ -1005,7 +1024,7 @@ Rollout flowProjectHelper "Project Manager"
 	on btn_crt_prp pressed do 
 	(	
 		--Check and create Prop directory
-		if ddl_folder.items[ddl_folder.selection] != "Props" then 
+		if ddl_folder.items[ddl_folder.selection] != "Prop" then 
 		(
 			messageBox "Can't Save Props into this Folder! Please select the { Props } - [ Category ]."
 		)
@@ -1015,7 +1034,7 @@ Rollout flowProjectHelper "Project Manager"
 		)			
 		else
 		(
-			
+				
 			--create and Label
 			tagname = ""
 			if (ddl_area_suf.selection != 1) then 
@@ -1029,22 +1048,11 @@ Rollout flowProjectHelper "Project Manager"
 				
 			areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
 				
-				
-			--create prop directory 
-			makeDir (newloc + "\\_max"  as string)
-			makeDir (newloc + "\\_painter"  as string)
-			makeDir (newloc + "\\_painter\\bake"  as string)
-			makeDir (newloc + "\\_painter\\bake\\high"  as string)
-			makeDir (newloc + "\\_painter\\bake\\low"  as string)
-			makeDir (newloc + "\\_designer"  as string)
-			makeDir (newloc + "\\_zbrush"  as string) 
-			makeDir (newloc + "\\models"  as string)
-			makeDir (newloc + "\\models\\"  as string + areatag[rad_are_type.state] as string)
-			makeDir (newloc + "\\pref"  as string)
-			makeDir (newloc + "\\textures"  as string)	
+			--create asset directory 
+			CreateAssetDirectory newloc
 				
 			--save file 
-			loc = (newloc + "\\models\\" + areatag[rad_are_type.state] as string + "\\" + areaname as string + ".max") 
+			loc = (newloc + "\\models\\_max" + "\\" + areaname as string + ".max") 
 				
 				
 			if selection.count > 0 then 
@@ -1062,6 +1070,54 @@ Rollout flowProjectHelper "Project Manager"
 		)
 	)		
 		
+	on btn_crt_veh pressed do  
+	(
+		
+		--Check and create Prop directory
+		if ddl_folder.items[ddl_folder.selection] != "Vehicle" then 
+		(
+			messageBox "Can't Save Props into this Folder! Please select the { Vehicle } - [ Category ]."
+		)
+		else if ddl_subfol.selection == 1 then 
+		(
+			messageBox "Please select the correct - [ Sub-Category // Level ]."
+		)			
+		else
+		(
+			--create and Label
+			tagname = ""
+			if (ddl_area_suf.selection != 1) then 
+			(
+				tagname = ddl_area_suf.items[ddl_area_suf.selection] as string
+			)
+				
+			areaname = (edt_dir_name.text)
+				
+			newloc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + areaname as string) 
+				
+			areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
+				
+			--create asset directory 
+			CreateAssetDirectory newloc
+				
+			--save file 
+			loc = (newloc + "\\models\\_max" + "\\" + areaname as string + ".max") 
+				
+				
+			if selection.count > 0 then 
+			(
+				saveNodes selection loc --quiet:true
+			)
+			else 
+			(
+				print "Nothing is Selected"
+			)
+				
+			--get Project levels and filter types 
+			GetProjectLevels()	
+		)
+		
+	)
 		
 	--open level's directory in windows 
 	on btn_opn_lvl pressed do 
@@ -1078,19 +1134,15 @@ Rollout flowProjectHelper "Project Manager"
 		dirname = (clean_fold_arr[ddl_folder.selection] as string)		
 		if ddl_folder.selection == 1 then 
 		(
-			catDir = (GetDirectories (curProjectFolder + "\scenes\Areas"))
+			catDir = (GetDirectories (curProjectFolder + "\\scenes\\Areas"))
 		)
 		else
 		(
-			catDir = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + dirname))
+			catDir = (GetDirectories (curProjectFolder + "\\scenes\\Areas\\" + dirname))
 		)
 		print (catDir) 
 			
 		ShellLaunch "explorer.exe" (catDir[1] as string ) 
-			
-		--create prop directory 
-		makeDir (newloc + "\\_max"  as string)
-		makeDir (newloc + "\\_painter"  as string)
 			
 			
 	) 

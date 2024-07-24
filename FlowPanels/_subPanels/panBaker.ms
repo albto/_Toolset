@@ -24,7 +24,7 @@ rollout dRol "Baking Manager"
 	local rghFilename = ""
 	local nmlFilename = ""
 
-	local ExportPath = ""
+	local modelsExportPath = ""
 	
 	local Lowpoly
 	local Highpoly
@@ -250,7 +250,7 @@ rollout dRol "Baking Manager"
 		
 	timer globalTime "" interval:500 
 	
-    subRollout subRolls "" width:(dRol.width as float -20) height:1280 pos:[10,5]
+    subRollout subRolls "" width:(dRol.width as float -20) height:1080 pos:[10,5]
 		
 	fn switchRolls openedRoll =
         for roll in dRol.rolls where roll != openedRoll do roll.open = false
@@ -262,65 +262,113 @@ rollout dRol "Baking Manager"
 		(
 			pickbutton pck_high "Pick Highpoly"								width:110	height:20	across:2
 			pickbutton pck_low	"Pick Lowpoly"								width:110	height:20
-			Button chk_autoSet "Auto-Setup"									width:230	height:25	align:#center
-			checkbox chk_high	"Highpoly Exists"							tooltip:"Highpoly Object must be named '_High'"	across:2
-			checkbox chk_low 	"Lowpoly Exists"							tooltip:"Lowpoly Object must be named '_Low'"
+			Button btn_autoSet "Find w/ Attributes"									width:115	height:25	align:#center	across:2
+			button btn_clear "Clear"										width:115	height:25	
+			--checkbox chk_high	"Highpoly Exists"							tooltip:"Highpoly Object must be named '_High'"	across:2
+			--checkbox chk_low 	"Lowpoly Exists"							tooltip:"Lowpoly Object must be named '_Low'"
 		)
 		
-				----------------------------------------------------------------------------------		
-		on chk_autoSet pressed do 
+		----------------------------------------------------------------------------------		
+		
+		on btn_clear pressed do 
 		(
-			if chk_high.checked then 
-			(
-				--find high object
-				high = "*_High*"
-				arr = #()
-					
-				nameArr = (for i in geometry collect i.name)
-								
-				for val in nameArr where MatchPattern val pattern:high do 
-				(				
-					
-					findHigh = (getNodeByName val)
-				)					
-					
-				--try select findHigh catch()
-				print ("highpoly mesh = " + findHigh as string)
+			Highpoly = undefined
+			Lowpoly  = undefined
+			
+			dRol.rolB.edt_high.text = ""
+			dRol.rolB.edt_low.text = ""
+		)
+		
+		on btn_autoSet pressed do 
+		(
+			--Find and set highpoly  
+			Highpoly = undefined 
+			Lowpoly = undefined
 				
-				--set high
-				Highpoly = findHigh
-				pck_high.object = Highpoly
-				dRol.rolB.edt_high.text = Highpoly.name as string
+			objHighName = ""
 					
+			for i in geometry do 
+			(
+				
+				bakingParams = #()
+				
+				
+				if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+				(
+					--load Selection's Unity Attributes 
+					bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+						
+					--changed setting
+					if bakingParams[1] == "Highpoly Mesh" then 
+					(
+						objHighName = i.name
+						
+						
+						--set high
+						findHigh = (getNodeByName objHighName)
+						Highpoly = findHigh
+						if Highpoly != undefined then 
+						(
+							if (matchpattern Highpoly.name pattern:"*_HP*") then
+							(
+								
+							)
+							else(
+								Highpoly.name = (Highpoly.name+"_HP" as string)
+							)
+						)	
+							
+						if Highpoly != undefined then 
+						(
+							pck_high.object = Highpoly
+							dRol.rolB.edt_high.text = Highpoly.name as string
+						)
+					)
+				)
 			)					
 				
-			if chk_low.checked then
+			--if chk_low.checked then
 			(
-				--find low object
-				low = "*_Low"
-				arr = #()
 					
-				nameArr = (for i in geometry collect i.name)
+				objLowName = ""
 					
-				objName = ""
-				
-				for val in nameArr where MatchPattern val pattern:low do 
-				(				
-					print val 
-					objName = val 
-					findLow = (getNodeByName val)
-				)					
+				for i in geometry do 
+				(
 					
-				findLow = getNodeByName objName
-				--try select findHigh catch()
-				print ("lowpoly mesh = " + findLow as string)
-				--try select findLow catch()
-				
-				--set low
-				Lowpoly = findLow
-				pck_low.object = Lowpoly
-				dRol.rolB.edt_low.text = Lowpoly.name as string
-				
+					bakingParams = #()
+					
+					if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+					(
+						--load Selection's Unity Attributes 
+						bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+							
+						--changed setting
+						if bakingParams[1] == "Lowpoly Mesh" then 
+						(
+							objLowName = i.name
+								
+							--set low
+							findLow = getNodeByName objLowName
+							Lowpoly = findLow
+							if Lowpoly != undefined then 
+							(
+								if (matchpattern Lowpoly.name pattern:"*_LP*") then
+								(
+									
+								)
+								else(
+									Lowpoly.name = (Lowpoly.name+"_LP" as string)
+								)
+							)
+								
+							if Lowpoly != undefined then 
+							(
+								pck_low.object = Lowpoly
+								dRol.rolB.edt_low.text = Lowpoly.name as string
+							)
+						)
+					)
+				)	
 			)
 		)			
 			
@@ -367,27 +415,31 @@ rollout dRol "Baking Manager"
 	rollout rolB "References" 
 	(		
 		
-		Group "Object Setup:"
+		Group "Object Reference:"
 		(
-			edittext edt_low 	"LP Mesh:"									width: 240	height:20	--across:2
-			edittext edt_high 	"Hp Mesh:"									width: 240	height:20	
+			checkbox chk_lp_clu "-  LP object cluster"							across:2
+			checkbox chk_hp_clu "-  HP object cluster"
+			edittext edt_low 	"LP Mesh:"								width: 240	height:20	--across:2
+			edittext edt_high 	"Hp Mesh:"								width: 240	height:20	
+			
 			
 		)
 		
-		Group "Object Generation:"
+		Group "Reference Controls:"
 		(
-			button btn_genLow	"Generate Lowpoly"						width:120	height:30	align:#center	across:2
+			button btn_updHig	"Update Highpoly"						width:120	height:30	align:#center	across:2
 			button btn_updLow	"Update Lowpoly"						width:120	height:30	align:#center
-			
+			button btn_selHig	"Select Highpoly"						width:120	height:20	align:#center	across:2
+			button btn_selLow	"Select Lowpoly"						width:120	height:20	align:#center
 		)
 
-		Group "Output Location"
-		(
+		--Group "Output Location"
+		--(
 				
-			edittext edt_outpath ""										height:20 width:190 test:" ... "	align:#left		across:2
-			button btn_setPth "Output"									height:20 align:#right
+			--edittext edt_outpath ""										height:20 width:190 test:" ... "	align:#left		across:2
+			--button btn_setPth "Output"									height:20 align:#right
 				
-		)
+		--)
 
 		on btn_genLow pressed do 
 		(
@@ -439,36 +491,106 @@ rollout dRol "Baking Manager"
 			(
 				-----------------------------------------------------------
 					
-				select Lowpoly
-					
-				FbxExporterSetParam "Triangulate" true 
-				FbxExporterSetParam "UpAxis" "Z"
-				FbxExporterSetParam "SmoothingGroups" true
-				FbxExporterSetParam "TangentSpaceExport" true
-				FbxExporterSetParam "GeomAsBone" false
-				FbxExporterSetParam "Animation" false
-					
-				exportFile dRol.rolE.lowFbxPath #noprompt selectedOnly:true
-					
-				-----------------------------------------------------------
--- 					
--- 				select Highpoly 
--- 					
--- 				FbxExporterSetParam "Triangulate" false 
--- 				FbxExporterSetParam "UpAxis" "Z"
--- 				FbxExporterSetParam "SmoothingGroups" true
--- 				FbxExporterSetParam "TangentSpaceExport" false	
--- 				FbxExporterSetParam "GeomAsBone" false
--- 				FbxExporterSetParam "Animation" false
--- 					
--- 				exportFile higFbxPath #noprompt selectedOnly:true
-					
+				dRol.rolE.ExportLowpolyMesh quick:true
 					
 				-----------------------------------------------------------
 			)
 				
 			
 		)
+		
+		on btn_updHig pressed do 
+		(
+			if Highpoly != undefined then 
+			(
+				-----------------------------------------------------------
+					
+				dRol.rolE.ExportHighpolyMesh quick:true 
+					
+				-----------------------------------------------------------
+			)
+				
+		)
+		
+		on btn_selLow pressed do 
+		(
+			-----------------------------------------------------------
+				
+			try 
+			(
+				if dRol.rolB.chk_lp_clu.checked then 
+				(
+					clearSelection()
+					selArr = #()					
+					
+					for i in geometry do 
+					(
+						if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+						(
+							--load Selection's Unity Attributes 
+							bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+								
+							--changed setting
+							if bakingParams[1] == "Lowpoly Mesh" then 
+							(
+								selectmore i 
+							)
+						)
+					)
+						
+					--selArr = selection as array
+					select selArr
+				)
+				else(
+					select Lowpoly 
+				)
+					
+			) 
+			catch (print "ERROR: NO Lowpoly Referenced")
+				
+			-----------------------------------------------------------
+				
+		)
+		
+		on btn_selHig pressed do 
+		(
+			-----------------------------------------------------------
+				
+			try 
+			(
+				if dRol.rolB.chk_hp_clu.checked then 
+				(
+					clearSelection()
+					selArr = #()					
+					
+					for i in geometry do 
+					(
+						if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+						(
+							--load Selection's Unity Attributes 
+							bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+								
+							--changed setting
+							if bakingParams[1] == "Highpoly Mesh" then 
+							(
+								selectmore i 
+							)
+						)
+					)
+						
+					--selArr = selection as array
+					select selArr
+				)
+				else(
+					select Highpoly 
+				)
+					
+			) 
+			catch (print "ERROR: NO Lowpoly Referenced")
+				
+			-----------------------------------------------------------
+			
+		)		
 		
 		
 
@@ -801,6 +923,11 @@ rollout dRol "Baking Manager"
 		local lowFbxPath = ""
 		local higFbxPath = ""
 		
+		local texturesExportPath = ""
+		local modelsExportPath = ""
+		
+		local selArr = #()
+		
 --------------------------------------------------------------------------
 			
 		Group "Substance Painter: "
@@ -818,11 +945,6 @@ rollout dRol "Baking Manager"
 			edittext 	edittextUseSpp 		"" 							width:180		across:2	text:defaultSppPath tooltip:"Path to an existing Substance Painter document. Will be used as source for the custom spp creation." --fieldWidth:140
 			button 		btnSppPath 				"Set .spp"  				width:60 	offset:[35,0,0]
 				
-			edittext 	edittextFileName 		"Exported file name:" 			labelontop:true tooltip:"Allow to use a custom name for the exported file. If none is specified, it will use the first object in alphabetic order." text:"" 
-				
-			button 		btnExportPath 			"Export path:"  					width:200 --pos:[310,102,0]
-			edittext 	edittextFbxExportPath 	"" 									width:200 text:defaultExportPath 					tooltip:"Path where the meshes are exported/Substance documents are created." fieldWidth:160 align:#center
-				
 		)
 			
 		Group "Project Settings: "
@@ -831,8 +953,8 @@ rollout dRol "Baking Manager"
 			checkbutton chk_create_folder				"Create Folder" 					checked:true		across:3 	tooltip:"Will create a dedicated folder in the specified export path"			
 			checkbutton chk_exprt_map 					"Export Map" 						checked:false 					tooltip:"Export with Normal map detected in the material"
 			checkbutton replaceExistingSpProject 		"Replace SPP" 						checked:false 					tooltip:"A new .spp file will be created (previous version of the document will be removed.)"
-			checkbox displayExporterDialog 				"Quick Export" 						checked:false 					tooltip:"Display 3dsMax FBX export dialog, enable it to modify export settings"
-			checkbox checkboxKillSubstancePainter 		"Close Open Painter Projects" 		checked:true 					tooltip:"Automatically close/relaunch Substance Painter to get file updates. Save SP current document before use!"
+			checkbutton displayExporterDialog 				"Quick Export" 					checked:false 		across:2	tooltip:"Display 3dsMax FBX export dialog, enable it to modify export settings"
+			checkbutton checkboxKillSubstancePainter 		"Close Project" 				checked:true 					tooltip:"Automatically close/relaunch Substance Painter to get file updates. Save SP current document before use!"
 				
 			button BtnSendToSubstancePainter 			"Send to Substance Painter" 										tooltip:"Export current selection as FBX and create SP document." width: 200 height: 40 --pos:[80,302,0]
 				
@@ -841,27 +963,39 @@ rollout dRol "Baking Manager"
 			
 		fn SetSubstanceExportPath = 
 		(
-			try 
+			--try 
 			(
-				edittextFileName.text = Lowpoly.name 
+				--edittextFileName.text = Lowpoly.name 
 							
 				--getExportPath = getSavePath ()
 				
 				str = (maxFilePath as string)
 				
-				str = substituteString str "_max\\_art\\" ""
-					
-				ExportPath =  (str + "_painter\\") as string     -- getExportPath as string
-				print ExportPath
 				
-				if (doesFileExist ExportPath) then (
-					edittextFbxExportPath.text = ExportPath
+				str = substituteString str "_max\\" ""
+				
+				str2 = str 
+				str2 = substituteString str2 "models" "textures"
+				
+				texturesExportPath = (str2 + "_painter\\") as string
+				print texturesExportPath
+					
+				modelsExportPath =  (str + "_painter\\") as string     -- getExportPath as string
+				print modelsExportPath
+				
+				
+				--create texture mps and texture sets 
+				
+				
+				
+				if (doesFileExist modelsExportPath) then (
+					--edittextFbxExportPath.text = modelsExportPath
 				)
 				else( messageBox "Not in the Correct Directory"
 				)
 				
 			)
-			catch( print "Not in the Correct Directory" )
+			--catch( print "Not in the Correct Directory" )
 			
 		)
 		
@@ -963,6 +1097,113 @@ rollout dRol "Baking Manager"
 		)
 
 		
+		fn GetCurrentLowpolyCluster = 
+		(
+			
+			
+			selArr = #()
+			
+			for i in geometry do 
+			(
+				if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+				(
+					--load Selection's Unity Attributes 
+					bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+						
+					--changed setting
+					if bakingParams[1] == "Lowpoly Mesh" then 
+					(
+						selectmore i 
+					)
+				)
+			)
+				
+			selArr = selection as array
+			select selArr
+		)
+		
+		
+		
+		fn ExportLowpolyMesh quick:false = 
+		(
+			local LowpolyCluster = #()
+			
+			if dRol.rolB.chk_lp_clu.checked then 
+			(
+				--
+				GetCurrentLowpolyCluster()
+					
+				if quick == unsupplied then 
+				(
+					exportFile lowFbxPath selectedOnly:true
+				)
+				else
+				(
+					FbxExporterSetParam "Triangulate" true 
+					FbxExporterSetParam "UpAxis" "Z"
+					FbxExporterSetParam "SmoothingGroups" true
+					FbxExporterSetParam "TangentSpaceExport" true
+					FbxExporterSetParam "GeomAsBone" false
+					FbxExporterSetParam "Animation" false
+					
+					exportFile lowFbxPath #noprompt selectedOnly:true
+				)
+				
+			)
+			else
+			(			
+				select Lowpoly	
+					
+				if quick == unsupplied then 
+				(
+					exportFile lowFbxPath selectedOnly:true
+				)
+				else
+				(
+					FbxExporterSetParam "Triangulate" true 
+					FbxExporterSetParam "UpAxis" "Z"
+					FbxExporterSetParam "SmoothingGroups" true
+					FbxExporterSetParam "TangentSpaceExport" true
+					FbxExporterSetParam "GeomAsBone" false
+					FbxExporterSetParam "Animation" false
+					
+					exportFile lowFbxPath #noprompt selectedOnly:true
+					
+				)
+				
+				
+				
+			)
+			
+
+		)
+		
+		fn ExportHighpolyMesh quick:false = 
+		(
+			select Highpoly 
+			
+			FbxExporterSetParam "Triangulate" false 
+			FbxExporterSetParam "UpAxis" "Z"
+			FbxExporterSetParam "SmoothingGroups" true
+			FbxExporterSetParam "TangentSpaceExport" false	
+			FbxExporterSetParam "GeomAsBone" false
+			FbxExporterSetParam "Animation" false
+				
+			
+			
+				
+			if quick == unsupplied then 
+			(
+				exportFile higFbxPath selectedOnly:true
+			)
+			else(exportFile higFbxPath #noprompt selectedOnly:true)
+			
+			
+		)
+		
+		
+		
+		
 		-- Get Substance Painter path from button if input is valid
 		on btn_spp_path pressed do 
 		(
@@ -1004,6 +1245,11 @@ rollout dRol "Baking Manager"
 			
 		on BtnSendToSubstancePainter pressed do
 		(
+			if (Lowpoly == undefined or Highpoly == undefined ) then 
+			(
+				return false
+			)
+			
 			--select lowpoly object 
 			select Lowpoly 
 			
@@ -1030,16 +1276,17 @@ rollout dRol "Baking Manager"
 				
 				-- Check if specified SP path is valid
 				if (doesFileExist (execute(substancePainterFullPath))) then (
-					if not (doesFileExist ExportPath) do (
+					if not (doesFileExist modelsExportPath) do (
 						try (
-							makedir ExportPath
+							makedir modelsExportPath
 						)
 						catch(
 							print "Cannot create dir at specified FBX export path"
 						)
 					)
 					
-					if (doesFileExist ExportPath) then (
+					if (doesFileExist modelsExportPath) then 
+					(
 						getObjects(objectToExport)
 						select objectToExport
 						print "Object(s) to export: "
@@ -1050,7 +1297,13 @@ rollout dRol "Baking Manager"
 						-- Use the fileName set by the user if available
 						if (Lowpoly.name != "" or Lowpoly.name != undefined) then (
 							lpfileName = Lowpoly.name
-							hpFileName = Highpoly.name
+							
+							--if dRol.rolA.chk_high.checked then
+							(
+								--create highpoly path
+								hpFileName = Highpoly.name
+							)
+							
 						)
 						else(
 						-- Use the first object name as filename
@@ -1060,19 +1313,47 @@ rollout dRol "Baking Manager"
 						-- Set the export path based on folder creation option
 						if (chk_create_folder.state == true) then 
 						(							
-							completeExportPath = (ExportPath+"\\"+lpfileName) 
 								
-							makedir (completeExportPath+"\\low\\") 
-							makedir (completeExportPath+"\\high\\") 
-							makedir (completeExportPath+"\\maps\\") 
+							--rename spp file  
+							sppFileName = substituteString lpfileName "_LP" ""
+								
+							completeExportPath = (modelsExportPath+"\\"+sppFileName) 
+							completeTexturesExportPath = (texturesExportPath + "\\" + sppFileName)
+								
+							--create lowpoly folder
+							makedir (completeExportPath+"\\low\\") 	
+								
+							--if dRol.rolA.chk_high.checked then
+							(
+								--create highpoly folder
+								makedir (completeExportPath+"\\high\\") 
+								
+							)
+							--create texture folder
+							makedir (completeTexturesExportPath+"\\maps\\") 
+							
 						)
 						else (
-							completeExportPath = ExportPath
+							completeExportPath = modelsExportPath
 						)
-						
+							
 						lowFbxPath = completeExportPath+"\\low\\"+lpfileName+".FBX"
-						higFbxPath = completeExportPath+"\\high\\"+hpFileName+".FBX"
-						substancePainterProjectPath = completeExportPath+"\\"+lpfileName+".spp"
+							
+						--if dRol.rolA.chk_high.checked then
+						(
+							--create highpoly folder
+							higFbxPath = completeExportPath+"\\high\\"+hpFileName+".FBX"							
+						)
+							
+						substancePainterProjectPath = completeTexturesExportPath+"\\"+sppFileName+"_Texturing"+".spp"
+						
+						srcPath = ""
+						copyFile (defaultSubstancePainterPath+"\\resources\\samples\\MeetMat.spp")  substancePainterProjectPath
+												
+						
+						--sppFile = createfile substancePainterProjectPath					
+						
+						
 						
 						-- No "hot reload" possible, here is the workaround: kill SP if option is enabled to allow quick preview for the user
 						if (checkboxKillSubstancePainter.state == true) and spVersion == 1 then (
@@ -1094,7 +1375,7 @@ rollout dRol "Baking Manager"
 						if (doesFileExist edittextUseSpp.text) and edittextUseSpp.text != "" then (
 							extension = substring edittextUseSpp.text (edittextUseSpp.text.count-3)  4
 							if (extension == ".spp") then (
-								if (copyFile edittextUseSpp.text (completeExportPath+"\\"+fileName+".spp")) then (
+								if (copyFile edittextUseSpp.text (completeExportPath+"\\"+sppFileName+"_Texturing"+".spp")) then (
 									print "Spp file successfully copied!"
 								)
 								else (
@@ -1120,62 +1401,26 @@ rollout dRol "Baking Manager"
 						-- Exports the object as fbx with default settings. Display dialog depending on the option settings
 						if (displayExporterDialog.checked == true or firstExport== true) then (
 							
-							
-							select Lowpoly
-							
-							FbxExporterSetParam "Triangulate" true 
-							FbxExporterSetParam "UpAxis" "Z"
-							FbxExporterSetParam "SmoothingGroups" true
-							FbxExporterSetParam "TangentSpaceExport" true
-							FbxExporterSetParam "GeomAsBone" false
-							FbxExporterSetParam "Animation" false
+							--send lowpoly to painter folder
+							ExportLowpolyMesh()
 								
-							exportFile lowFbxPath  selectedOnly:true
+							--send lowpoly to painter folder
+							ExportHighpolyMesh()
 								
-							
-							select Highpoly 
-							
-							FbxExporterSetParam "Triangulate" false 
-							FbxExporterSetParam "UpAxis" "Z"
-							FbxExporterSetParam "SmoothingGroups" true
-							FbxExporterSetParam "TangentSpaceExport" false	
-							FbxExporterSetParam "GeomAsBone" false
-							FbxExporterSetParam "Animation" false
-								
-							exportFile higFbxPath  selectedOnly:true
 								
 						)
 						else(
-							
-							
-							select Lowpoly
-							
-							FbxExporterSetParam "Triangulate" true 
-							FbxExporterSetParam "UpAxis" "Z"
-							FbxExporterSetParam "SmoothingGroups" true
-							FbxExporterSetParam "TangentSpaceExport" true
-							FbxExporterSetParam "GeomAsBone" false
-							FbxExporterSetParam "Animation" false
 								
-							exportFile lowFbxPath #noprompt selectedOnly:true
+							--send lowpoly to painter folder
+							ExportLowpolyMesh quick:true
 								
-							
-							select Highpoly 
-							
-							FbxExporterSetParam "Triangulate" false 
-							FbxExporterSetParam "UpAxis" "Z"
-							FbxExporterSetParam "SmoothingGroups" true
-							FbxExporterSetParam "TangentSpaceExport" false	
-							FbxExporterSetParam "GeomAsBone" false
-							FbxExporterSetParam "Animation" false
+							--send lowpoly to painter folder
+							ExportHighpolyMesh quick:true
 								
-							exportFile higFbxPath #noprompt selectedOnly:true
-							
-							
 						)
 						
 						-- Store the user path
-						global userExportPath = ExportPath
+						global userExportPath = modelsExportPath
 						
 						if doesFileExist lowFbxPath == true do (
 							local firstExport = false
@@ -1261,7 +1506,7 @@ rollout dRol "Baking Manager"
 
 	------------------------------------------------------------
 )
-createdialog dRol  width:300 height:810 
+createdialog dRol  width:300 height:710 
 
 
 

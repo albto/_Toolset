@@ -5,7 +5,6 @@
 		local 	PrimiPlaceOrigin 		= true
 		local 	PrimiPlaceSelection 	= false
 		local 	valueForPrims 			= 1.0
-		global 	PrimScale 				= set_primScale 
 		
 	----------------------------------------------------------------------------------------------------------------	
 	--Primitives Group Controls

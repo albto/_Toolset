@@ -158,7 +158,7 @@
 					)
 						
 					--sets directory and object name
-					dirName = qx_fldr + ObjNam
+					dirName = (qx_fldr + ObjNam) as string 
 						
 					--sets pivot to first selection 
 					--$.pivot = selection[1].pivot

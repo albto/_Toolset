@@ -84,8 +84,8 @@
 		---------------------------------------------------------------------------------------------------------------- INSTANCES
 		group "Prefab Instances:" 
 		(
-			button c_CreateContainers "Create" 					width: 100	height:40	across:2
-			button c_LoadContainer "Load"  						width: 100	height:40
+			button btn_CreateContainers "Create" 					width: 100	height:40	across:2
+			button btn_LoadContainer "Load"  						width: 100	height:40
 		)
 			
 		Group "Baker To Texture"
@@ -94,19 +94,8 @@
 			Button btn_OpenSett "Open Bake Settings"			width:200	height:30
 				
 		)
-		
-		Group "LOD Settings"
-		(
-			checkbox chk_type "Use Object Type"
-			button prc_geo "LOD Reduction Chain"						width: 100	height:30	across:2	align:#center	
-			button prc_proxy "HLOD Proxy"								width: 100	height:30				align:#center
-		)
 			
-		on btn_OpenSett pressed do 
-		(
-			--launch Baker
-			filein (mainFPFolder + "\FlowPanels\_subPanels\panBaker.ms")		
-		)
+
 			
 			
 			
@@ -292,37 +281,24 @@
 		
 		----------------------------------------------------------------------------------
 		----------------------------------------------------------------------------------
-
-
-		--Button Process Prefab - LOD -- 
-		----------------------------------------------------------------------------------
-		on prc_geo pressed do 
-		(
-			--Create LOD Prefab -- asset
-			filein (mainFPFolder + "\FlowPanels\_processors\LOD_Processor.ms")
-		)
-		
-		--Button Process Prefab - HLOD -- 
-		----------------------------------------------------------------------------------
-		on prc_proxy pressed do 
-		(
-				
-			--Create HLOD Prefab -- asset
-			filein (mainFPFolder + "\FlowPanels\_processors\HLOD_Processor.ms")
-				
-		)
-
 		
 		--Button Function - Load Instances
 		----------------------------------------------------------------------------------
-		on c_LoadContainer pressed do
+		
+		on btn_OpenSett pressed do 
+		(
+			--launch Baker
+			filein (mainFPFolder + "\FlowPanels\_subPanels\panBaker.ms" as string)		
+		)
+		
+		on btn_LoadContainer pressed do
 		(		
 			actionMan.executeAction -1172021248 "0"  -- Containers: Inherit Container
 		)
 			
 		--Button Function - Create Container
 		----------------------------------------------------------------------------------
-		on c_CreateContainers pressed do
+		on btn_CreateContainers pressed do
 		(
 				
 			--load attributes 
@@ -399,6 +375,8 @@
 					
 					
 				--text settings
+				
+				txt = text()
 				
 				if (GenGeo == true ) then
 				(
@@ -540,4 +518,9 @@
 			
 			
 		)
+		
+		
+		
+		
+		
 		

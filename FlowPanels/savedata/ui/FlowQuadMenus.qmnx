@@ -276,4 +276,18 @@
     <MoveItem DestinationId="f8c3d547-6454-4601-80b4-9aa10e485b10" ItemId="9aca9b5f-7f3a-4b0a-b9c9-290544de3000" BeforeId="2541cf9a-b64e-43dd-9d10-10a298cb8d29"/>
     <MoveItem DestinationId="f8c3d547-6454-4601-80b4-9aa10e485b10" ItemId="bd0c751a-c1a2-484f-bd3e-914da3bbb8a1" BeforeId="efc91fb9-0a71-4781-a437-6cc49537e5be"/>
     <CreateMenuSeparator MenuId="f8c3d547-6454-4601-80b4-9aa10e485b10" Id="024e7cbd-375b-47a4-acbd-27b3cda90e3b" BeforeId="22851bb1-8fd1-4650-96cc-6ff1bee76c1b"/>
+    <CreateMenuAction MenuId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" Id="63cbac11-9a0a-4df1-a6ec-2bbc4ea2a1fe" ActionId="647394-IBGBakingAttributesAdd`BakingAttributes"/>
+    <CreateMenu ParentId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" MenuId="863626be-ad16-43a9-94c0-1d87004f7173" Title="Baking Attributes" BeforeId="63cbac11-9a0a-4df1-a6ec-2bbc4ea2a1fe"/>
+    <MoveItem DestinationId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" ItemId="63cbac11-9a0a-4df1-a6ec-2bbc4ea2a1fe" BeforeId="863626be-ad16-43a9-94c0-1d87004f7173"/>
+    <MoveItem DestinationId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" ItemId="63cbac11-9a0a-4df1-a6ec-2bbc4ea2a1fe"/>
+    <MoveItem DestinationId="863626be-ad16-43a9-94c0-1d87004f7173" ItemId="63cbac11-9a0a-4df1-a6ec-2bbc4ea2a1fe"/>
+    <CreateMenuAction MenuId="863626be-ad16-43a9-94c0-1d87004f7173" Id="d0479c3d-1ed4-4bc4-ba2b-3166b237f920" ActionId="647394-IBGBakingAttributesClear`BakingAttributes"/>
+    <CreateMenuAction MenuId="863626be-ad16-43a9-94c0-1d87004f7173" Id="bc0e88c0-1b40-4982-827c-59c1ae37a167" ActionId="647394-IBGBakingAttributesLPMesh`BakingAttributes"/>
+    <CreateMenuSeparator MenuId="863626be-ad16-43a9-94c0-1d87004f7173" Id="f1a2ecc2-8e57-4f1e-a96b-c5806db1cd0b" BeforeId="d0479c3d-1ed4-4bc4-ba2b-3166b237f920"/>
+    <MoveItem DestinationId="863626be-ad16-43a9-94c0-1d87004f7173" ItemId="d0479c3d-1ed4-4bc4-ba2b-3166b237f920" BeforeId="bc0e88c0-1b40-4982-827c-59c1ae37a167"/>
+    <MoveItem DestinationId="863626be-ad16-43a9-94c0-1d87004f7173" ItemId="d0479c3d-1ed4-4bc4-ba2b-3166b237f920" BeforeId="f1a2ecc2-8e57-4f1e-a96b-c5806db1cd0b"/>
+    <CreateMenuAction MenuId="863626be-ad16-43a9-94c0-1d87004f7173" Id="96710a76-ae00-41ef-9d5e-0fe5eebc147e" ActionId="647394-IBGBakingAttributesHPMesh`BakingAttributes"/>
+    <CreateMenuAction MenuId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" Id="e77a434e-db3e-4d30-af1a-f8966b781354" ActionId="5-6030" BeforeId="e985cc85-d27d-4b80-81f9-69c8924ea8f8"/>
+    <CreateMenuAction MenuId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" Id="c387b121-d327-493a-9dd7-4ad304616490" ActionId="647394-RenameObjects`Tools" BeforeId="e985cc85-d27d-4b80-81f9-69c8924ea8f8"/>
+    <DeleteItem Id="e77a434e-db3e-4d30-af1a-f8966b781354"/>
 </MaxQuadMenuTransformations>

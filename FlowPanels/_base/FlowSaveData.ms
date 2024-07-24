@@ -349,7 +349,7 @@ fn SetAutoSettings val intgr =
 global FlowDataStructure
 global LoadLauncherDataFromXml
 global ImportFlowSavedData
-
+global 	PrimScale 	= set_primScale 
 
 ------------------------------------------------------------------------------------------------------------- 
 ------------------------------------------------------------------------------------------New Save System----
@@ -557,6 +557,9 @@ fn ImportFlowSavedData =
 
 --load data 
 ImportFlowSavedData()
+
+
+
 
 
 

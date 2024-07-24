@@ -1,1 +1,1 @@
-Dictionary #name geometry:"D:/Projects/Project3D/Assets/Art/Geometry" 
+(Dictionary #name GeometryFolder:"D:/Projects/Project3D/Assets/Art/Geometry" )

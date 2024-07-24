@@ -144,7 +144,7 @@ toolTip:"Add Unity Attributes"
 					GameLayers				type:#integer ui:ddl_Lyrs 
 					ObjectAttributes		type:#integer ui:ddl_oAtr 
 					ProcGenType				type:#integer ui:ddl_procTyp 
-					ObjectTypes				type:#integer ui:ddl_ObjT 
+					Types					type:#integer ui:ddl_ObjT 
 					Mesh_Compression		type:#integer ui:ddl_MshComp		
 					Generate_Colliders 		type:#boolean ui:chk_Cols 	
 					Generate_Lightmaps 		type:#boolean ui:chk_Lmaps 	
@@ -166,8 +166,12 @@ toolTip:"Add Unity Attributes"
 					KeepQuads 				type:#boolean ui:chk_KeepQads  
 					SwapChannels			type:#boolean ui:chk_SwapChn   
 					Category 				type:#string ui:edt_categFolder
+					SubCategory 			type:#string ui:edt_scategFolder
 					Classification 			type:#string ui:edt_classFolder
-					ObjectComponent			type:#integer ui:ddl_ObjT		
+					ObjectComponent			type:#integer ui:ddl_ObjC
+					
+					
+					
 					
 				)--end Param1
 					
@@ -181,7 +185,8 @@ toolTip:"Add Unity Attributes"
 					local externalMod = #("", "", "", "")
 					
 					local GameTags = #()
-					local ObjectTypes = #()
+					local UnityTypes = #()
+					local UnityComponents = #() 
 					local ObjectAttributes = #()
 					local Layers = #() 
 					
@@ -193,7 +198,10 @@ toolTip:"Add Unity Attributes"
 					local MaterialsNam = #("BasedOnTexture", "BasedOnMaterial", "BasedOnModel")
 					local MaterialsSea = #("Local", "Recursive-Up", "Everywhere")
 					local CategoryName = "None"
+					local SubCategoryName = "None"
 					local ClassificationName = "None"
+						
+					local ObjectTypeSelection = 0	
 						
 					--write to file
 					local fps = #()
@@ -203,7 +211,7 @@ toolTip:"Add Unity Attributes"
 					-----------------------------------------------------------------------------------------------------------	
 						
 					--Save Settings -- 
-					dropdownList ddl_prst "Presets:"		items:ObjectTypes
+					dropdownList ddl_prst "Presets:"		items:UnityTypes
 					button btn_save "Save"		width:40	height:20	align:#left	across:3
 					button btn_updt "Update"	width:50	height:20	align:#center
 					button btn_load "Load"		width:40	height:20	align:#right
@@ -231,8 +239,9 @@ toolTip:"Add Unity Attributes"
 					(
 						dropdownlist ddl_Tags "Tag:"					items:GameTags	
 						dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
-						dropdownList ddl_ObjT "Object Type:" 			items:ObjectTypes
+						dropdownList ddl_ObjT "Object Type:" 			items:UnityTypes
 						edittext 	 edt_categFolder "Category:"		text:CategoryName		labelOnTop:true
+						edittext 	 edt_scategFolder "Sub-Category:"	text:SubCategoryName	labelOnTop:true
 						edittext 	 edt_classFolder "Classification:"	text:ClassificationName	labelOnTop:true
 					)
 					
@@ -240,7 +249,8 @@ toolTip:"Add Unity Attributes"
 					(
 						dropdownList ddl_oAtr "Object Attributes:"		items:ObjectAttributes
 						dropdownList ddl_procTyp "ProcGen Type:"		items:ProcGenType		enabled:false
-						dropdownList ddl_ObjC "Object Component:" 		items:ObjectTypes
+						dropdownList ddl_ObjC "Object Component:" 		items:UnityComponents
+						checkbutton chk_comp_1 "Move Asset Directory" 			checked:false
 					)
 					
 					
@@ -283,8 +293,7 @@ toolTip:"Add Unity Attributes"
 						
 						print ("OBJATTR   " + AttrList as string)
 						--print ("ATTRLIST   " + AttrList as string)
-						
-							
+													
 						--Load data  - - Layers 
 						ddl_Lyrs.items = LayersList
 						Layers = LayersList
@@ -299,10 +308,11 @@ toolTip:"Add Unity Attributes"
 							
 						--Load data  - - Types
 						ddl_ObjT.items = TypeList
-						ObjectTypes = TypeList
+						UnityTypes = TypeList
 							
 						--Load data  - - Components
-						ddl_ObjC.items = CompList
+						ddl_ObjC.items = CompList						
+						UnityComponents = CompList
 							
 						--Load data  - - Something Else 
 							
@@ -329,7 +339,7 @@ toolTip:"Add Unity Attributes"
 							SetObjectSettings 1 Generate_Prefab_Asset
 							SetObjectSettings 2 ddl_Tags.selection
 							SetObjectSettings 3	ddl_Lyrs.selection 
-							SetObjectSettings 4 ddl_ObjT.selection
+							SetObjectSettings 4 ObjectTypeSelection
 							SetObjectSettings 5 ddl_MshComp.selection
 							SetObjectSettings 6 Generate_Colliders 			
 							SetObjectSettings 7 Generate_Lightmaps
@@ -358,9 +368,10 @@ toolTip:"Add Unity Attributes"
 							SetObjectSettings 30 GameTags
 							SetObjectSettings 31 edt_classFolder.text
 							SetObjectSettings 32 ObjectAttributes
-							SetObjectSettings 33 ObjectTypes
+							SetObjectSettings 33 TypeList
 							SetObjectSettings 34 ddl_ObjC.selection
-								
+							SetObjectSettings 35 edt_scategFolder.text
+							SetObjectSettings 36 CompList 
 								
 							--record settings	
 							setUserPropVal i "Unity Attributes" fps 
@@ -460,16 +471,18 @@ toolTip:"Add Unity Attributes"
 								(
 									--print "Loading from Memory - attributes"
 									--print (obs[32] as string)							
-									ObjectTypes = obs[33]
-									ddl_ObjT.items = ObjectTypes
+									UnityTypes = obs[33]
+									ddl_ObjT.items = UnityTypes
 								)
 							)
 								
 							ddl_ObjC.selection		= obs[34]
 							
+							edt_scategFolder.text		= obs[35]
+							ObjectTypeSelection = obs[4]
 							
 							--record settings	
-							setUserPropVal i "Unity Attributes" obs 
+							setUserPropVal i "Unity Attributes" obs ----------------------------------------------------------------------------------------------------- 
 								
 						)
 						
@@ -478,53 +491,57 @@ toolTip:"Add Unity Attributes"
 					on General open do
 					(									
 						--Load Settings
-						try 
-						(	
+-- 						try 
+-- 						(								
+							print "Loaded Settings - Successfuly!"
+							print (UnityTypes)
+														
 							--load tool settings
-							LoadObjectSettings()
-							--Save Settings 
-							SaveObjectSettings()							
-						) 
-						catch
-						(  
-							print "Brand New Object Detected - Applying Default Settings"
-							
-							chk_preHier.checked		= true
-							chk_IsPrefab.checked 	= false
-							ddl_Tags.selection 		= 1
-							ddl_Lyrs.selection 		= 1
-							ddl_ObjT.selection		= 1
-							ddl_MshComp.selection	= 2
-							chk_Cols.checked		= false
-							chk_Lmaps.checked 		= false
-							chk_Amin.checked 		= false
-							chk_Blnd.checked 		= false
-							chk_Cams.checked 		= false
-							chk_Lght.checked 		= false
-							chk_Visi.checked 		= false
-							ddl_Nmls.selection 		= 1
-							ddl_MCM.selection 		= 2
-							ddl_MLoc.selection 		= 2
-							ddl_MNam.selection		= 1
-							ddl_MSea.selection 		= 2
-							ddl_oAtr.selection		= 1
-							chk_preHier.checked 	= false
-							spn_filScale.value 		= 1
-							chk_BakeXform.checked	= true
-							chk_fileUnits.checked	= false
-							chk_fileScale.checked 	= true
-							chk_SortHier.checked	= true
-							chk_KeepQads.checked	= false
-							chk_SwapChn.checked		= false
-							ddl_procTyp.selection 	= 1
-							edt_categFolder.text	= "None"
-							edt_classFolder.text 	= "None"
-								
-								
+							LoadObjectSettings()						
 							--Save Settings Applied
 							SaveObjectSettings()
-								
-						)
+-- 						) 
+-- 						catch
+-- 						(  
+-- 							print "Brand New Object Detected - Applying Default Settings"
+-- 							
+-- 							chk_preHier.checked		= true
+-- 							chk_IsPrefab.checked 	= false
+-- 							ddl_Tags.selection 		= 1
+-- 							ddl_Lyrs.selection 		= 1
+-- 							ddl_ObjT.selection		= 1
+-- 							ddl_MshComp.selection	= 2
+-- 							chk_Cols.checked		= false
+-- 							chk_Lmaps.checked 		= false
+-- 							chk_Amin.checked 		= false
+-- 							chk_Blnd.checked 		= false
+-- 							chk_Cams.checked 		= false
+-- 							chk_Lght.checked 		= false
+-- 							chk_Visi.checked 		= false
+-- 							ddl_Nmls.selection 		= 1
+-- 							ddl_MCM.selection 		= 2
+-- 							ddl_MLoc.selection 		= 2
+-- 							ddl_MNam.selection		= 1
+-- 							ddl_MSea.selection 		= 2
+-- 							ddl_oAtr.selection		= 1
+-- 							chk_preHier.checked 	= false
+-- 							spn_filScale.value 		= 1
+-- 							chk_BakeXform.checked	= true
+-- 							chk_fileUnits.checked	= false
+-- 							chk_fileScale.checked 	= true
+-- 							chk_SortHier.checked	= true
+-- 							chk_KeepQads.checked	= false
+-- 							chk_SwapChn.checked		= false
+-- 							ddl_procTyp.selection 	= 1
+-- 							edt_categFolder.text	= "None"
+-- 							edt_scategFolder.text	= "None"
+-- 							edt_classFolder.text 	= "None"
+-- 							
+-- 								
+							--Save Settings Applied
+							SaveObjectSettings()
+-- 								
+-- 						)
 							
 					)
 					
@@ -552,7 +569,12 @@ toolTip:"Add Unity Attributes"
 					
 					on ddl_ObjT selected val do 
 					(
-						ObjectTypes = val 
+						print val 
+						
+						UnityTypes = val 
+						ObjectTypeSelection = ddl_ObjT.selection
+						
+						
 					)
 					
 					on ddl_oAtr selected val do 
@@ -580,16 +602,27 @@ toolTip:"Add Unity Attributes"
 					(
 						CategoryName = val
 					)
-					
-					on edt_categFolder entered val do
+										
+					on edt_scategFolder entered val do
 					(
-						CategoryName = val
+						SubCategoryName = val
+					)
+						
+					on edt_classFolder entered val do
+					(
+						Classification = val
 					)
 						
 					on btn_save pressed do
 					(
 						--Save Settings 
 						SaveObjectSettings()
+						
+						print "{BEGIN Saved Data:} \n" 
+						
+						print fps
+						
+						print "{END Saved Data:}" 
 					)
 					
 					on btn_clrs pressed do 
@@ -688,6 +721,310 @@ toolTip:"Clean-Up Attributes Modifier"
 	)
 	
 )
+
+
+
+
+
+
+macroScript IBGBakingAttributesAdd
+category:"BakingAttributes"
+toolTip:"Add Baking Attributes"
+(			
+
+	fn AddBakeAttribute = 
+	(
+			m = EmptyModifier()
+			m.name = "Baking Attributes"
+				
+			for i in selection as array do 
+			(
+				--filter modifier
+				mdf = i.modifiers[#Baking_Attributes]
+					
+				if( (classOf mdf) == (classof m)) then
+				(
+					try (deleteModifier i mdf ) catch()
+				)
+			)
+			
+			Global BakingAttributes = attributes objectBakeData
+			(
+					
+				parameters Param0 rollout:General
+				(
+					meshTag					type:#string ui:ddl_Tags 		
+					
+				)--end Param1
+					
+					
+					
+				Rollout General "Baking Attributes"
+				(	
+						
+					--Presets
+					local externalFn = #("", "", "")
+					local externalMod = #("", "", "", "")
+					
+					local GameTags = #("Lowpoly Mesh", "Highpoly Mesh" )
+					local UnityTypes = #()
+					local ObjectAttributes = #()
+					local Layers = #() 
+
+						
+					--write to file
+					local fps = #()
+					local obs = #()	
+					-----------------------------------------------------------------------------------------------------------
+					
+					button btn_clrs "Save and Clear" 			width:140	height:20	align:#center
+						
+					--------------------------------------------------------------------------------------	
+
+					
+					Group "Identification:"
+					(
+						dropdownlist ddl_Tags "Tag:"					items:GameTags	
+					)
+					
+						
+						
+					---------------------------------------------------------------------------------
+					--FUNCTIONS -- PRESETS
+					---------------------------------------------------------------------------------	
+					
+					---------------------------------------------------------------------------------
+						
+					
+					-----------------------------------------------------------------------------------------------------------
+					-- Gather Data from XML file -- Unity Data Hook-up 
+					-----------------------------------------------------------------------------------------------------------
+					
+					fn ImportDataFromUnity = 
+					(
+						
+						srl_Stats.ImportDataFromUnity()
+						
+						print ("OBJATTR   " + AttrList as string)
+						--print ("ATTRLIST   " + AttrList as string)
+						
+							
+-- 						--Load data  - - Layers 
+-- 						ddl_Lyrs.items = LayersList
+-- 						Layers = LayersList
+-- 							
+-- 						--Load data  - - Tags
+-- 						ddl_Tags.items = TagsList
+-- 						GameTags = TagsList
+-- 							
+-- 						--Load data  - - Attributes
+-- 						ddl_oAtr.items = AttrList
+-- 						ObjectAttributes = AttrList
+-- 							
+-- 						--Load data  - - Types
+-- 						ddl_ObjT.items = TypeList
+-- 						ObjectTypes = TypeList
+-- 							
+-- 						--Load data  - - Components
+-- 						ddl_ObjC.items = CompList
+-- 							
+						--Load data  - - Something Else 
+							
+					)
+
+						
+					--sets the Settings to be saved
+					fn SetObjectSettings i val= 
+					(
+						fps[i] = val
+					)	
+						
+					fn SaveObjectSettings =
+					(						
+						
+						--Save Settings
+						for i in selection as Array do 
+						(
+							
+							SetObjectSettings 1 GameTags[ddl_Tags.selection]
+							
+								
+							--record settings	
+							setUserPropVal i "Baking Attributes" fps 
+								
+							for i = 1 to fps.count do
+							(
+								--print ("SavedSetttings -[" + ((i) as string) + "] = { " + fps[i] as string + " }" )
+								
+								if (classof fps[i]) == array then(
+									--print ("["+i as string +"]" + " is an aray")
+									--print ("["+i as string +"]'s" + " count = " + fps[i].count as string)
+								)
+								
+							)
+						)
+					)
+							
+					fn LoadObjectSettings =
+					(
+							
+						for i in selection as array do 
+						(
+							obs = execute (getUserPropVal i "Baking Attributes" asString:true)
+								
+							--Load Settings 
+							chk_IsPrefab.checked 	= obs[1]
+							ddl_Tags.selection 		= obs[2]
+							ddl_Lyrs.selection 		= obs[3] 
+															
+							--record settings	
+							setUserPropVal i "Baking Attributes" obs 
+								
+						)
+						
+					)
+						
+					on btn_clrs pressed do 
+					(
+						print "FUUUUUUUUUUUUUUUUUUUCK"
+						
+						
+						--Save Settings 
+						SaveObjectSettings()
+						
+						macros.run "BakingAttributes" "IBGBakingAttributesClear"
+						
+					)
+						
+					on General open do
+					(									
+						
+					)
+					
+					--------------------------------------------------------------------------------------
+						
+					--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+						
+						
+				)--end MeshInfo Rollout
+				
+				
+			)--end posAttribs
+			
+			--add modifier -- needs optimizing 
+			modPanel.addModToSelection (m) ui:on
+			for i in selection as array do 
+			(
+				--add the attribute in the first modifier
+				custAttributes.add i.modifiers[1] BakingAttributes 
+				
+			)
+			
+	)
+
+	
+	on execute do 
+	(
+		AddBakeAttribute()
+	)
+			
+
+)
+
+macroScript IBGBakingAttributesClear
+category:"BakingAttributes"
+toolTip:"Clear Baking Attributes"
+(
+		
+	m = EmptyModifier()
+	m.name = "Baking Attributes"	
+		
+	for i in selection as array do 
+	(
+		--filter modifier
+		mdf = i.modifiers[#Baking_Attributes]
+		
+		--Removes Attributes Modifier
+		custAttributes.delete i BakingAttributes baseObject:true --add the attribute in the first modifier
+			
+		--checks to remove active attributes before being applied to object	
+		if( (classOf mdf) == (classof m)) then
+		(
+			index = modPanel.getModifierIndex i mdf
+			
+			try (deleteModifier i (index) ) catch()
+		)
+		else
+		(
+			continue
+		)
+			
+	)
+	
+)
+
+
+macroScript IBGBakingAttributesLPMesh
+category:"BakingAttributes"
+toolTip:"Set as Lowpoly Mesh"
+(
+		
+	m = EmptyModifier()
+	m.name = "Baking Attributes"	
+		
+	obs = #()
+	
+	
+	for i in selection as array do 
+	(
+		--changed setting
+		obs[1] = "Lowpoly Mesh"
+		
+		--record settings	
+		setUserPropVal i "Baking Attributes" obs 	
+	)
+	
+)
+
+
+
+macroScript IBGBakingAttributesHPMesh
+category:"BakingAttributes"
+toolTip:"Set as Highpoly Mesh"
+(
+		
+	m = EmptyModifier()
+	m.name = "Baking Attributes"	
+		
+	obs = #()
+	
+	
+	for i in selection as array do 
+	(
+		--changed setting
+		obs[1] = "Highpoly Mesh"
+		
+		--record settings	
+		setUserPropVal i "Baking Attributes" obs 	
+	)
+	
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

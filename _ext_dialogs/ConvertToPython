@@ -1,0 +1,24 @@
+import lib_remote 
+ 
+Remote = lib_remote.RemotePainter() 
+Remote.checkConnection() 
+ 
+# import the substance_painter module to make 
+# its API available to us 
+Remote.execScript( "import substance_painter", "python" ) 
+ 
+# Print the API version 
+Version = Remote.execScript( "substance_painter.__version__", "python" ) 
+print( Version ) 
+ 
+# Get a list of all the files in the default shelf/library 
+# Because the search function return objects, we have to convert  
+# the information into a string within the same command (inline) 
+Command = 'substance_painter.resource.search( "p:starter_assets/" )' 
+Command = '"|||".join( [ x.identifier().url() for x in {0}] )'.format( Command ) 
+ 
+Files = Remote.execScript( Command, "python" ) 
+Files = Files.split( "|||" ) 
+ 
+for File in Files : 
+ print( File )

@@ -557,7 +557,7 @@
 							)
 							else if o == 4 then --name object types
 							(
-								stats[o] = (gameData[o] as string + " = { " + (ObjectTypes[fps[o]]) as string + " }") as string
+								stats[o] = (gameData[o] as string + " = { " + (TypeList[fps[o]]) as string + " }") as string
 							)
 							else if o == 16 then --name tags 
 							(
@@ -880,7 +880,7 @@
 						obs[2] = ddl_iniTag.selection
 							
 						--set object wirecolor 
-						o.wirecolor = (GetDictValue colorDict clrARR[ddl_iniTyp.selection] ) as color
+						--o.wirecolor = (GetDictValue colorDict clrARR[ddl_iniTyp.selection]  as color)
 					)
 						
 					--record settings	
