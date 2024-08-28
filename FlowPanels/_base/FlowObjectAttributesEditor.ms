@@ -6,9 +6,10 @@
 	
 	
 	try(closeRolloutFloater theNewFloater) catch()
-	--CreateDialog uiPan 
+		--CreateDialog uiPan 
 	global theNewFloater = newRolloutFloater "Flow Attributes Scene Helper" 460 880
-
+	
+		--WAM SYSTEM EDITOR PARAMETERS
 	global srl_Stats
 
 	--Attributes System - Global Strings
@@ -16,6 +17,7 @@
 	
 	global 	FlowAddAtt      = "IBGUnityAttributesAdd" 
 	global 	FlowRmvAtt 		= "IBGUnityAttributesDelete"
+	
 		
 	-----------------------------------------------------------------------------------------------------------------------------------------
 	-- 
@@ -29,12 +31,7 @@
 		
 	-----------------------------------------------------------------------------------------------------------------------------------------
 	-----------------------------------------------------------------------------------------------------------------------------------------
-		
-		
-	ObjectTypes = #()		
-	ObjectAttributes = #()
-	ObjectComponents = #()
-		
+				
 	gameData = #("Is Prefab", "Tags","Layer","Object Type","Mesh Compression","Generate Colliders","Generate Lightmaps","Import Animation",
 		"Import BlendShapes","Import Cameras","Import_Lights","Import Visibility","NormalsImport","Material Creation Mode","Material Location",
 		"ObjectAttributes","Preserve_Hierarchy","fileScale","Bake Xform Conversion","Use File Units","Sort Hierarchy","Keep Quads",
@@ -42,13 +39,18 @@
 		
 	colorDict = Dictionary #(#Character, color 125 89 23) #(#Exteriors, color 6 61 135) #(#Interior, color 135 59 8) #(#Light, color 28 149 177) #(#Prop, color 176 26 26) #(#Structure, color 225 88 199) #(#Terrain, color 148 177 27) #(#Vehicle, color 8 8 136)#(#VertexAnim, color 85 28 177)#(#Weapons, color 227 153 153)                      
 		
-		clrARR = #(#Character)
+	clrARR = #(#Character)
 		
-	LayersList = #()
-	TagsList = #()
-	AttrList = #()
-	TypeList = #()
-	CompList = #()
+	global LayersList = #()
+	global TagsList = #()
+	global AttrList = #()
+	global TypeList = #()
+	global CompList = #()
+		
+	global ObjectTypes = #()		
+	global ObjectAttributes = #()
+	global ObjectComponents = #()
+		
 		
 	--write to file
 	fps = #()

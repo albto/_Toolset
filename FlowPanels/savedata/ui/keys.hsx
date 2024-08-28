@@ -37,4 +37,12 @@
     <Assign_Hotkey Shortcut="Alt+Shift+R" Description="Dot Ring" Id="647394-DotRing`PolyTools"/>
     <Assign_Hotkey Shortcut="Alt+Shift+L" Description="Dot Loop" Id="647394-DotLoop`PolyTools"/>
     <Assign_Hotkey Shortcut="Alt+F" Description="Flip Normals" Id="369982487-40018"/>
+    <Unassign_Hotkey Shortcut="Shift+A" Description="Pack" Id="2077580866-40074"/>
+    <Unassign_Hotkey Shortcut="Ctrl+P" Description="Pan" Id="2077580866-40026"/>
+    <Assign_Hotkey Shortcut="Ctrl+R" Description="Rotate +90" Id="2077580866-40255"/>
+    <Unassign_Hotkey Shortcut="Ctrl+Right" Description="Rotate +90" Id="2077580866-40255"/>
+    <Assign_Hotkey Shortcut="Ctrl+Shift+R" Description="Rotate -90" Id="2077580866-40256"/>
+    <Unassign_Hotkey Shortcut="Ctrl+Left" Description="Rotate -90" Id="2077580866-40256"/>
+    <Assign_Hotkey Shortcut="Shift+4" Description="Geom. Element Select Mode" Id="2077580866-40064"/>
+    <Assign_Hotkey Shortcut="Ctrl+Shift+V" Description="UVTools__Open UV Tools UI" Id="647394-UVT_OpenUi`Nik Scripts - UV Tools"/>
 </MaxHotkeyTransformations>

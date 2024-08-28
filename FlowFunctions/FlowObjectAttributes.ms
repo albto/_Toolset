@@ -169,7 +169,7 @@ toolTip:"Add Unity Attributes"
 					SubCategory 			type:#string ui:edt_scategFolder
 					Classification 			type:#string ui:edt_classFolder
 					ObjectComponent			type:#integer ui:ddl_ObjC
-					
+					Generate_AutoLOD		type:#integer ui:ddl_ObjC
 					
 					
 					
@@ -177,7 +177,7 @@ toolTip:"Add Unity Attributes"
 					
 					
 					
-				Rollout General "Unity Attributes"
+				Rollout General "Unity Attributes" 	
 				(	
 						
 					--Presets
@@ -211,7 +211,7 @@ toolTip:"Add Unity Attributes"
 					-----------------------------------------------------------------------------------------------------------	
 						
 					--Save Settings -- 
-					dropdownList ddl_prst "Presets:"		items:UnityTypes
+					dropdownList ddl_prst "Presets:"		--items:UnityTypes
 					button btn_save "Save"		width:40	height:20	align:#left	across:3
 					button btn_updt "Update"	width:50	height:20	align:#center
 					button btn_load "Load"		width:40	height:20	align:#right
@@ -225,8 +225,7 @@ toolTip:"Add Unity Attributes"
 					(
 						checkbox chk_preHier "Preserve Hierarchy" 		checked:Preserve_Hierarchy
 						checkbox chk_SortHier "Sort Hierarchy" 			checked:SortHierarchy
-						checkbox chk_IsPrefab "Create Prefab" 			checked:Generate_Prefab_Asset
-							
+
 						checkbox chk_fileUnits "Use File Units" 		checked:UseFileUnits
 						checkbox chk_fileScale "Use File Scale" 		checked:UseFileScale
 						spinner spn_filScale "File Scale"				range:[0, 1000, fileScale]	type:#integer
@@ -237,12 +236,20 @@ toolTip:"Add Unity Attributes"
 					
 					Group "Identification:"
 					(
-						dropdownlist ddl_Tags "Tag:"					items:GameTags	
-						dropdownlist ddl_Lyrs "Layers:"					items:Layers 	
-						dropdownList ddl_ObjT "Object Type:" 			items:UnityTypes
-						edittext 	 edt_categFolder "Category:"		text:CategoryName		labelOnTop:true
-						edittext 	 edt_scategFolder "Sub-Category:"	text:SubCategoryName	labelOnTop:true
-						edittext 	 edt_classFolder "Classification:"	text:ClassificationName	labelOnTop:true
+						dropdownlist 	ddl_Tags "Tag:"						items:GameTags	
+						dropdownlist 	ddl_Lyrs "Layers:"					items:Layers 	
+						dropdownList 	ddl_ObjT "Object Type:" 			items:UnityTypes		
+					)
+					
+					Group "Archiving Settings:"
+					(
+						label 			lbl_cateName 	"Category:"			align:#left
+						edittext 	 	edt_categFolder ""					offset:[-5,0]		width:110		text:CategoryName		labelOnTop:false  across:2
+						button			btn_addCate 	"Add"				offset:[22,-1]
+						label 			lbl_scateName 	"Sub-Category:"		align:#left
+						edittext 	 	edt_scategFolder ""					offset:[0,0]		width:105		text:SubCategoryName	labelOnTop:true	 across:2
+						button			btn_addScate 	"Add"				offset:[22,-1]
+						edittext 	 	edt_classFolder "Classification:"	text:ClassificationName	labelOnTop:true
 					)
 					
 					Group "Gameplay Settings:"
@@ -253,27 +260,42 @@ toolTip:"Add Unity Attributes"
 						checkbutton chk_comp_1 "Move Asset Directory" 			checked:false
 					)
 					
-					
-					Group "Settings:"
+					Group "Collider Settings:"
 					(
-						dropdownlist ddl_MshComp "Mesh Compression:" 	items:MeshComp
-						checkbox chk_Cols "Generate Colliders" 			checked:Generate_Colliders
-						checkbox chk_Lmaps "Generate Lightmaps" 		checked:Generate_Lightmaps
 						
+						checkbox chk_Cols 	"Generate Colliders" 			checked:Generate_Colliders
+						checkbox chk_UCC 	"Use Custom Colliders" 			--checked:Custom_Colliders
+						checkbox chk_Prim 	"Use Primitive Colliders" 			--checked:Custom_Colliders	
+					)
+					
+					Group "Unity Systems:"
+					(
+						checkbox chk_Lmaps "Generate Lightmaps" 		checked:Generate_Lightmaps
+						checkbox chk_ALods "Generate LODs" 				checked:Generate_AutoLOD
+						checkbox chk_IsPrefab "Generate Prefab" 		checked:Generate_Prefab_Asset
+					)
+					
+					Group "Mesh Settings:"
+					(
 						checkbox chk_KeepQads "Keep Quads" 				checked:KeepQuads
 						checkbox chk_SwapChn "Swap Channels" 			checked:SwapChannels			
-						
-						checkbox chk_Amin "Import Animation" 			checked:Import_Animation
-						checkbox chk_Blnd "Import BlendShapes" 			checked:Import_BlendShapes
-						checkbox chk_Cams "Import Cameras" 				checked:Import_Cameras
-						checkbox chk_Lght "Import Lights" 				checked:Import_Lights
-						checkbox chk_Visi "Import Visibility" 			checked:Import_Visibility
+						dropdownlist ddl_MshComp "Mesh Compression:" 	items:MeshComp
 						dropdownlist ddl_Nmls "Normals Import:"			items:NormalsType	
 						dropdownlist ddl_MCM "Material Creation Mode:"	items:MaterialsMode
 						dropdownlist ddl_MLoc "Material Location"		items:MaterialsLoc
 						dropdownlist ddl_MNam "Material Name"			items:MaterialsNam
 						dropdownlist ddl_MSea "Material Search"			items:MaterialsSea
+					)
+					
+					Group "Import Settings:"
+					(													
+						checkbox chk_Amin "Import Animation" 			checked:Import_Animation
+						checkbox chk_Blnd "Import BlendShapes" 			checked:Import_BlendShapes
+						checkbox chk_Cams "Import Cameras" 				checked:Import_Cameras
+						checkbox chk_Lght "Import Lights" 				checked:Import_Lights
+						checkbox chk_Visi "Import Visibility" 			checked:Import_Visibility
 					)	
+										
 						
 					---------------------------------------------------------------------------------
 					--FUNCTIONS -- PRESETS
@@ -291,7 +313,7 @@ toolTip:"Add Unity Attributes"
 						
 						srl_Stats.ImportDataFromUnity()
 						
-						print ("OBJATTR   " + AttrList as string)
+						--print ("OBJATTR   " + AttrList as string)
 						--print ("ATTRLIST   " + AttrList as string)
 													
 						--Load data  - - Layers 
@@ -339,7 +361,7 @@ toolTip:"Add Unity Attributes"
 							SetObjectSettings 1 Generate_Prefab_Asset
 							SetObjectSettings 2 ddl_Tags.selection
 							SetObjectSettings 3	ddl_Lyrs.selection 
-							SetObjectSettings 4 ObjectTypeSelection
+							SetObjectSettings 4 ddl_ObjT.selection
 							SetObjectSettings 5 ddl_MshComp.selection
 							SetObjectSettings 6 Generate_Colliders 			
 							SetObjectSettings 7 Generate_Lightmaps
@@ -478,8 +500,8 @@ toolTip:"Add Unity Attributes"
 								
 							ddl_ObjC.selection		= obs[34]
 							
-							edt_scategFolder.text		= obs[35]
-							ObjectTypeSelection = obs[4]
+							edt_scategFolder.text	= obs[35]
+							--ObjectTypeSelection 	= obs[4]
 							
 							--record settings	
 							setUserPropVal i "Unity Attributes" obs ----------------------------------------------------------------------------------------------------- 
@@ -491,57 +513,57 @@ toolTip:"Add Unity Attributes"
 					on General open do
 					(									
 						--Load Settings
--- 						try 
--- 						(								
+						try 
+						(								
 							print "Loaded Settings - Successfuly!"
 							print (UnityTypes)
 														
 							--load tool settings
 							LoadObjectSettings()						
 							--Save Settings Applied
-							SaveObjectSettings()
--- 						) 
--- 						catch
--- 						(  
--- 							print "Brand New Object Detected - Applying Default Settings"
--- 							
--- 							chk_preHier.checked		= true
--- 							chk_IsPrefab.checked 	= false
--- 							ddl_Tags.selection 		= 1
--- 							ddl_Lyrs.selection 		= 1
--- 							ddl_ObjT.selection		= 1
--- 							ddl_MshComp.selection	= 2
--- 							chk_Cols.checked		= false
--- 							chk_Lmaps.checked 		= false
--- 							chk_Amin.checked 		= false
--- 							chk_Blnd.checked 		= false
--- 							chk_Cams.checked 		= false
--- 							chk_Lght.checked 		= false
--- 							chk_Visi.checked 		= false
--- 							ddl_Nmls.selection 		= 1
--- 							ddl_MCM.selection 		= 2
--- 							ddl_MLoc.selection 		= 2
--- 							ddl_MNam.selection		= 1
--- 							ddl_MSea.selection 		= 2
--- 							ddl_oAtr.selection		= 1
--- 							chk_preHier.checked 	= false
--- 							spn_filScale.value 		= 1
--- 							chk_BakeXform.checked	= true
--- 							chk_fileUnits.checked	= false
--- 							chk_fileScale.checked 	= true
--- 							chk_SortHier.checked	= true
--- 							chk_KeepQads.checked	= false
--- 							chk_SwapChn.checked		= false
--- 							ddl_procTyp.selection 	= 1
--- 							edt_categFolder.text	= "None"
--- 							edt_scategFolder.text	= "None"
--- 							edt_classFolder.text 	= "None"
--- 							
--- 								
+							--SaveObjectSettings()
+						) 
+						catch
+						(  
+							print "Brand New Object Detected - Applying Default Settings"
+							
+							chk_preHier.checked		= true
+							chk_IsPrefab.checked 	= false
+							ddl_Tags.selection 		= 1
+							ddl_Lyrs.selection 		= 1
+							ddl_ObjT.selection		= 1
+							ddl_MshComp.selection	= 2
+							chk_Cols.checked		= false
+							chk_Lmaps.checked 		= false
+							chk_Amin.checked 		= false
+							chk_Blnd.checked 		= false
+							chk_Cams.checked 		= false
+							chk_Lght.checked 		= false
+							chk_Visi.checked 		= false
+							ddl_Nmls.selection 		= 1
+							ddl_MCM.selection 		= 2
+							ddl_MLoc.selection 		= 2
+							ddl_MNam.selection		= 1
+							ddl_MSea.selection 		= 2
+							ddl_oAtr.selection		= 1
+							chk_preHier.checked 	= false
+							spn_filScale.value 		= 1
+							chk_BakeXform.checked	= true
+							chk_fileUnits.checked	= false
+							chk_fileScale.checked 	= true
+							chk_SortHier.checked	= true
+							chk_KeepQads.checked	= false
+							chk_SwapChn.checked		= false
+							ddl_procTyp.selection 	= 1
+							edt_categFolder.text	= "None"
+							edt_scategFolder.text	= "None"
+							edt_classFolder.text 	= "None"
+							ddl_ObjC.selection		= 1
+								
 							--Save Settings Applied
-							SaveObjectSettings()
--- 								
--- 						)
+							--SaveObjectSettings()
+								
+						)
 							
 					)
 					

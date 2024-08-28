@@ -6,8 +6,7 @@
 	
 	global mainFPFolder = substituteString launcherFolder "\\FlowPanels\\_base" ""
 	global flowIns
-	
-	
+			
 			
 		
 	--load unity layers xml file

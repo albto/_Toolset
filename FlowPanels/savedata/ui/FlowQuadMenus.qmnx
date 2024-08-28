@@ -290,4 +290,6 @@
     <CreateMenuAction MenuId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" Id="e77a434e-db3e-4d30-af1a-f8966b781354" ActionId="5-6030" BeforeId="e985cc85-d27d-4b80-81f9-69c8924ea8f8"/>
     <CreateMenuAction MenuId="f1af2d63-86f8-4f38-bb9e-e5a371a3f863" Id="c387b121-d327-493a-9dd7-4ad304616490" ActionId="647394-RenameObjects`Tools" BeforeId="e985cc85-d27d-4b80-81f9-69c8924ea8f8"/>
     <DeleteItem Id="e77a434e-db3e-4d30-af1a-f8966b781354"/>
+    <CreateMenuAction MenuId="d92ecdbf-c094-45eb-819e-137971cbf98b" Id="4b2c8b46-9187-48a5-82d2-75fc3508a445" ActionId="2077580866-40066" BeforeId="c35e98bb-419a-4e48-9a65-4e5d80a5c827"/>
+    <CreateMenuSeparator MenuId="d92ecdbf-c094-45eb-819e-137971cbf98b" Id="ecf99867-dea9-4dab-b76a-374ae5e00c0b" BeforeId="c35e98bb-419a-4e48-9a65-4e5d80a5c827"/>
 </MaxQuadMenuTransformations>

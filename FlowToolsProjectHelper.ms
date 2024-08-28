@@ -6,6 +6,10 @@ Try(cui.UnregisterDialogBar flowProjectHelper)catch()
 try(destroydialog flowProjectHelper)catch()
 
 global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str	
+global scnTypeFolder = "\scenes\Areas\\"
+
+global unityProjectLocations = #("D:\\Projects\\Project3D\\Assets\\Art\\Geometry") 
+
 global curProjectFolder = ""
 global curCategoryFolder = ""
 global curLevelFolder = ""
@@ -36,13 +40,19 @@ Rollout flowProjectHelper "Project Manager"
 	--create an empty select category				
 	local selCat = 1
 	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile align:#center gamma:1.0 
-		
+	local editorMode = #("Project Mode", "Export Mode", "Import Mode", "Unity Export Mode")	
+
+
+
 		
 	--subRollout sub_roll_a "" 
 		
 	Group "Current Project"
 	(
-		dropdownlist ddl_proj "" 				items:#()
+		dropdownlist ddl_proj "" 										items:#()
+		dropdownList	ddl_viewerMode 	""								width:125	height:15	items:editorMode	selection:4		across:3
+		checkbutton 	chk_geoExport	"Geom Folder"				checked:true offset:[5,0]
+		checkbutton 	chk_aniExport	"Anim Folder"				offset:[-25,0]
 		
 	)
 	Group "Project Helper"
@@ -75,15 +85,16 @@ Rollout flowProjectHelper "Project Manager"
 		
 	Group "Directory Viewer"
 	(		
-		dropdownList ddl_folder "Categories" 						across:2
-		dropdownList ddl_subfol "Levels" 			
+		dropdownList ddl_folder "Categories" 													across:3
+		dropdownList ddl_subfol "Sub-Categories" 			
+		dropdownList ddl_clafol "Classification" 
 		button btn_opn_cat "Open Categories"			width:125	height:15	offset:[15,0]	across:4	
 		button btn_cat_del "Del"						width:25	height:15	offset:[25,0]
-		button btn_opn_lvl "Open Level"					width:125	height:15	offset:[30,0]
+		button btn_opn_lvl "Open Sub-Categories"					width:125	height:15	offset:[30,0]
 		button btn_lvl_del "Del"						width:25	height:15	offset:[25,0]
-		listbox lst_areas "Areas List - "	
-		button btn_iso_lvl "Isolate Selected"	width:100	height:25	offset:[-30,0] across:2
-		button btn_new_win "Delete Selected"	width:100	height:25	offset:[-80,0]
+		listbox lst_areas "Content List - "	
+		button btn_iso_lvl "Isolate Selected"			width:100	height:25	offset:[-30,0]	across:2
+		button btn_new_win "Delete Selected"			width:100	height:25	offset:[-80,0]
 	)
 		
 	Group "Viewer Filters"
@@ -206,36 +217,74 @@ Rollout flowProjectHelper "Project Manager"
 	--Reload sub folders list
 	fn GetProjectLevels = 
 	(
-			
-		curProjectFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
-			
-		levels = getFiles((curProjectFolder as string + "\\*.max"))
-			
-		for i = 1 to levels.count do 
+
+		if ddl_viewerMode.selection == 1 then 
 		(
-			
-			print (filenameFromPath levels[i])
-			if filenameFromPath levels[i] == "scenes.max" then
-			(
-				deleteItem levels i 
+				
+			curProjectFolder =  getFilenamePath ddl_proj.items[ddl_proj.selection]
+				
+			levels = getFiles((curProjectFolder as string + "\\*.max"))
+				
+			for i = 1 to levels.count do 
+			(					
+				print (filenameFromPath levels[i])
+				if filenameFromPath levels[i] == "scenes.max" then
+				(
+					deleteItem levels i 
+				)
 			)
-		)		
+		)
+		else(
+				
+			curProjectFolder =  (getFilenamePath scnTypeFolder)
+				
+			if chk_geoExport.checked then
+			(
+				scnTypeFolder = (curProjectFolder+"Geometry")
+			)
+			else if chk_aniExport.checked then 
+			(
+				scnTypeFolder = (curProjectFolder+"Animations")
+			)
+				
+			print ("NOTES -- "+curProjectFolder as string)
+				
+				
+			levels = getFiles((curProjectFolder as string + "\\*.fbx"))
+				
+		)
+				
 			
 		newArr = #()
 		newLevels = #()
 		cleanArr = #()
 			
-		--create directories array 
-		dir_array = GetDirectories (curProjectFolder +"\scenes\Areas\\*")
-			
+		if ddl_viewerMode.selection == 1 then 
+		(
+			--create directories array 
+			dir_array = GetDirectories (curProjectFolder as string + scnTypeFolder as string+"*") 
+		)
+		else(
+			--create directories array 
+			dir_array = GetDirectories (scnTypeFolder as string+"*")
+			print ("DIR ARRAY ------- "+dir_array as string )
+		)
+		
 		for d in dir_array do
 		(
 			join dir_array (GetDirectories (d+"\\*"))
 			
 		)
 			
-		--pass the sub folders to drop downlist 
-		folders_array = GetDirectories (curProjectFolder +"\scenes\Areas\\*")
+		if ddl_viewerMode.selection == 1 then 
+		(
+			--pass the sub folders to drop downlist 
+			folders_array = GetDirectories (curProjectFolder as string + scnTypeFolder as string + "*")
+		)
+		else(
+			--pass the sub folders to drop downlist 
+			folders_array = GetDirectories (scnTypeFolder as string + "*")
+		)
 			
 		--loop through categories and create the list 
 		for i = 1 to folders_array.count do 
@@ -246,9 +295,17 @@ Rollout flowProjectHelper "Project Manager"
 			newArr[i] = str
 			
 		)		
-			
-		--clean string to display as folder//category 
-		newArr[1] = "Show All"
+					
+		if ddl_viewerMode.selection == 1  then 
+		(
+			--clean string to display as folder//category 
+			newArr[1] = "Show All"
+		)
+		else(
+			newArr[1] = "Show All"
+			newArr[2] = "Geometry"
+		)
+		
 			
 		ddl_folder.items = newArr
 			
@@ -256,21 +313,42 @@ Rollout flowProjectHelper "Project Manager"
 		--Folder filter
 		if ddl_folder.selection == 1 then 
 		(
-				
-			for f in dir_array do
+			
+			if ddl_viewerMode.selection == 1  then 
 			(
-				join newLevels (getFiles (f+ "\\*.max"))
-				ddl_subfol.items = #("Levels List")
-				ddl_subfol.selection = 1
-				ddl_subfol.enabled = false
+				
+				for f in dir_array do
+				(
+					join newLevels (getFiles (f+ "\\*.max"))
+					ddl_subfol.items = #("Show All")
+					ddl_subfol.selection = 1
+					ddl_subfol.enabled = false
+						
+					--toggle dir button 
+					OpenLevelDirectory false
 					
-				--toggle dir button 
-				OpenLevelDirectory false
+				)
 				
 			)
+			else 
+			(
+				for f in dir_array do
+				(
+					join newLevels (getFiles (f+ "\\*.fbx"))
+					ddl_subfol.items = #("Show All")
+					ddl_subfol.selection = 1
+					ddl_subfol.enabled = False
+						
+					--toggle dir button 
+					OpenLevelDirectory false
+					
+				)
+			)
+			
+			
 			
 		)			
-		else if ddl_folder.selection != 0 then 
+		else --if ddl_folder.selection != 1 then 
 		(
 			
 			--toggle state 
@@ -283,7 +361,7 @@ Rollout flowProjectHelper "Project Manager"
 			clean_fold_arr = #()
 				
 			--create new sub folder array 
-			clean_sfol_array = #()
+			clean_sfol_array = #("All")
 				
 				
 			if ddl_subfol.selection == 1 then
@@ -302,10 +380,23 @@ Rollout flowProjectHelper "Project Manager"
 						
 				)
 					
-				--Set Sub folders
-				folders_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
-					
-				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\\*"))
+				if ddl_viewerMode.selection == 1 then 
+				(
+					--Set Sub folders
+					folders_array = (GetDirectories (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] as string))
+						
+					subsfol_array = (GetDirectories (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] as string+"\\*"))
+						
+				)
+				else
+				(
+					--Set Sub folders
+					folders_array = (GetDirectories (scnTypeFolder as string))
+						
+					print folders_array 
+					subsfol_array = (GetDirectories (scnTypeFolder +"\\*"))
+					print subsfol_array 	
+				)
 					
 				for t in subsfol_array do 
 				(
@@ -340,7 +431,13 @@ Rollout flowProjectHelper "Project Manager"
 				--find all max files in sub folders
 				for l in folders_array do 
 				(
-					join newLevels (getFiles (l+ "\\*.max"))
+					if ddl_viewerMode.selection == 1 then 
+					(
+						join newLevels (getFiles (l+ "\\*.max"))
+					)
+					else(
+						join newLevels (getFiles (l+ "\\*.fbx"))
+					)
 				)
 			)
 			else(
@@ -356,12 +453,26 @@ Rollout flowProjectHelper "Project Manager"
 					appendIfUnique clean_fold_arr str as string 
 						
 				)
-					
-				--Set Sub folders
-				folders_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string))
-					
-				subsfol_array = (GetDirectories (curProjectFolder + "\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string+"\*" ))
-					
+				
+				if ddl_viewerMode.selection == 1 then 
+				(
+					--Set Sub folders
+					folders_array = (GetDirectories (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] as string))
+						
+					subsfol_array = (GetDirectories (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] as string+"\\*"))
+						
+				)
+				else
+				(
+					--Set Sub folders
+					folders_array = (GetDirectories (scnTypeFolder))
+						
+					subsfol_array = (GetDirectories (scnTypeFolder +"\\*"))
+						
+					print folders_array 
+					print subsfol_array 
+				)
+
 				for t in subsfol_array do 
 				(
 					join subsfol_array (GetDirectories (t+"\\"))
@@ -385,8 +496,14 @@ Rollout flowProjectHelper "Project Manager"
 					--pass sub folder names to the list 
 					ddl_subfol.items = clean_sfol_array
 					
-					subsfol_array = (GetDirectories (curProjectFolder + "\\scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection] as string))
-					
+					if ddl_viewerMode.selection == 1 then 
+					(
+						subsfol_array = (GetDirectories (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] as string + "\\" + clean_sfol_array[ddl_subfol.selection] as string))
+					)
+					else(
+						subsfol_array = (GetDirectories (scnTypeFolder + "\\" + clean_sfol_array[ddl_subfol.selection] as string))	
+					)				
+						
 					if subsfol_array.count >= 1 then 
 					(
 						--grab all sub folders 
@@ -399,24 +516,32 @@ Rollout flowProjectHelper "Project Manager"
 						--find all max files in sub folders
 						for l in subsfol_array do 
 						(
-							join newLevels (getFiles (l + "\\*.max"))
+							if ddl_viewerMode.selection == 1 then 
+							(
+								join newLevels (getFiles (l+ "\\*.max"))
+							)
+							else(
+								join newLevels (getFiles (l+ "\\*.fbx"))
+							)
 						)
 						
 					)
 				)
 				else( )
+				
+				
 			)					
 		)
-		else
-		(
-			ddl_subfol.items = #("Levels List")
-			ddl_subfol.selection = 1
-			ddl_subfol.enabled = false
-				
-			--toggle dir button 
-			OpenLevelDirectory false
-			
-		)
+-- 		else
+-- 		(
+-- 			ddl_subfol.items = #("Show All")
+-- 			ddl_subfol.selection = 1
+-- 			ddl_subfol.enabled = false
+-- 				
+-- 			--toggle dir button 
+-- 			OpenLevelDirectory false
+-- 			
+-- 		)
 			
 		for i in newLevels do 
 		(	
@@ -543,9 +668,8 @@ Rollout flowProjectHelper "Project Manager"
 		)	
 		
 	)	
+			
 		
-	
-	
 	fn CreateAssetDirectory newloc = 
 	(				
 		--create prop directory 
@@ -600,6 +724,18 @@ Rollout flowProjectHelper "Project Manager"
 			else ( edt_dir_name.text = "...")
 		)
 		else (edt_dir_name.enabled = true )
+		
+		
+		--flip folders 
+		if chk_geoExport.checked then
+		(
+			chk_aniExport.checked = false
+		)
+		else(
+			chk_aniExport.checked = true 			
+		)
+		
+		
 		
 		
 	)
@@ -877,6 +1013,61 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)
 		
+	on ddl_viewerMode selected i do 
+	(
+		
+		
+		case ddl_viewerMode.selection of 
+		(
+			1:(--project mode 
+				print (ddl_viewerMode.items[i] ) 
+				ddl_proj.enabled = true
+				scnTypeFolder = "\scenes\Areas\\"
+					
+				chk_geoExport.enabled = false 
+				chk_aniExport.enabled = false 
+			
+				--get Project levels and filter types 
+				GetProjectLevels()
+					
+				--reload pref button status 
+				CheckIfReferenceExists()
+			)
+			2:(--export mode 
+				print (ddl_viewerMode.items[i] )
+				ddl_proj.enabled = false
+			)
+			3:(--import mode 
+				print (ddl_viewerMode.items[i] )
+				ddl_proj.enabled = false
+			)
+			4:(--unity project mode 
+				print (ddl_viewerMode.items[i] )
+				ddl_proj.enabled = false
+				--ddl_subfol.enabled = true
+				scnTypeFolder = unityProjectLocations[1]
+					
+				chk_geoExport.enabled = true 
+				chk_aniExport.enabled = true 
+					
+				--get Project levels and filter types 
+				GetProjectLevels()
+					
+				--reload pref button status 
+				CheckIfReferenceExists()
+			)
+			default:(
+				--get Project levels and filter types 
+				GetProjectLevels()
+					
+				--reload pref button status 
+				CheckIfReferenceExists()
+			)
+		)
+		
+		
+	)	
+		
 	--sub-folders list 
 	on ddl_subfol selected i do
 	(
@@ -938,10 +1129,10 @@ Rollout flowProjectHelper "Project Manager"
 	(
 		areaname = edt_dir_name.text		
 		
-		makeDir (curProjectFolder+ "scenes\Areas\\" + areaname as string)
+		makeDir (curProjectFolder+ scnTypeFolder + areaname as string)
 		
 		areaname = edt_dir_name.text			
-		catDir = curProjectFolder+ "scenes\Areas\\" + areaname as string 
+		catDir = curProjectFolder+ scnTypeFolder + areaname as string 
 		
 		makeDir (catDir)
 			
@@ -969,7 +1160,7 @@ Rollout flowProjectHelper "Project Manager"
 					
 				--create 'type' folder
 				dirname = (clean_sfol_array[ddl_subfol.selection] + "\\models\\" + areatag[rad_are_type.state] as string)
-				makeDir (curProjectFolder+ "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + dirname as string)
+				makeDir (curProjectFolder+ scnTypeFolder + clean_fold_arr[ddl_folder.selection] + "\\" + dirname as string)
 				
 			)
 		)
@@ -982,7 +1173,7 @@ Rollout flowProjectHelper "Project Manager"
 		)
 			
 		areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
-		loc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + areatag[rad_are_type.state] + "\\" + areaname as string + ".max") 
+		loc = (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + "models\\" + areatag[rad_are_type.state] + "\\" + areaname as string + ".max") 
 			
 			--print areaname
 		--print loc
@@ -1010,7 +1201,7 @@ Rollout flowProjectHelper "Project Manager"
 	(
 		--create new level directory
 		areaname = edt_dir_name.text
-		makeDir (curProjectFolder + "scenes\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
+		makeDir (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] + "\\" + areaname as string)
 			
 		--Reload Projects List
 		ReloadProjectList()
@@ -1044,7 +1235,7 @@ Rollout flowProjectHelper "Project Manager"
 				
 			areaname = (edt_dir_name.text)
 				
-			newloc = (curProjectFolder + "scenes\\Areas\\" + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + areaname as string) 
+			newloc = (curProjectFolder + scnTypeFolder + clean_fold_arr[ddl_folder.selection] + "\\" + clean_sfol_array[ddl_subfol.selection] + "\\" + areaname as string) 
 				
 			areaname = (edt_dir_name.text + areatag[rad_are_type.state] as string + tagname as string )
 				
@@ -1129,20 +1320,30 @@ Rollout flowProjectHelper "Project Manager"
 	--open category's directory in windows 
 	on btn_opn_cat pressed do 
 	(
-		--Get the category's directory 
-		catDir = ""
-		dirname = (clean_fold_arr[ddl_folder.selection] as string)		
-		if ddl_folder.selection == 1 then 
+		
+		if ddl_viewerMode.selection == 1 then 
 		(
-			catDir = (GetDirectories (curProjectFolder + "\\scenes\\Areas"))
+			--Get the category's directory 
+			catDir = ""
+			dirname = (clean_fold_arr[ddl_folder.selection] as string)		
+			if ddl_folder.selection == 1 then 
+			(
+				catDir = (GetDirectories (curProjectFolder + scnTypeFolder))
+			)
+			else
+			(
+				catDir = (GetDirectories (curProjectFolder + scnTypeFolder + dirname))
+			)
+			print (catDir) 
 		)
 		else
 		(
-			catDir = (GetDirectories (curProjectFolder + "\\scenes\\Areas\\" + dirname))
-		)
-		print (catDir) 
-			
-		ShellLaunch "explorer.exe" (catDir[1] as string ) 
+			--Get the category's directory 
+			catDir = GetDirectories (unityProjectLocations[1] as string)
+			print unityProjectLocations[1] as string
+			ShellLaunch "explorer.exe" (catDir[1] as string ) 
+		)	
+		
 			
 			
 	) 
@@ -1165,7 +1366,7 @@ Rollout flowProjectHelper "Project Manager"
 					(
 						delDir = dotNetClass "system.IO.directory"
 						dirname = (clean_fold_arr[ddl_folder.selection] as string)		
-						dirSel = (curProjectFolder + "\scenes\Areas\\" + dirname)  
+						dirSel = (curProjectFolder + scnTypeFolder + dirname)  
 						
 						delDir.delete (dirSel) true
 							
@@ -1668,7 +1869,7 @@ Rollout flowProjectHelper "Project Manager"
 )	
 
 
-CreateDialog flowProjectHelper width:360 height:840 style:#(#style_titlebar,  #style_border, #style_sysmenu, #style_resizing, #style_minimizebox, #style_maximizebox, #style_sunkenedge) autoLayoutOnResize:true 
+CreateDialog flowProjectHelper width:360 height:860 style:#(#style_titlebar,  #style_border, #style_sysmenu, #style_resizing, #style_minimizebox, #style_maximizebox, #style_sunkenedge) autoLayoutOnResize:true 
 	
 -- addRollout  flowProjectToolsRO fPH
 
