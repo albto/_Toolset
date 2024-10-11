@@ -690,14 +690,12 @@ toolTip:"Add Unity Attributes"
 			)
 			
 	)
-
-	
+			
 	on execute do 
 	(
 		AddUnityAttribute()
 	)
-			
-
+		
 )
 
 

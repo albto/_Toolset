@@ -9,16 +9,7 @@
 		--CreateDialog uiPan 
 	global theNewFloater = newRolloutFloater "Flow Attributes Scene Helper" 460 880
 	
-		--WAM SYSTEM EDITOR PARAMETERS
-	global srl_Stats
 
-	--Attributes System - Global Strings
-	global  FlowAttributes 	 = "FlowAttributes"
-	
-	global 	FlowAddAtt      = "IBGUnityAttributesAdd" 
-	global 	FlowRmvAtt 		= "IBGUnityAttributesDelete"
-	
-		
 	-----------------------------------------------------------------------------------------------------------------------------------------
 	-- 
 	-----------------------------------------------------------------------------------------------------------------------------------------
@@ -40,17 +31,7 @@
 	colorDict = Dictionary #(#Character, color 125 89 23) #(#Exteriors, color 6 61 135) #(#Interior, color 135 59 8) #(#Light, color 28 149 177) #(#Prop, color 176 26 26) #(#Structure, color 225 88 199) #(#Terrain, color 148 177 27) #(#Vehicle, color 8 8 136)#(#VertexAnim, color 85 28 177)#(#Weapons, color 227 153 153)                      
 		
 	clrARR = #(#Character)
-		
-	global LayersList = #()
-	global TagsList = #()
-	global AttrList = #()
-	global TypeList = #()
-	global CompList = #()
-		
-	global ObjectTypes = #()		
-	global ObjectAttributes = #()
-	global ObjectComponents = #()
-		
+
 		
 	--write to file
 	fps = #()
@@ -142,31 +123,10 @@
 			
 		------------------------------------------------------------------------------------------------
 		--load and distribute xml data to types dropdownList
-		fn LoadTypesDataFromXml root = 
+		fn GetTypesFromXmlData root = 
 		(
-			TypeList = #()
-			childNodes=root.childNodes
-				
-			for i = 0 to childNodes.Count-1 do 
-			(
-				ele = childNodes.ItemOf[i]
-				eleName = ele.getAttribute "name"
-					
-				if eleName == "Types" then
-				(
-					eleChildren = ele.childNodes
-						
-					for i = 0 to eleChildren.count-1 do 
-					(
-						child = eleChildren.ItemOf[i]
-						
-						--print (child.getAttribute "name")
-						TypeList[i+1] = (child.getAttribute "name")
-					)
-				)
-					
-			)
-				
+			--global function 
+			LoadTypesDataFromXml root
 			--pass data
 			ddl_filObj.items = TypeList
 			ddl_iniTyp.items = TypeList
@@ -175,30 +135,10 @@
 			
 		------------------------------------------------------------------------------------------------
 		--load and distribute xml data to types dropdownList
-		fn LoadComponentsDataFromXml root = 
+		fn GetComponentsFromXmlData root = 
 		(
-			CompList = #()
-			childNodes=root.childNodes
-				
-			for i = 0 to childNodes.Count-1 do 
-			(
-				ele = childNodes.ItemOf[i]
-				eleName = ele.getAttribute "name"
-					
-				if eleName == "Components" then
-				(
-					eleChildren = ele.childNodes
-						
-					for i = 0 to eleChildren.count-1 do 
-					(
-						child = eleChildren.ItemOf[i]
-						
-						--print (child.getAttribute "name")
-						CompList[i+1] = (child.getAttribute "name")
-					)
-				)
-					
-			)
+			--global function 
+			LoadComponentsDataFromXml root
 				
 			--pass data
 			ObjectComponents = CompList
@@ -208,30 +148,10 @@
 		-- location = @""
 		------------------------------------------------------------------------------------------------
 		--load and distribute xml data to tags dropdownList
-		fn LoadTagDataFromXml root = 
+		fn GetTagsFromXmlData root = 
 		(
-			TagsList = #()
-			childNodes=root.childNodes
-				
-			for i = 0 to childNodes.Count-1 do 
-			(
-				ele = childNodes.ItemOf[i]
-				eleName = ele.getAttribute "name"
-					
-				if eleName == "Tags" then
-				(
-					eleChildren = ele.childNodes
-						
-					for i = 0 to eleChildren.count-1 do 
-					(
-						child = eleChildren.ItemOf[i]
-						
-						--print (child.getAttribute "name")
-						TagsList[i+1] = (child.getAttribute "name")
-					)
-				)
-					
-			)
+			--global function 
+			LoadTagDataFromXml root
 				
 			--pass data
 			ddl_filTag.items = TagsList
@@ -241,30 +161,10 @@
 			
 		------------------------------------------------------------------------------------------------		
 		--load and distribute xml data to layers dropdownList
-		fn LoadLayerDataFromXml root = 
+		fn GetLayersFromXmlData root = 
 		(
-			LayersList = #()
-			childNodes=root.childNodes
-				
-			for i = 0 to childNodes.Count-1 do 
-			(
-				ele = childNodes.ItemOf[i]
-				eleName = ele.getAttribute "name"
-					
-				if eleName == "Layers" then
-				(
-					eleChildren = ele.childNodes
-						
-					for i = 0 to eleChildren.count-1 do 
-					(
-						child = eleChildren.ItemOf[i]
-						
-						--print (child.getAttribute "name")
-						LayersList[i+1] = (child.getAttribute "name")
-					)
-				)
-					
-			)
+			--global function 
+			LoadLayerDataFromXml root
 				
 			--pass data
 			ddl_filLay.items = LayersList
@@ -275,30 +175,10 @@
 			
 		------------------------------------------------------------------------------------------------	
 		--load and distribute xml data to attributes dropdownList
-		fn LoadAttributeDataFromXml root = 
+		fn GetAttributesFromXmlData root = 
 		(
-			AttrList = #()
-			childNodes=root.childNodes
-				
-			for i = 0 to childNodes.Count-1 do 
-			(
-				ele = childNodes.ItemOf[i]
-				eleName = ele.getAttribute "name"
-					
-				if eleName == "Attributes" then
-				(
-					eleChildren = ele.childNodes
-						
-					for i = 0 to eleChildren.count-1 do 
-					(
-						child = eleChildren.ItemOf[i]
-						
-						--print (child.getAttribute "name")
-						AttrList[i+1] = (child.getAttribute "name")
-					)
-				)
-					
-			)
+			--global function 
+			LoadAttributeDataFromXml root
 				
 			--pass data
 			ddl_filAtt.items = AttrList
@@ -313,19 +193,19 @@
 			flowIns.LoadXml()
 			
 			--Load layers data 
-			LoadLayerDataFromXml flowIns.xmlDoc.DocumentElement name:"Layers"
+			GetLayersFromXmlData flowIns.xmlDoc.DocumentElement name:"Layers"
 				
 			--Load tags data 
-			LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
+			GetTagsFromXmlData flowIns.xmlDoc.DocumentElement name:"Tags"
 				
 			--Load attributes data 
-			LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
+			GetAttributesFromXmlData flowIns.xmlDoc.DocumentElement name:"Attributes"
 				
 			--Load types data 
-			LoadTypesDataFromXml flowIns.xmlDoc.DocumentElement name:"Types"
+			GetTypesFromXmlData flowIns.xmlDoc.DocumentElement name:"Types"
 				
 			--Load components data 
-			LoadComponentsDataFromXml flowIns.xmlDoc.DocumentElement name:"Components"
+			GetComponentsFromXmlData flowIns.xmlDoc.DocumentElement name:"Components"
 			
 			--print ("Layers List - " + LayersList as string)
 			--print ("Tags List - " + TagsList as string)
@@ -1654,37 +1534,35 @@
 
 	--add rollouts
 	addRollout uiPan theNewFloater
-	
+		
+
+	-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	-------------------------------------------------------------------------------------------------------------------------------------------------
+
+			
+			
+		--callbacks
+		callbacks.removeScripts id:#flowCallbacks
+			
+		callbacks.addScript #filePostOpenProcess "srl_Stats.RefreshAttributeObjectsList()" id:#flowCallbacks
+					
+		--callbacks
+		callbacks.removeScripts id:#flowAttCallbacks
+			
+		--callbacks.addScript #postModifierAdded "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks	
+			
+		--callbacks.addScript #preModifierAdded "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks
+		
+		callbacks.addScript #modPanelObjPostChange "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks
+
+
+
+
+	-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 	--AddRollout srl_Stats theNewFloater
 -- 	RemoveRollout srl_Stats theNewFloater
-	
-	
-	
-
--------------------------------------------------------------------------------------------------------------------------------------------------
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------
-
-		
-		
-	--callbacks
-	callbacks.removeScripts id:#flowCallbacks
-		
-	callbacks.addScript #filePostOpenProcess "srl_Stats.RefreshAttributeObjectsList()" id:#flowCallbacks
-				
-	--callbacks
-	callbacks.removeScripts id:#flowAttCallbacks
-		
-	--callbacks.addScript #postModifierAdded "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks	
-		
-	--callbacks.addScript #preModifierAdded "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks
-	
-	callbacks.addScript #modPanelObjPostChange "srl_Stats.RefreshAttributeObjectsList()" id:#flowAttCallbacks
-
-
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------
-
 

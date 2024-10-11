@@ -3,17 +3,41 @@
 		
 	----------------------------------------------------------------------------------------------------------------------------------
 -- 	global str = getThisScriptFilename()
-
--- 		
--- 		
--- 	global launcherFolder = getfilenamepath str  
--- 	
+	global mainFPFolder = getThisScriptFilename()		
+		
+	global launcherFolder = getfilenamepath mainFPFolder  
+	
+	global mainFPFolder = substituteString launcherFolder "\\FlowPanels\\_base" ""
+	global flowIns
+			
+		
  	global toolFolder = mainFPFolder--substituteString launcherFolder "\FlowPanels\_base" ""
  	global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str
 		
 	global strMyFolder = ""
 	
+	----------------------------------------------------------------------------------------------------------------------------------
+	
+		--WAM SYSTEM EDITOR PARAMETERS
+	global srl_Stats
 
+	--Attributes System - Global Strings
+	global  FlowAttributes 	 = "FlowAttributes"
+	
+	global 	FlowAddAtt      = "IBGUnityAttributesAdd" 
+	global 	FlowRmvAtt 		= "IBGUnityAttributesDelete"
+	
+			
+	global LayersList = #()
+	global TagsList = #()
+	global AttrList = #()
+	global TypeList = #()
+	global CompList = #()
+		
+	global ObjectTypes = #()		
+	global ObjectAttributes = #()
+	global ObjectComponents = #()
+			
 
 	----------------------------------------------------------------------------------------------------------------------------------
 		
@@ -26,6 +50,8 @@
 	(
 		ld = openfile (mainFPFolder + "\FlowPanels\savedata\LauncherData.fp") 
 		launcherData = execute (readLine ld)
+		
+		
 		close ld
 		print (	 "Launcher Data - " + launcherdata as string)
 	)		
@@ -509,7 +535,8 @@ fn LoadLauncherDataFromXml root =
 ------------------------------------------------------------------------------------------------
 --IMPORT XML AND LOAD DATA  
 ------------------------------------------------------------------------------------------------		
-	
+
+GLOBAL ImportFlowSavedData
 fn ImportFlowSavedData = 
 (
 		
@@ -564,5 +591,208 @@ ImportFlowSavedData()
 
 
 
-
+------------------------------------------------------------------------------------------------
 	
+------------------------------------------------------------------------------------------------
+-- Gather Data from XML file -- Unity Data Hook-up 
+------------------------------------------------------------------------------------------------
+	
+------------------------------------------------------------------------------------------------
+--load and distribute xml data to types dropdownList
+
+Global LoadTypesDataFromXml 
+fn LoadTypesDataFromXml root = 
+(
+	TypeList = #()
+	childNodes=root.childNodes
+		
+	for i = 0 to childNodes.Count-1 do 
+	(
+		ele = childNodes.ItemOf[i]
+		eleName = ele.getAttribute "name"
+			
+		if eleName == "Types" then
+		(
+			eleChildren = ele.childNodes
+				
+			for i = 0 to eleChildren.count-1 do 
+			(
+				child = eleChildren.ItemOf[i]
+				
+				--print (child.getAttribute "name")
+				TypeList[i+1] = (child.getAttribute "name")
+			)
+		)
+			
+	)
+
+)
+	
+------------------------------------------------------------------------------------------------
+--load and distribute xml data to types dropdownList
+Global LoadComponentsDataFromXml 
+fn LoadComponentsDataFromXml root = 
+(
+	CompList = #()
+	childNodes=root.childNodes
+		
+	for i = 0 to childNodes.Count-1 do 
+	(
+		ele = childNodes.ItemOf[i]
+		eleName = ele.getAttribute "name"
+			
+		if eleName == "Components" then
+		(
+			eleChildren = ele.childNodes
+				
+			for i = 0 to eleChildren.count-1 do 
+			(
+				child = eleChildren.ItemOf[i]
+				
+				--print (child.getAttribute "name")
+				CompList[i+1] = (child.getAttribute "name")
+			)
+		)
+			
+	)
+		
+	--pass data
+	ObjectComponents = CompList
+	
+)
+
+-- location = @""
+------------------------------------------------------------------------------------------------
+--load and distribute xml data to tags dropdownList
+Global LoadTagDataFromXml
+fn LoadTagDataFromXml root = 
+(
+	TagsList = #()
+	childNodes=root.childNodes
+		
+	for i = 0 to childNodes.Count-1 do 
+	(
+		ele = childNodes.ItemOf[i]
+		eleName = ele.getAttribute "name"
+			
+		if eleName == "Tags" then
+		(
+			eleChildren = ele.childNodes
+				
+			for i = 0 to eleChildren.count-1 do 
+			(
+				child = eleChildren.ItemOf[i]
+				
+				--print (child.getAttribute "name")
+				TagsList[i+1] = (child.getAttribute "name")
+			)
+		)
+			
+	)
+
+		
+)
+	
+------------------------------------------------------------------------------------------------		
+--load and distribute xml data to layers dropdownList
+Global LoadLayerDataFromXml
+fn LoadLayerDataFromXml root = 
+(
+	LayersList = #()
+	childNodes=root.childNodes
+		
+	for i = 0 to childNodes.Count-1 do 
+	(
+		ele = childNodes.ItemOf[i]
+		eleName = ele.getAttribute "name"
+			
+		if eleName == "Layers" then
+		(
+			eleChildren = ele.childNodes
+				
+			for i = 0 to eleChildren.count-1 do 
+			(
+				child = eleChildren.ItemOf[i]
+				
+				--print (child.getAttribute "name")
+				LayersList[i+1] = (child.getAttribute "name")
+			)
+		)
+			
+	)
+	
+)
+	
+------------------------------------------------------------------------------------------------	
+--load and distribute xml data to attributes dropdownList
+Global LoadAttributeDataFromXml
+fn LoadAttributeDataFromXml root = 
+(
+	AttrList = #()
+	childNodes=root.childNodes
+		
+	for i = 0 to childNodes.Count-1 do 
+	(
+		ele = childNodes.ItemOf[i]
+		eleName = ele.getAttribute "name"
+			
+		if eleName == "Attributes" then
+		(
+			eleChildren = ele.childNodes
+				
+			for i = 0 to eleChildren.count-1 do 
+			(
+				child = eleChildren.ItemOf[i]
+				
+				--print (child.getAttribute "name")
+				AttrList[i+1] = (child.getAttribute "name")
+			)
+		)
+			
+	)
+	
+)
+------------------------------------------------------------------------------------------------
+--import data from the unity xml 
+Global ImportDataFromUnity
+fn ImportDataFromUnity = 
+(
+	--load xml data 
+	flowIns.LoadXml()
+	
+	--Load layers data 
+	LoadLayerDataFromXml flowIns.xmlDoc.DocumentElement name:"Layers"
+		
+	--Load tags data 
+	LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
+		
+	--Load attributes data 
+	LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
+		
+	--Load types data 
+	LoadTypesDataFromXml flowIns.xmlDoc.DocumentElement name:"Types"
+		
+	--Load components data 
+	LoadComponentsDataFromXml flowIns.xmlDoc.DocumentElement name:"Components"
+	
+	--print ("Layers List - " + LayersList as string)
+	--print ("Tags List - " + TagsList as string)
+	--print ("Attributes List - " + AttrList as string)
+		
+)
+	
+--Load prop attributes from selection 
+fn GetUnityPropVal nod = 
+(
+	local str 
+	try 
+	(
+		str = (getUserPropVal nod "Unity Attributes" asString:true)
+	)
+	catch ("FlowError - { Can't Find ::Flow_Attribute_Objects:: }")
+	return str 
+)
+
+
+
+

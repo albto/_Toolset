@@ -45,4 +45,6 @@
     <Unassign_Hotkey Shortcut="Ctrl+Left" Description="Rotate -90" Id="2077580866-40256"/>
     <Assign_Hotkey Shortcut="Shift+4" Description="Geom. Element Select Mode" Id="2077580866-40064"/>
     <Assign_Hotkey Shortcut="Ctrl+Shift+V" Description="UVTools__Open UV Tools UI" Id="647394-UVT_OpenUi`Nik Scripts - UV Tools"/>
+    <Assign_Hotkey Shortcut="Alt+F" Description="Flip Face Normals (Poly)" Id="647394-EPoly_FFlip`Editable Polygon Object"/>
+    <Assign_Hotkey Shortcut="Alt+F" Description="Flip Normals" Id="1250838234-40018"/>
 </MaxHotkeyTransformations>
