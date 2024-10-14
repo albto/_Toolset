@@ -10,7 +10,7 @@
 		<Art_Filter
 			value="false" />
 		<Design_Filter
-			value="false" />
+			value="true" />
 		<Inst_Filter
 			value="false" />
 		<Prop_Filter

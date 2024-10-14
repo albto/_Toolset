@@ -2,13 +2,6 @@
 	global launcherData = #()
 		
 	----------------------------------------------------------------------------------------------------------------------------------
--- 	global str = getThisScriptFilename()
-	global mainFPFolder = getThisScriptFilename()		
-		
-	global launcherFolder = getfilenamepath mainFPFolder  
-	
-	global mainFPFolder = substituteString launcherFolder "\\FlowPanels\\_base" ""
-	global flowIns
 			
 		
  	global toolFolder = mainFPFolder--substituteString launcherFolder "\FlowPanels\_base" ""
@@ -384,7 +377,15 @@ global 	PrimScale 	= set_primScale
 --New Save System -- Create New Xml 
 fn FlowDataStructure =  
 (
-	--Variables 
+	--Variables ---------------------------------------------------------------------------------------------	
+		
+	--declare objects ---------------------------------------	
+	xmlDoc = dotNetObject "system.xml.xmlDocument"
+	xmlWriter = dotNetClass "system.xml.xmlWriter"	
+	xmlSettings = dotNetObject "system.xml.xmlWriterSettings"
+	xmlEncoding = dotNetClass "system.Text.Encoding"
+		
+	--data lists --------------------------------------------
 	LauncherDataNames = #("_root", "currentCategory", "currentLevel", "Art_Filter", "Design_Filter", 
 		"Inst_Filter", "Prop_Filter", "Vehicle_Filter", "Weapon_Filter", "currentSelectedProject", "projectListSelection")
 		
@@ -397,12 +398,6 @@ fn FlowDataStructure =
 		"CreatePanel_Active", "ModelingPanel_Active", "NormalPanel_Active", "PaintingPanel_Active", "SubstancePanel_Active", "ExportPanel_Active", 
 		"ImportPanel_Active", "ViewportPanel_Active", "PrefabPanel_Active", "toolsetSize")	
 		
-		
-	--declare objects 	
-	xmlDoc = dotNetObject "system.xml.xmlDocument"
-	xmlWriter = dotNetClass "system.xml.xmlWriter"	
-	xmlSettings = dotNetObject "system.xml.xmlWriterSettings"
-	xmlEncoding = dotNetClass "system.Text.Encoding"
 		
 	-------------------------------------------------------
 	-- XML WRITER DOC ---------------------------Begin-----	
@@ -502,7 +497,6 @@ fn FlowDataStructure =
 --Create Xml File 
 FlowDataStructure()
 
-
 ------------------------------------------------------------------------------------------------
 --Load data from XML 
 ------------------------------------------------------------------------------------------------
@@ -531,6 +525,7 @@ fn LoadLauncherDataFromXml root =
 		
 )
 
+--function here 
 
 ------------------------------------------------------------------------------------------------
 --IMPORT XML AND LOAD DATA  
@@ -589,6 +584,14 @@ ImportFlowSavedData()
 
 
 
+------------------------------------------------------------------------------------------------------------- 
+------------------------------------------------------------------------------------------ UNITY WAM XML ----
+------------------------------------------------------------------------------------------------------------- 
+
+--load unity layers xml file
+filein ((mainFPFolder + "\\FlowPanels\\_base\\XMLGenerator.ms") as String ) 
+flowIns = flowCore()
+--flowIns.LoadXml()
 
 
 ------------------------------------------------------------------------------------------------
@@ -628,6 +631,7 @@ fn LoadTypesDataFromXml root =
 
 )
 	
+
 ------------------------------------------------------------------------------------------------
 --load and distribute xml data to types dropdownList
 Global LoadComponentsDataFromXml 
@@ -753,7 +757,11 @@ fn LoadAttributeDataFromXml root =
 	
 )
 ------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 --import data from the unity xml 
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+
 Global ImportDataFromUnity
 fn ImportDataFromUnity = 
 (
@@ -780,8 +788,15 @@ fn ImportDataFromUnity =
 	--print ("Attributes List - " + AttrList as string)
 		
 )
-	
+--import global data 
+ImportDataFromUnity()
+
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 --Load prop attributes from selection 
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+
 fn GetUnityPropVal nod = 
 (
 	local str 
@@ -794,5 +809,5 @@ fn GetUnityPropVal nod =
 )
 
 
-
+--
 

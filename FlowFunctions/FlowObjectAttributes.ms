@@ -1,6 +1,5 @@
------------------------------------------------------------------------------------------------------------
-
------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
 
 
 macroScript IBGUnityAttributesDelete
@@ -106,9 +105,8 @@ toolTip:"Unity Attributes Helper"
 )
 
 
-
--------------------------------------------------------------------------------------------------------------------------------------------------
-	
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
 	
 	
 
@@ -308,10 +306,10 @@ toolTip:"Add Unity Attributes"
 					-- Gather Data from XML file -- Unity Data Hook-up 
 					-----------------------------------------------------------------------------------------------------------
 					
-					fn ImportDataFromUnity = 
+					fn GetDataFromUnity = 
 					(
 						
-						srl_Stats.ImportDataFromUnity()
+						ImportDataFromUnity()
 						
 						--print ("OBJATTR   " + AttrList as string)
 						--print ("ATTRLIST   " + AttrList as string)
@@ -350,7 +348,7 @@ toolTip:"Add Unity Attributes"
 					fn SaveObjectSettings =
 					(
 						--load data from unity xml 
-						ImportDataFromUnity()
+						GetDataFromUnity()
 						
 						
 						--Save Settings
@@ -414,7 +412,7 @@ toolTip:"Add Unity Attributes"
 					fn LoadObjectSettings =
 					(
 						--load data from unity xml
-						ImportDataFromUnity()
+						GetDataFromUnity()
 							
 							
 						for i in selection as array do 
@@ -659,7 +657,7 @@ toolTip:"Add Unity Attributes"
 					on btn_updt pressed do
 					(
 						--load data from unity xml 
-						ImportDataFromUnity()
+						GetDataFromUnity()
 							
 						--Save Settings 
 						SaveObjectSettings()
@@ -744,7 +742,13 @@ toolTip:"Clean-Up Attributes Modifier"
 
 
 
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
 
 
 macroScript IBGBakingAttributesAdd
@@ -820,10 +824,10 @@ toolTip:"Add Baking Attributes"
 					-- Gather Data from XML file -- Unity Data Hook-up 
 					-----------------------------------------------------------------------------------------------------------
 					
-					fn ImportDataFromUnity = 
+					fn GetDataFromUnity = 
 					(
 						
-						srl_Stats.ImportDataFromUnity()
+						ImportDataFromUnity()
 						
 						print ("OBJATTR   " + AttrList as string)
 						--print ("ATTRLIST   " + AttrList as string)
@@ -983,7 +987,6 @@ toolTip:"Clear Baking Attributes"
 	
 )
 
-
 macroScript IBGBakingAttributesLPMesh
 category:"BakingAttributes"
 toolTip:"Set as Lowpoly Mesh"
@@ -1005,8 +1008,6 @@ toolTip:"Set as Lowpoly Mesh"
 	)
 	
 )
-
-
 
 macroScript IBGBakingAttributesHPMesh
 category:"BakingAttributes"
@@ -1034,6 +1035,8 @@ toolTip:"Set as Highpoly Mesh"
 
 
 
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
 
 
 
