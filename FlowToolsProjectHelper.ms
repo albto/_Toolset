@@ -107,7 +107,7 @@ Rollout flowProjectHelper "Project Manager"
 			
 		dropdownList 	ddl_folder "Categories" 			offset:[0,20]											across:3
 		dropdownList 	ddl_subfol "Sub-Categories" 		offset:[0,20]		
-		dropdownList 	ddl_clafol "Classification"        	offset:[0,20]	
+		dropdownList 	ddl_clafol "Classification"        	offset:[0,20]	items:#("None")
 		button 			btn_opn_cat "Open Categories"		width:125	height:15	offset:[15,0]	across:4	
 		button 			btn_cat_del "Del"					width:25	height:15	offset:[25,0]
 		button 			btn_opn_lvl "Open Sub-Categories"	width:125	height:15	offset:[30,0]
@@ -153,7 +153,8 @@ Rollout flowProjectHelper "Project Manager"
 		dropdownList ddl_objAttr "Attribute:"				selection:2			items:AttrList		offset:[5, 20]
 		dropdownList ddl_objLayr "Layer:"					selection:1			items:LayersList	offset:[5, 20]
 		
-		dropdownList ddl_objComp "Object Interact:"			selection:1			items:CompList		offset:[5, 00]
+		dropdownList ddl_objInte "Object Interact:"			selection:1			items:CompList		offset:[5, 00]		across:2
+		dropdownList ddl_objComp "Object Component:"		selection:1			items:CompList		offset:[5, 00]		
 		
 		GroupBox grp_attSetr "Attribute Settings"			width:350	height:150	offset:[-8, -110]	
 			
@@ -890,6 +891,17 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)
 	
+	--reset folder dropdowns 
+	fn ResetDirectoryDropdowns = 
+	(
+		--reset folder dropdowns
+		ddl_folder.selection = 1
+		ddl_subfol.selection = 1
+		ddl_clafol.selection = 1
+		
+	)
+	
+	
 	--Viewer Mode Dropdown 
 	fn SetToolsetViewerMode = 
 	(
@@ -899,17 +911,28 @@ Rollout flowProjectHelper "Project Manager"
 			1:
 			(
 					
+				--reset folder dropdowns
+				ResetDirectoryDropdowns()
+					
 				--set directory mode
 				SetDirectoryViewerMode()
 			)
 			2:
 			(
+					
+				--reset folder dropdowns
+				ResetDirectoryDropdowns()
+					
 				--set asset mode 
 				SetAssetViewerMode()
-				
+					
 			)
 			4:
 			(
+					
+				--reset folder dropdowns
+				ResetDirectoryDropdowns()
+					
 				--set directory mode
 				SetDirectoryViewerMode()			
 				
@@ -2122,9 +2145,6 @@ Rollout flowProjectHelper "Project Manager"
 	--on toolset open 
 	on flowProjectHelper open do 
 	(
-		--set toolset viewer mode 
-		SetToolsetViewerMode()
-			
 		--chk_art.state = launcherdata[4]
 		--chk_dsn.state = launcherdata[5]
 		--chk_inst.state = launcherdata[6]
@@ -2211,9 +2231,12 @@ Rollout flowProjectHelper "Project Manager"
 		--get Project levels and filter types 
 		GetProjectLevels()
 			
+		--set toolset viewer mode 
+		SetToolsetViewerMode()
+
 		--reload pref button status 
-		CheckIfReferenceExists()
-			
+		CheckIfReferenceExists()			
+		
 	)
 		
 	on flowProjectHelper resized theSize do
@@ -2224,7 +2247,11 @@ Rollout flowProjectHelper "Project Manager"
 	)
 		
 	on flowProjectHelper close do 
-	(
+	(	
+		--reset folder dropdowns
+		ResetDirectoryDropdowns()
+		
+		
 		callbacks.removeScripts id:#MXSHelp
 		
 		--save 'mainFPFolder' 

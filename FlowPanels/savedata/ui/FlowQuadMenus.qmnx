@@ -292,4 +292,5 @@
     <DeleteItem Id="e77a434e-db3e-4d30-af1a-f8966b781354"/>
     <CreateMenuAction MenuId="d92ecdbf-c094-45eb-819e-137971cbf98b" Id="4b2c8b46-9187-48a5-82d2-75fc3508a445" ActionId="2077580866-40066" BeforeId="c35e98bb-419a-4e48-9a65-4e5d80a5c827"/>
     <CreateMenuSeparator MenuId="d92ecdbf-c094-45eb-819e-137971cbf98b" Id="ecf99867-dea9-4dab-b76a-374ae5e00c0b" BeforeId="c35e98bb-419a-4e48-9a65-4e5d80a5c827"/>
+    <CreateMenuAction MenuId="6d9d357a-3e7c-4751-b0a7-a969bd85e8c2" Id="89cb2f9f-50f2-4fc6-a9d8-e96e2fb2463b" ActionId="647394-WeldAllVerts`FlowFunctions" BeforeId="576f738d-a256-402d-a428-f0c31a05f524"/>
 </MaxQuadMenuTransformations>

@@ -203,6 +203,10 @@
 		--Gets the selected material 
 		fn GetSelectedMaterial = 
 		(
+			if lst_mtlb_mats.selection == undefined then 
+				return false 
+			
+			
 			if lst_mtlb_mats.items.count > 0 then
 			(
 				selectedMat = currentMaterialLibrary [lst_mtlb_mats.selection]

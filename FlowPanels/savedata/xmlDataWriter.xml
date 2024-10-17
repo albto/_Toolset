@@ -4,13 +4,13 @@
 		<_root
 			value="C:\Users\albto\OneDrive\Documents\GitHub\_Toolset" />
 		<currentCategory
-			value="1" />
+			value="5" />
 		<currentLevel
-			value="1" />
+			value="7" />
 		<Art_Filter
 			value="false" />
 		<Design_Filter
-			value="true" />
+			value="false" />
 		<Inst_Filter
 			value="false" />
 		<Prop_Filter
@@ -35,9 +35,9 @@
 		<rolledUpOnStart
 			value="true" />
 		<toolsetClosePos
-			value="[334,108]" />
+			value="[41,90]" />
 		<OrganizePanel_Active
-			value="false" />
+			value="true" />
 		<CreatePanel_Active
 			value="true" />
 		<ModelingPanel_Active
@@ -45,9 +45,9 @@
 		<NormalPanel_Active
 			value="true" />
 		<PaintingPanel_Active
-			value="true" />
+			value="false" />
 		<SubstancePanel_Active
-			value="true" />
+			value="false" />
 		<ExportPanel_Active
 			value="true" />
 		<ImportPanel_Active
@@ -86,13 +86,13 @@
 		<lastImportSelection
 			value="D:/Projects/Project3D/Assets/Art/Geometry/Prop/Fixtures/Lighting/Lantern/prp_traditional_lantern_01" />
 		<importList
-			value="#(&quot;D:/Projects/Project3D/Assets/Art/Geometry/Prop/Fixtures/Lighting/Lantern/prp_traditional_lantern_01/prp_traditional_lantern_01.fbx&quot;)" />
+			value="#()" />
 		<importFileType
-			value="1" />
+			value="" />
 		<importListLastSelection
-			value="0" />
+			value="1" />
 		<pirmitiveScale
-			value="30.0" />
+			value="1.0" />
 		<unitType
 			value="" />
 		<meterUnitType

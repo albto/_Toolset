@@ -31,7 +31,7 @@
 ------------------------------------------------------------------------------------
 -- ////////////////////////////////////////////////////////////////////////////////
 
--- FUNCTIONS -- LIBRARY -- modeling 
+-- FUNCTIONS -- LIBRARY -- MODELING --
 
 --\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ toolTip:"Weld All Verts"
 		(
 			subobjectLevel = 1
 			actionMan.executeAction 0 "40021"  -- Selection: Select All
-			i.weldThreshold = 0.046
+			i.weldThreshold = 0.0001
 			i.EditablePoly.weldFlaggedVertices ()
 			subobjectLevel = 0
 		)
@@ -88,7 +88,7 @@ toolTip:"Weld All Verts"
 			macros.run "Modifier Stack" "SubObject_1"
 			actionMan.executeAction 0 "40021"  -- Selection: Select All
 			i.modifiers[#Edit_Poly].SetOperation #WeldVertex
-			i.modifiers[#Edit_Poly].weldVertexThreshold = 0.06
+			i.modifiers[#Edit_Poly].weldVertexThreshold = 0.0001
 			i.modifiers[#Edit_Poly].Commit ()
 			subobjectLevel = 0	
 		)
