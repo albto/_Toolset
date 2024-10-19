@@ -4,9 +4,9 @@
 		<_root
 			value="C:\Users\albto\OneDrive\Documents\GitHub\_Toolset" />
 		<currentCategory
-			value="5" />
+			value="9" />
 		<currentLevel
-			value="7" />
+			value="2" />
 		<Art_Filter
 			value="false" />
 		<Design_Filter
@@ -27,7 +27,7 @@
 	<Global_Settings_Data
 		value="GlobalData">
 		<settingsRecorder
-			value="true" />
+			value="false" />
 		<autoDock
 			value="true" />
 		<autoCollapse
@@ -37,7 +37,7 @@
 		<toolsetClosePos
 			value="[41,90]" />
 		<OrganizePanel_Active
-			value="true" />
+			value="false" />
 		<CreatePanel_Active
 			value="true" />
 		<ModelingPanel_Active
@@ -64,31 +64,31 @@
 		<quickExport
 			value="false" />
 		<fbxTypeExport
-			value="true" />
+			value="false" />
 		<objTypeExport
 			value="false" />
 		<autoTypeExport
 			value="false" />
 		<useSelectionsName
-			value="true" />
+			value="false" />
 		<UnityExport
 			value="false" />
 		<exportTypeString
-			value=".FBX" />
+			value="." />
 		<prefixText
 			value="msh" />
 		<exportLocation
-			value="D:/Projects/Project3D/Assets/Art/Geometry" />
+			value="" />
 		<renameObjectsSetting
-			value="true" />
+			value="false" />
 		<lastExportSelection
 			value="1" />
 		<lastImportSelection
-			value="D:/Projects/Project3D/Assets/Art/Geometry/Prop/Fixtures/Lighting/Lantern/prp_traditional_lantern_01" />
+			value="" />
 		<importList
 			value="#()" />
 		<importFileType
-			value="" />
+			value="0" />
 		<importListLastSelection
 			value="1" />
 		<pirmitiveScale
@@ -106,6 +106,6 @@
 		<batchExportToggle
 			value="false" />
 		<bypassNaming
-			value="true" />
+			value="false" />
 	</Auto_Settings_Data>
 </FlowToolsXMLData>

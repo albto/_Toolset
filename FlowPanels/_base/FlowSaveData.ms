@@ -370,6 +370,16 @@ global useGlobalDotNam = (sysInfo.username as string)
 ------------------------------------------------------------------------------------------New Save System----
 ------------------------------------------------------------------------------------------------------------- 
 
+	--load xml file
+	global GetXMLData
+	fn GetXMLData = 
+	(
+		filein ((mainFPFolder + "\\FlowPanels\\_base\\XMLGenerator.ms") as String ) 
+	)
+		
+	GetXMLData()
+	
+
 	--New Save System -- Create New Xml 
 	fn FlowDataStructure =  
 	(
@@ -529,6 +539,17 @@ global useGlobalDotNam = (sysInfo.username as string)
 --IMPORT XML AND LOAD DATA  
 ------------------------------------------------------------------------------------------------		
 
+------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------- UNITY WAM XML ----
+------------------------------------------------------------------------------------------------ 
+
+	
+	flowIns = flowCore()
+	--flowIns.LoadXml()
+	
+	--load toolset data 
+	flowDat = flowData()
+	flowDat.LoadXml()
 	
 	GLOBAL ImportFlowSavedData
 	fn ImportFlowSavedData = 
@@ -577,18 +598,7 @@ global useGlobalDotNam = (sysInfo.username as string)
 	ImportFlowSavedData()
 	
 
-------------------------------------------------------------------------------------------------------------- 
------------------------------------------------------------------------------------------- UNITY WAM XML ----
-------------------------------------------------------------------------------------------------------------- 
 
-	--load unity layers xml file
-	filein ((mainFPFolder + "\\FlowPanels\\_base\\XMLGenerator.ms") as String ) 
-	flowIns = flowCore()
-	--flowIns.LoadXml()
-	
-	--load toolset data 
-	flowDat = flowData()
-	flowDat.LoadXml()
 
 ------------------------------------------------------------------------------------------------
 	

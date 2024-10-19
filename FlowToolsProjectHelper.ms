@@ -22,19 +22,23 @@ bitmapBannerFile = (imgfolder + "banner.jpg")
 -----------------------------------------------------------------------------------------------------------------------------------------
 	
 	
---load unity layers xml file
-filein ((mainFPFolder + "\\FlowPanels\\_base\\XMLGenerator.ms") as String ) 
+--load xml data files
+GetXMLData()
+
 flowIns = flowCore()
 flowIns.LoadXml()
 
+--getParameters 
 
+flowMethods = flowParams() 
 
 
 
 
 Rollout flowProjectHelper "Project Manager"  
 (
-		
+
+	--tool parameters 
 	local newArr = #()
 	local levels = #()
 	local newLevels = #()
@@ -44,11 +48,13 @@ Rollout flowProjectHelper "Project Manager"
 	local subsfol_array = #()
 	local refObjs = #()
 		
-	local areatag = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "")
-	local areasuf = #("no_tag","_000", "_050", "_100","_150", "_200","_250", "_300","_350", "_400","_450", "_500","_550", "_600","_650", "_700","_750", "_800","_850", "_900","_950", "_Uni")
-	local arealab = #("_Art", "_Design", "_Inst", "_Prop", "_Vehicle", "_Weapon", "_Test", "null")
+	local areatag = flowMethods.areatag 
+	local areasuf = flowMethods.areasuf 
+	local arealab = flowMethods.arealab 
+	
 	--create an empty select level
 	local selLevel = 1
+	
 	--create an empty select category				
 	local selCat = 1
 	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile align:#center gamma:1.0 
@@ -57,12 +63,12 @@ Rollout flowProjectHelper "Project Manager"
 
 
 		
-	--subRollout sub_roll_a "" 
+	subRollout sub_roll_a "" 
 		
 	Group "Project Manager Settings"
 	(
 		dropdownlist ddl_proj "" 							items:#()
-		dropdownList	ddl_viewerMode 	""					width:135	height:15	items:editorMode	across:4 	selection:2
+		dropdownList	ddl_viewerMode 	""					width:135	height:15	items:editorMode	across:4 	selection:1
 		checkbutton 	chk_geoExport	"Geom Folder"		checked:true offset:[55,0]
 		checkbutton 	chk_aniExport	"Anim Folder"		offset:[48,0]
 		button 			btn_projSync	"Sync"				align:#right
@@ -83,7 +89,7 @@ Rollout flowProjectHelper "Project Manager"
 		pickbutton 	btn_pckHP "Select Highpoly"				width:110	height:25	offset:[2,-55]
 		button 		btn_clrBake	"Clear Bake Setup"			width:110	height:25	offset:[-110,00]
 			
-		GroupBox 	grp_prjHlpr "Project Helper"			width:350	height:80	pos:[5,180]
+		GroupBox 	grp_prjHlpr "Project Helper"			width:350	height:80	pos:[5,195]
 		
 		
 	-- "Directory Helper"
@@ -113,26 +119,33 @@ Rollout flowProjectHelper "Project Manager"
 		button 			btn_opn_lvl "Open Sub-Categories"	width:125	height:15	offset:[30,0]
 		button 			btn_lvl_del "Del"					width:25	height:15	offset:[25,0]
 		listbox 		lst_areas "Content List - "	
+		
+		
 		button 			btn_iso_lvl "Isolate Selected"		width:100	height:25	offset:[-30,0]	across:2
 		button			btn_new_win "Delete Selected"		width:100	height:25	offset:[-80,0]
 			
-		edittext		edt_lowMesh "LP Mesh: "				text:"...select a LP Mesh..." 	width:240	height:20	pos:[12,290]	across:3	enabled:false
-		button 			btn_updLP 	"Update"				width:50	height:20	pos:[252,290]
-		checkbutton 	chk_mulLP 	"Multiple"				width:50	height:20	pos:[302,290]		tooltip:"Check ON, if Multiple Lowpoly Objects exist."
+		edittext		edt_lowMesh "LP Mesh: "				width:240	height:20	pos:[012,320]	across:3	enabled:false	text:"...select a LP Mesh..." 	
+		button 			btn_updLP 	"Update"				width:50	height:20	pos:[252,320]
+		checkbutton 	chk_mulLP 	"Multiple"				width:50	height:20	pos:[302,320]		tooltip:"Check ON, if Multiple Lowpoly Objects exist."
 			
-		edittext 		edt_higMesh "HP Mesh: "				text:"...select a HP Mesh..." 	width:240	height:20	pos:[12,320]	across:3	enabled:false
-		button 			btn_updHP 	"Update"				width:50	height:20	pos:[252,320]
-		checkbutton 	chk_mulHP 	"Multiple"				width:50	height:20	pos:[302,320]		tooltip:"Check ON, if Multiple Lowpoly Objects exist."
+		edittext 		edt_higMesh "HP Mesh: "				width:240	height:20	pos:[012,350]	across:3	enabled:false	text:"...select a HP Mesh..." 	
+		button 			btn_updHP 	"Update"				width:50	height:20	pos:[252,350]
+		checkbutton 	chk_mulHP 	"Multiple"				width:50	height:20	pos:[302,350]		tooltip:"Check ON, if Multiple Lowpoly Objects exist."
 			
-		dropdownList 	ddl_lpDest "LP Destination:"		items:#("Painter", "Designer", "Zbrush", "Unity")		across:3
-		dropdownList 	ddl_hpDest "HP Destination:"		items:#("Painter", "Designer", "Zbrush", "Unity")
-		checkbutton 	chk_sySend	"Sync Send"				pos:[240,363]								--checked:true
+		dropdownList 	ddl_lpDest "LP Destination:"		items:#("Painter", "Designer", "Zbrush", "Unity", "Custom")		across:3
+		dropdownList 	ddl_hpDest "HP Destination:"		items:#("Painter", "Designer", "Zbrush", "Unity", "Custom")
+		
+		edittext 		edt_cusLoc "Destination" 			width:220 	pos:[15,442]			enabled:false			--tooltip:
+		button 			btn_setLoc "Set Destination"		width:110	pos:[240,440]			enabled:false
+		
+		
+		checkbutton 	chk_sySend	"Sync Send"				pos:[240,392]								--checked:true
 			
-		button 			btn_lpSend "Send to"				width:112				pos:[12,385]						across:5	
-		button 			btn_hpSend "Send to"				width:112				pos:[124,385]
-		checkbutton 	chk_fbxFmat ".fbx"					pos:[240,385]
-		checkbutton 	chk_abcFmat ".abc"					pos:[277,385]
-		checkbutton 	chk_usdFmat ".usd"					pos:[315,385]
+		button 			btn_lpSend "Send to"				width:112				pos:[012,415]						across:5	
+		button 			btn_hpSend "Send to"				width:112				pos:[124,415]
+		checkbutton 	chk_fbxFmat ".fbx"					pos:[240,415]
+		checkbutton 	chk_abcFmat ".abc"					pos:[277,415]
+		checkbutton 	chk_usdFmat ".usd"					pos:[315,415]
 			
 		GroupBox 		grp_dirView "Viewer"					width:350	height:280	offset:[-8,-270]	
 			
@@ -155,6 +168,11 @@ Rollout flowProjectHelper "Project Manager"
 		
 		dropdownList ddl_objInte "Object Interact:"			selection:1			items:CompList		offset:[5, 00]		across:2
 		dropdownList ddl_objComp "Object Component:"		selection:1			items:CompList		offset:[5, 00]		
+		
+		
+		
+		
+		
 		
 		GroupBox grp_attSetr "Attribute Settings"			width:350	height:150	offset:[-8, -110]	
 			
@@ -201,6 +219,12 @@ Rollout flowProjectHelper "Project Manager"
 	--TICK-----------------------------------------------------------------------
 	-----------------------------------------------------------------------------
 	timer tick_LauncherUpdate "" 			interval:200
+		
+		
+	fn LocalGetXMLData = 
+	(
+		GetXMLData()
+	)
 		
 	--Filter levels list
 	fn LevelFilter arr1 arr2 i = 
@@ -789,6 +813,10 @@ Rollout flowProjectHelper "Project Manager"
 		chk_fbxFmat.visible = 	bool
 		chk_abcFmat.visible = 	bool
 		chk_usdFmat.visible = 	bool
+		
+		edt_cusLoc.visible = 	bool
+		btn_setLoc.visible = 	bool
+		
 	)
 	
 	--Viewer Mode - Directory Mode 
@@ -852,8 +880,6 @@ Rollout flowProjectHelper "Project Manager"
 		edt_proj_nam.visible = 	bool
 		clr_prj_clr.visible = 	bool
 					
-		
-		
 	)
 	
 	--set viewer mode to Directory - 3ds max project view 
@@ -867,7 +893,7 @@ Rollout flowProjectHelper "Project Manager"
 			
 		grp_dirView.caption = "Directory View"
 		grp_prjHlpr.caption = "Project Helper"
-		grp_dirView.pos = [5,265]
+		grp_dirView.pos = [5,280]
 		grp_dirView.height = 160
 		grp_prjHlpr.visible = 	true
 			
@@ -883,12 +909,20 @@ Rollout flowProjectHelper "Project Manager"
 		DirectoryViewMode false
 			
 			
-		grp_dirView.caption = "Asset Tools"
+			
 		grp_prjHlpr.caption = "Bake Setup"
-		grp_dirView.pos = [5,265]
-		grp_dirView.height = 160
+		grp_prjHlpr.height = 90
+			
+		grp_dirView.caption = "Asset Tools"
+		grp_dirView.pos = [5,290]
+		grp_dirView.height = 175
+			
+		grp_matSetr.pos = [5,470] 
+		grp_matSetr.height = 100
+			
 		grp_attSetr.visible = 	true	
-		
+		grp_attSetr.pos = [5,740] 
+		grp_attSetr.height = 135
 	)
 	
 	--reset folder dropdowns 
@@ -1095,6 +1129,17 @@ Rollout flowProjectHelper "Project Manager"
 				chk_geoExport.enabled = true
 			)
 		)
+		
+		if ddl_lpDest.selection == 5 then 
+		(
+			btn_setLoc.enabled = true 
+			edt_cusLoc.enabled = true 
+		)
+		else(
+			btn_setLoc.enabled = false 
+			edt_cusLoc.enabled = false 
+		)
+		
 		
 		
 	)
@@ -1464,11 +1509,14 @@ Rollout flowProjectHelper "Project Manager"
 			--ddl_hpDest.selection = ddl_hpDest.selection 
 		)
 		
-		
-		
 	)
 	
-	
+	on ddl_area_suf selected i do 
+	(
+-- 		LocalGetXMLData()
+-- 		flowMethods = flowParams()
+-- 		ddl_area_suf.items = flowMethods.areasuf 
+	)
 	
 	
 	----------------------------------------------------------------------------------------------------------------------------
@@ -1508,6 +1556,13 @@ Rollout flowProjectHelper "Project Manager"
 		
 		
 	)	
+		
+	on btn_setLoc pressed do 
+	(
+		edt_cusLoc.text =  getSavePath()
+		
+	)
+		
 		
 	-------------------------------------------------------------------------------------------------------------Directory Helper ----
 	----------------------------------------------------------------------------------------------------------------------------------
@@ -2231,12 +2286,11 @@ Rollout flowProjectHelper "Project Manager"
 		--get Project levels and filter types 
 		GetProjectLevels()
 			
+		--reload pref button status 
+		CheckIfReferenceExists()						
+			
 		--set toolset viewer mode 
 		SetToolsetViewerMode()
-
-		--reload pref button status 
-		CheckIfReferenceExists()			
-		
 	)
 		
 	on flowProjectHelper resized theSize do

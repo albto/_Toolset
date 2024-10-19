@@ -1,1 +1,1 @@
-#(false, true, false, false, true, false, ".FBX", "msh", "D:/Projects/Project3D/Assets/Art/Geometry", true, 1, "D:/Projects/Project3D/Assets/Art/Geometry/Prop/Fixtures/Lighting/Lantern/prp_traditional_lantern_01", #(), "", 1, 1.0, "", false, false, false, "", false, true)
+#(false, false, false, false, false, false, ".", "msh", "", false, 1, "", #(), 0, 1, 1.0, "", false, false, false, "", false, false)
