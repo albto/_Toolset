@@ -7,31 +7,31 @@ category:"FlowAttributes"
 toolTip:"Delete Unity Attributes"
 (
 		
--- 	m = EmptyModifier()
--- 	m.name = "Unity Attributes"	
--- 		
--- 		
--- 	for i in selection as array do 
--- 	(
--- 		--filter modifier
--- 		mdf = i.modifiers[#Unity_Attributes]
--- 		
--- 		--Removes Attributes Modifier
--- 		custAttributes.delete i UnityAttributes baseObject:true --add the attribute in the first modifier
--- 			
--- 		--checks to remove active attributes before being applied to object	
--- 		if( (classOf mdf) == (classof m)) then
--- 		(
--- 			index = modPanel.getModifierIndex i mdf
--- 			
--- 			try (deleteModifier i (index) ) catch()
--- 		)
--- 		else
--- 		(
--- 			continue
--- 		)
--- 			
--- 	)
+	m = EmptyModifier()
+	m.name = "Unity Attributes"	
+		
+		
+	for i in selection as array do 
+	(
+		--filter modifier
+		mdf = i.modifiers[#Unity_Attributes]
+		
+		--Removes Attributes Modifier
+		custAttributes.delete i UnityAttributes baseObject:true --add the attribute in the first modifier
+			
+		--checks to remove active attributes before being applied to object	
+		if( (classOf mdf) == (classof m)) then
+		(
+			index = modPanel.getModifierIndex i mdf
+			
+			try (deleteModifier i (index) ) catch()
+		)
+		else
+		(
+			continue
+		)
+			
+	)
 		
 	for o in selection as Array do 
 	(
@@ -117,15 +117,15 @@ toolTip:"Add Unity Attributes"
 
 	fn AddUnityAttribute = 
 	(
-			m = EmptyModifier()
-			m.name = "Unity Attributes"
+			local modi = EmptyModifier()
+			modi.name = "Unity Attributes"
 				
 			for i in selection as array do 
 			(
 				--filter modifier
 				mdf = i.modifiers[#Unity_Attributes]
 					
-				if( (classOf mdf) == (classof m)) then
+				if( (classOf mdf) == (classof modi)) then
 				(
 					try (deleteModifier i mdf ) catch()
 				)
@@ -166,6 +166,7 @@ toolTip:"Add Unity Attributes"
 					Category 				type:#string ui:edt_categFolder
 					SubCategory 			type:#string ui:edt_scategFolder
 					Classification 			type:#string ui:edt_classFolder
+					Standardization 		type:#string ui:edt_standFolder
 					ObjectComponent			type:#integer ui:ddl_ObjC
 					Generate_AutoLOD		type:#integer ui:ddl_ObjC
 					
@@ -198,6 +199,7 @@ toolTip:"Add Unity Attributes"
 					local CategoryName = "None"
 					local SubCategoryName = "None"
 					local ClassificationName = "None"
+					local StandardizationName = "None"
 						
 					local ObjectTypeSelection = 0	
 						
@@ -248,6 +250,7 @@ toolTip:"Add Unity Attributes"
 						edittext 	 	edt_scategFolder ""					offset:[0,0]		width:105		text:SubCategoryName	labelOnTop:true	 across:2
 						button			btn_addScate 	"Add"				offset:[22,-1]
 						edittext 	 	edt_classFolder "Classification:"	text:ClassificationName	labelOnTop:true
+						edittext 		edt_standFolder "Standardization:"	text:StandardizationName	labelOnTop:true
 					)
 					
 					Group "Gameplay Settings:"
@@ -392,20 +395,11 @@ toolTip:"Add Unity Attributes"
 							SetObjectSettings 34 ddl_ObjC.selection
 							SetObjectSettings 35 edt_scategFolder.text
 							SetObjectSettings 36 CompList 
+							SetObjectSettings 37 edt_standFolder.text
 								
 							--record settings	
 							setUserPropVal i "Unity Attributes" fps 
-								
-							for i = 1 to fps.count do
-							(
-								--print ("SavedSetttings -[" + ((i) as string) + "] = { " + fps[i] as string + " }" )
-								
-								if (classof fps[i]) == array then(
-									--print ("["+i as string +"]" + " is an aray")
-									--print ("["+i as string +"]'s" + " count = " + fps[i].count as string)
-								)
-								
-							)
+							
 						)
 					)
 							
@@ -415,12 +409,12 @@ toolTip:"Add Unity Attributes"
 						GetDataFromUnity()
 							
 							
-						for i in selection as array do 
+						for i in selection do 
 						(
 							obs = execute (getUserPropVal i "Unity Attributes" asString:true)
 								
 							--Load Settings 
-							chk_IsPrefab.checked 	= obs[1]
+							chk_IsPrefab.checked	= obs[1]
 							ddl_Tags.selection 		= obs[2]
 							ddl_Lyrs.selection 		= obs[3] 
 							ddl_ObjT.selection		= obs[4]
@@ -448,7 +442,11 @@ toolTip:"Add Unity Attributes"
 							ddl_MSea.selection 		= obs[26]
 							ddl_procTyp.selection	= obs[27]
 							edt_categFolder.text	= obs[28]
-															
+							edt_standFolder.text 	= obs[37]
+							edt_classFolder.text	= obs[31]
+							ddl_ObjC.selection		= obs[34]
+							edt_scategFolder.text	= obs[35]
+							
 							if (classOf obs[29]) == array then
 							(
 								if obs[29].count > 0 then 
@@ -471,7 +469,7 @@ toolTip:"Add Unity Attributes"
 								)
 							)					
 							
-							edt_classFolder.text	= obs[31]
+							
 
 							
 							if (classOf obs[32]) == array then 
@@ -496,9 +494,9 @@ toolTip:"Add Unity Attributes"
 								)
 							)
 								
-							ddl_ObjC.selection		= obs[34]
 							
-							edt_scategFolder.text	= obs[35]
+							
+							
 							--ObjectTypeSelection 	= obs[4]
 							
 							--record settings	
@@ -524,39 +522,40 @@ toolTip:"Add Unity Attributes"
 						catch
 						(  
 							print "Brand New Object Detected - Applying Default Settings"
-							
-							chk_preHier.checked		= true
-							chk_IsPrefab.checked 	= false
-							ddl_Tags.selection 		= 1
-							ddl_Lyrs.selection 		= 1
-							ddl_ObjT.selection		= 1
-							ddl_MshComp.selection	= 2
-							chk_Cols.checked		= false
-							chk_Lmaps.checked 		= false
-							chk_Amin.checked 		= false
-							chk_Blnd.checked 		= false
-							chk_Cams.checked 		= false
-							chk_Lght.checked 		= false
-							chk_Visi.checked 		= false
-							ddl_Nmls.selection 		= 1
-							ddl_MCM.selection 		= 2
-							ddl_MLoc.selection 		= 2
-							ddl_MNam.selection		= 1
-							ddl_MSea.selection 		= 2
-							ddl_oAtr.selection		= 1
-							chk_preHier.checked 	= false
-							spn_filScale.value 		= 1
-							chk_BakeXform.checked	= true
-							chk_fileUnits.checked	= false
-							chk_fileScale.checked 	= true
-							chk_SortHier.checked	= true
-							chk_KeepQads.checked	= false
-							chk_SwapChn.checked		= false
-							ddl_procTyp.selection 	= 1
-							edt_categFolder.text	= "None"
-							edt_scategFolder.text	= "None"
-							edt_classFolder.text 	= "None"
-							ddl_ObjC.selection		= 1
+-- 							
+-- 							chk_preHier.checked		= true
+-- 							chk_IsPrefab.checked 	= false
+-- 							ddl_Tags.selection 		= 1
+-- 							ddl_Lyrs.selection 		= 1
+-- 							ddl_ObjT.selection		= 1
+-- 							ddl_MshComp.selection	= 2
+-- 							chk_Cols.checked		= false
+-- 							chk_Lmaps.checked 		= false
+-- 							chk_Amin.checked 		= false
+-- 							chk_Blnd.checked 		= false
+-- 							chk_Cams.checked 		= false
+-- 							chk_Lght.checked 		= false
+-- 							chk_Visi.checked 		= false
+-- 							ddl_Nmls.selection 		= 1
+-- 							ddl_MCM.selection 		= 2
+-- 							ddl_MLoc.selection 		= 2
+-- 							ddl_MNam.selection		= 1
+-- 							ddl_MSea.selection 		= 2
+-- 							ddl_oAtr.selection		= 1
+-- 							chk_preHier.checked 	= false
+-- 							spn_filScale.value 		= 1
+-- 							chk_BakeXform.checked	= true
+-- 							chk_fileUnits.checked	= false
+-- 							chk_fileScale.checked 	= true
+-- 							chk_SortHier.checked	= true
+-- 							chk_KeepQads.checked	= false
+-- 							chk_SwapChn.checked		= false
+-- 							ddl_procTyp.selection 	= 1
+-- 							edt_categFolder.text	= "None"
+-- 							edt_scategFolder.text	= "None"
+-- 							edt_classFolder.text 	= "None"
+-- 							edt_standFolder.text 	= "None"
+-- 							ddl_ObjC.selection		= 1
 								
 							--Save Settings Applied
 							--SaveObjectSettings()
@@ -633,6 +632,11 @@ toolTip:"Add Unity Attributes"
 						Classification = val
 					)
 						
+					on edt_standFolder entered val do
+					(
+						Standardization = val
+					)
+						
 					on btn_save pressed do
 					(
 						--Save Settings 
@@ -679,7 +683,7 @@ toolTip:"Add Unity Attributes"
 			)--end posAttribs
 			
 			--add modifier -- needs optimizing 
-			modPanel.addModToSelection (m) ui:on
+			modPanel.addModToSelection (modi) ui:on
 			for i in selection as array do 
 			(
 				--add the attribute in the first modifier
@@ -758,15 +762,15 @@ toolTip:"Add Baking Attributes"
 
 	fn AddBakeAttribute = 
 	(
-			m = EmptyModifier()
-			m.name = "Baking Attributes"
+			b = EmptyModifier()
+			b.name = "Baking Attributes"
 				
 			for i in selection as array do 
 			(
 				--filter modifier
 				mdf = i.modifiers[#Baking_Attributes]
 					
-				if( (classOf mdf) == (classof m)) then
+				if( (classOf mdf) == (classof b)) then
 				(
 					try (deleteModifier i mdf ) catch()
 				)
@@ -910,9 +914,6 @@ toolTip:"Add Baking Attributes"
 						
 					on btn_clrs pressed do 
 					(
-						print "FUUUUUUUUUUUUUUUUUUUCK"
-						
-						
 						--Save Settings 
 						SaveObjectSettings()
 						
@@ -936,7 +937,7 @@ toolTip:"Add Baking Attributes"
 			)--end posAttribs
 			
 			--add modifier -- needs optimizing 
-			modPanel.addModToSelection (m) ui:on
+			modPanel.addModToSelection (b) ui:on
 			for i in selection as array do 
 			(
 				--add the attribute in the first modifier
@@ -960,8 +961,8 @@ category:"BakingAttributes"
 toolTip:"Clear Baking Attributes"
 (
 		
-	m = EmptyModifier()
-	m.name = "Baking Attributes"	
+	b = EmptyModifier()
+	b.name = "Baking Attributes"	
 		
 	for i in selection as array do 
 	(
@@ -972,7 +973,7 @@ toolTip:"Clear Baking Attributes"
 		custAttributes.delete i BakingAttributes baseObject:true --add the attribute in the first modifier
 			
 		--checks to remove active attributes before being applied to object	
-		if( (classOf mdf) == (classof m)) then
+		if( (classOf mdf) == (classof b)) then
 		(
 			index = modPanel.getModifierIndex i mdf
 			
@@ -992,8 +993,8 @@ category:"BakingAttributes"
 toolTip:"Set as Lowpoly Mesh"
 (
 		
-	m = EmptyModifier()
-	m.name = "Baking Attributes"	
+	b = EmptyModifier()
+	b.name = "Baking Attributes"	
 		
 	obs = #()
 	
@@ -1014,8 +1015,8 @@ category:"BakingAttributes"
 toolTip:"Set as Highpoly Mesh"
 (
 		
-	m = EmptyModifier()
-	m.name = "Baking Attributes"	
+	b = EmptyModifier()
+	b.name = "Baking Attributes"	
 		
 	obs = #()
 	

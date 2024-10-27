@@ -318,18 +318,18 @@
 			if selection.count > 0 then
 			(
 					
-				--set prefab wirecolor
-
+				--create temp//fail safe material 
 				newmat = standard diffuseMap:(checker()) showInViewport:true
-					
 					
 				for i in sel do
 				(
+					--apply material 
 					i.material = newmat
+					--set prefab wirecolor	
 					i.wirecolor = clr_text.color		
 				)
 						
-					
+				
 				local selObjs = for obj in selection collect obj
 					
 				if CrtGrp then
@@ -339,9 +339,8 @@
 					
 				if (not LabelGrp) then
 				(
-					
 					for o in selObjs do (append attachedObjs (copy o))
-					tempObj = attachObjs attachedObjs				
+					tempObj = attachedObjs				
 				)	
 				else(
 					tempObj = grp
@@ -359,8 +358,8 @@
 					
 				if(chk_LckR.checked) then
 				(
-					bbObj.width = (bbSize.x + finalRatio)
-					bbObj.length = (bbSize.y + finalRatio)
+					bbObj.width 	= bbSize[2] --(bbSize.x + finalRatio)
+					bbObj.length 	= bbSize[3] --(bbSize.y + finalRatio)
 				)
 				else
 				(

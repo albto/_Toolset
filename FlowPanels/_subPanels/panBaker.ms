@@ -20,6 +20,10 @@ rollout dRol "Baking Manager"
 	local spcmap
 	local normalmap
 	
+	local albSuf = "_ALB"
+	local nmlSuf = "_NML"
+	local mskSuf = "_MSK"	
+	
 	local clrFilename = ""
 	local rghFilename = ""
 	local nmlFilename = ""
@@ -137,23 +141,97 @@ rollout dRol "Baking Manager"
 		
 	------------------------------------------------------------
 	-- Set Material in SME -- { Set The Material in editor and to lowpoly } 
-	fn SetMaterialInSME mtl = 
+	fn SetMaterialInSME materialInput = 
 	(
-		
-		wasOpen = SME.isOpen()
-		
-		--Create nodes
-		clrNode = Bitmaptexture 	filename:clrFilename
-		--aoNode	= BitmapTexture() --filename:clrFilename
-		rghNode = BitmapTexture 	filename:rghFilename
-		nmlNode = BitmapTexture 	filename:nmlFilename
 			
+		wasOpen = SME.isOpen()
+			
+		----------------------------------------------------------------------------------------
+		--Create nodes
+		----------------------------------------------------------------------------------------
+			
+		albNode = osl_UberBitmap2b 		filename:clrFilename
+		mskNode = osl_UberBitmap2b 		filename:rghFilename
+		nmlNode = osl_UberBitmap2b 		filename:nmlFilename
+			
+		albNode.name 		= albSuf
+		mskNode.name  		= mskSuf
+		nmlNode.name  		= nmlSuf
+			
+		----------------------------------------------------------------------------------------	
 		--apply maps to slots 
-		--mtl.ao_map = aoNode
-		mtl.base_color_map = clrNode
-		mtl.roughness_map = rghNode
-		mtl.normalmap = nmlNode
-		
+		----------------------------------------------------------------------------------------
+		--albedo map // RGB = Color | Alpha = Coat Mask / Opacity 
+		rgb_output = MultiOutputChannelTexmapToTexmap sourceMap:albNode
+		rgb_output.outputChannelIndex = 1 -- 5 is the index of the alpha output of the OSLMap
+		--| A = Opacity
+		alp_output = MultiOutputChannelTexmapToTexmap sourceMap:albNode
+		alp_output.outputChannelIndex = 5 -- 5 is the index of the alpha output of the OSLMap
+			
+		--normal map // RG = Normal R & G 
+		--| R
+		nr_output = MultiOutputChannelTexmapToTexmap sourceMap:nmlNode
+		nr_output.outputChannelIndex = 2 
+		--| G
+		ng_output = MultiOutputChannelTexmapToTexmap sourceMap:nmlNode
+		ng_output.outputChannelIndex = 3 
+		--| B - created 
+		bChan = osl_SetFloat()
+		bChan.name = "_NML - B"
+		bChan.In = 1.0
+		nb_output = MultiOutputChannelTexmapToTexmap sourceMap:bChan
+		nb_output.outputChannelIndex = 1
+		----------------------------------------------------------------------------------------	
+		--Normal Map Combine 
+		combNod = osl_ColorJuggler()
+		combNod.name = "Normal Map Conversion"
+		--r and G channels 
+		combNod.Ri_map = nr_output
+		combNod.Gi_map = ng_output
+		--b channel 
+		combNod.Bi_map = nb_output
+			
+		nml_output = MultiOutputChannelTexmapToTexmap sourceMap:combNod
+		nml_output.outputChannelIndex = 1 
+		----------------------------------------------------------------------------------------
+		--| B = AO 
+		ao_output = MultiOutputChannelTexmapToTexmap sourceMap:nmlNode
+		ao_output.outputChannelIndex = 4 
+		--| A = Roughness
+		rg_output = MultiOutputChannelTexmapToTexmap sourceMap:nmlNode
+		rg_output.outputChannelIndex = 5
+		----------------------------------------------------------------------------------------
+		----------------------------------------------------------------------------------------
+			
+		--mask map // RGBA | R = Displacement | G = Tint Mask | B = Emission / Detail Mask | A = Metalness
+		----------------------------------------------------------------------------------------
+		--| R
+		dsp_output = MultiOutputChannelTexmapToTexmap sourceMap:mskNode
+		dsp_output.outputChannelIndex = 2
+		----------------------------------------------------------------------------------------
+		--| B
+		ems_output = MultiOutputChannelTexmapToTexmap sourceMap:mskNode
+		ems_output.outputChannelIndex = 3
+		----------------------------------------------------------------------------------------
+		--| A 
+		mtl_output = MultiOutputChannelTexmapToTexmap sourceMap:mskNode
+		mtl_output.outputChannelIndex = 5
+			
+		----------------------------------------------------------------------------------------
+		--map slots 
+		----------------------------------------------------------------------------------------
+			
+		materialInput.base_color_map 		= rgb_output
+		materialInput.metalness_map 		= mtl_output
+		materialInput.roughness_map 		= rg_output
+		materialInput.ao_map 				= ao_output
+		materialInput.normalmap 			= nml_output
+		materialInput.emission_map 			= ems_output
+		materialInput.opacity_map 			= alp_output
+		materialInput.displacement_map 		= dsp_output
+			
+		----------------------------------------------------------------------------------------
+			
 		--open dialog 
 		if wasOpen then
 		(
@@ -165,31 +243,38 @@ rollout dRol "Baking Manager"
 		)	
 			
 		--create viewport
-		if ((sme.GetViewByName "Lowpoly Materials") == undefined) then
+		if (sme.GetView (sme.GetViewByName "BakeSetup")) == undefined then
 		(
-			matView = sme.createView "Lowpoly Materials"
-		)
-		
-		--set sme viewport
-		smeView = (sme.GetView (sme.GetViewByName "Lowpoly Materials"))
-				
-		--reset view 
-		smeView.SelectAll()
-		smeView.DeleteSelection()
-			
-		--create material 
-		smeView.CreateNode mtl [0,0]
-		smeView.SetFocus()
-
-		if wasOpen then
-		(
-			sme.Close()
-			sme.Open()
+			smeView = sme.createView "BakeSetup"
 		)
 		else
-		(
-			sme.Close()
+		(				
+			--set sme viewport
+			smeView = (sme.GetView (sme.GetViewByName "BakeSetup"))
+			
+			
+			--reset view 
+			smeView.SelectAll()
+			smeView.DeleteSelection()
+				
+			--create material 
+			smeView.CreateNode materialInput [0,0]
+			smeView.CreateNode combNod	[1,2]
+			smeView.CreateNode bChan	[2,4]
+				
+			smeView.SetFocus()
+				
 		)
+
+-- 		if wasOpen then
+-- 		(
+-- 			sme.Close()
+-- 			sme.Open()
+-- 		)
+-- 		else
+-- 		(
+-- 			sme.Close()
+-- 		)
 
 			
 	)
@@ -433,13 +518,13 @@ rollout dRol "Baking Manager"
 			button btn_selLow	"Select Lowpoly"						width:120	height:20	align:#center
 		)
 
-		--Group "Output Location"
-		--(
+		Group "Output Location"
+		(
 				
-			--edittext edt_outpath ""										height:20 width:190 test:" ... "	align:#left		across:2
-			--button btn_setPth "Output"									height:20 align:#right
+			edittext edt_outpath ""										height:20 width:190 test:" ... "	align:#left		across:2
+			button btn_setPth "Output"									height:20 align:#right
 				
-		--)
+		)
 
 		on btn_genLow pressed do 
 		(
@@ -734,13 +819,13 @@ rollout dRol "Baking Manager"
 				if rolC.chk_clr.state then 
 				(
 					difmap = BakeToTexture.addMap Lowpoly #DiffuseMap
-					difmap.filename = Lowpoly.name + "_clr"
+					difmap.filename = (Lowpoly.name + albSuf as string)
 					difmap.setImageSize size size
 					difmap.fileType = dRol.rolC.ddl_imgTyp.items[dRol.rolC.ddl_imgTyp.selection]
 						
 					difmap.projectionMethod = (ddl_prjMth.selection-1) 
 					difmap.edgePadding  = execute dRol.rolC.ddl_imgPad.items[dRol.rolC.ddl_imgPad.selection]
-						
+					
 				)
 				else
 				(
@@ -753,7 +838,7 @@ rollout dRol "Baking Manager"
 				if rolC.chk_rgh.state then 
 				(
 					spcmap = BakeToTexture.addMap Lowpoly #SpecularMap
-					spcmap.filename = Lowpoly.name + "_rgh"
+					spcmap.filename = (Lowpoly.name + mskSuf as string)
 					spcmap.setImageSize size size
 					spcmap.fileType = dRol.rolC.ddl_imgTyp.items[dRol.rolC.ddl_imgTyp.selection]
 						
@@ -771,7 +856,7 @@ rollout dRol "Baking Manager"
 				if rolC.chk_nml.state then 
 				(				
 					normalmap =	BakeToTexture.addMap Lowpoly #NormalMap
-					normalmap.filename = Lowpoly.name + "_nml"
+					normalmap.filename = (Lowpoly.name + nmlSuf as string)
 					normalmap.setImageSize size size
 					normalmap.fileType = dRol.rolC.ddl_imgTyp.items[dRol.rolC.ddl_imgTyp.selection]
 					
@@ -1498,7 +1583,7 @@ rollout dRol "Baking Manager"
 	
 	------------------------------------------------------------
 	
-    local rolls = #(rolA, rolB, rolE) --, rolC, rolD)
+    local rolls = #(rolA, rolB, rolE, rolC, rolD)
 
 	------------------------------------------------------------	
     on dRol open do

@@ -2,39 +2,54 @@
 ----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------	
 	
-Try(cui.UnregisterDialogBar flowProjectHelper)catch()
-try(destroydialog flowProjectHelper)catch()
-
-global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str	
-global scnTypeFolder = "\scenes\Areas\\"
-
-global unityProjectLocations = #("D:\\Projects\\Project3D\\Assets\\Art\\Geometry") 
-
-global curProjectFolder = ""
-global curCategoryFolder = ""
-global curLevelFolder = ""
---Set Tool Image file
-bitmapBannerFile = (imgfolder + "banner.jpg")
+	Try(cui.UnregisterDialogBar flowProjectHelper)catch()
+	try(destroydialog flowProjectHelper)catch()
+		
+	global imgfolder =  (toolFolder + "\\FlowPanels\\_images\\") --getfilenamepath str	
+	global defaultGeomFolder =  "\scenes\Geometry\\" 
+	global defaultAnimFolder =  "" 
+	global scnTypeFolder = defaultGeomFolder
+		
+	global unityProjectLocations = #("D:\\Projects\\Project3D\\Assets\\Art\\Geometry") 
+		
+	global curProjectFolder = ""
+	global curCategoryFolder = ""
+	global curLevelFolder = ""
+	
+----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+		
+	global Lowpoly		= object
+	global Highpoly		= object
+		
 		
 ----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+		
+	--Set Tool Image file
+	bitmapBannerFile = (imgfolder + "banner.jpg")
+		
+----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+		
 ----------------------------------------------------------------------------------------------------------------------------------	
-
------------------------------------------------------------------------------------------------------------------------------------------
-	
-	
---load xml data files
-GetXMLData()
-
-flowIns = flowCore()
-flowIns.LoadXml()
-
---getParameters 
-
-flowMethods = flowParams() 
-
-
-
-
+--- LOAD XML DATA ----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+		
+		
+	--load xml data files
+	GetXMLData()
+		
+	--getUnityAttributeData 
+	flowIns = flowCore()
+	flowIns.LoadXml()
+		
+	--getParameters 
+	flowMethods = flowParams() 
+		
+		
+		
+		
 Rollout flowProjectHelper "Project Manager"  
 (
 
@@ -47,180 +62,211 @@ Rollout flowProjectHelper "Project Manager"
 	local clean_sfol_array = #()
 	local subsfol_array = #()
 	local refObjs = #()
+	local startMode = 2
 		
 	local areatag = flowMethods.areatag 
 	local areasuf = flowMethods.areasuf 
 	local arealab = flowMethods.arealab 
+	
+	local originalText = ""
 	
 	--create an empty select level
 	local selLevel = 1
 	
 	--create an empty select category				
 	local selCat = 1
-	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile align:#center gamma:1.0 
+	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile 			align:#center gamma:1.0 
 	local editorMode = #("3DSMax Project", "Asset Creation", "Global Mode", "Unity Projekt")	
 	local origSel = integer
-
-
 		
 	subRollout sub_roll_a "" 
+		
+		
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Project Manager"
+	---------------------------------------------------------------------------------------------------------------
 		
 	Group "Project Manager Settings"
 	(
 		dropdownlist ddl_proj "" 							items:#()
-		dropdownList	ddl_viewerMode 	""					width:135	height:15	items:editorMode	across:4 	selection:1
+		dropdownList	ddl_viewerMode 	""					width:135	height:15	items:editorMode						across:4 	selection:1
 		checkbutton 	chk_geoExport	"Geom Folder"		checked:true offset:[55,0]
 		checkbutton 	chk_aniExport	"Anim Folder"		offset:[48,0]
 		button 			btn_projSync	"Sync"				align:#right
 		label 			lbl_uniProNam 	""
 	)
-	-- "Project Helper"
+		
+		
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Project Helper"
+	---------------------------------------------------------------------------------------------------------------
 			
-		edittext edt_proj_nam "Name:"						width:280					offset:[2,25]		across:2
-		colorpicker clr_prj_clr ""							align:#right				offset:[2,22]
-		button btn_crt "Create"								width:65	height:24	across:5
+			
+		edittext edt_proj_nam "Name:"						width:280				offset:[2,25]							across:2
+		colorpicker clr_prj_clr ""													offset:[2,22]		align:#right				
+		button btn_crt "Create"								width:65	height:24											across:5
 		button btn_open "Open"								width:65	height:24
 		button btn_edit	"Refresh"							width:65	height:24
 		button btn_dele	"Delete"							width:65	height:24
 		button btn_swtc	"Switch"							width:65	height:24
 			
-		button 		btn_fndLP "Find w/ Attributes"			width:110	height:25	offset:[2,-55]		across:3
+		button 		btn_fndLP "Find w/ Attributes"			width:110	height:25	offset:[2,-55]							across:3
 		pickbutton 	btn_pckLP "Select Lowpoly"				width:110	height:25	offset:[2,-55]
 		pickbutton 	btn_pckHP "Select Highpoly"				width:110	height:25	offset:[2,-55]
 		button 		btn_clrBake	"Clear Bake Setup"			width:110	height:25	offset:[-110,00]
 			
 		GroupBox 	grp_prjHlpr "Project Helper"			width:350	height:80	pos:[5,195]
-		
-		
-	-- "Directory Helper"
+			
+			
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Directory Helper"
+	---------------------------------------------------------------------------------------------------------------
 			
 		checkbutton chk_sel_nam "Auto-Name"					width:65					offset:[2,20]	align:#left			across:3
 		edittext edt_dir_name ""							width:180 	height:20		offset:[2,20]	align:#center
-		dropdownList ddl_area_suf ""						width:62	height:20		offset:[2,20]	items:areasuf				align:#right	
-		label lbl_blank_01 "Asset Type:"					align:#left					offset:[2,0]
-		button btn_crt_cat "+ Category"						width:70	height:24 		offset:[6,0]		across:6
+		dropdownList ddl_area_suf ""						width:62	height:20		offset:[2,20]	align:#right					items:areasuf				
+		label lbl_blank_01 "Asset Type:"												offset:[2,0]	align:#left					
+		button btn_crt_cat "+ Category"						width:70	height:24 		offset:[6,0]						across:6
 		button btn_crt_scn "+ Level"						width:45	height:24		offset:[10,0]
 		button btn_crt_are "+ Area"							width:50	height:24		offset:[4,0]
 		button btn_crt_prp "+ Prop"							width:45	height:24		offset:[-2,0]
 		button btn_crt_veh "+ Vehicle"						width:60	height:24		offset:[-2,0]
 		button btn_crt_wea "+ Weapon"						width:60	height:24		offset:[8,0]		
-		label lbl_blank_02 "Asset Label:"					align:#left
-		radiobuttons rad_are_type ""						default:8 	height:24		labels:arealab		columns:5 row:2 	offset:[5,0]
+		label lbl_blank_02 "Asset Label:"																align:#left
+		radiobuttons rad_are_type ""						default:8 	height:24		offset:[5,0]						labels:arealab		columns:5 row:2 	
 		label lbl_blank_03 ""								width:20 	height:5
-		
-		
-	-- "Directory Viewer"
 			
-		dropdownList 	ddl_folder "Categories" 			offset:[0,20]											across:3
+			
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Directory Viewer"
+	---------------------------------------------------------------------------------------------------------------		
+			
+			
+		dropdownList 	ddl_folder "Categories" 			offset:[0,20]													across:3
 		dropdownList 	ddl_subfol "Sub-Categories" 		offset:[0,20]		
 		dropdownList 	ddl_clafol "Classification"        	offset:[0,20]	items:#("None")
-		button 			btn_opn_cat "Open Categories"		width:125	height:15	offset:[15,0]	across:4	
+		button 			btn_opn_cat "Open Categories"		width:125	height:15	offset:[15,0]							across:4	
 		button 			btn_cat_del "Del"					width:25	height:15	offset:[25,0]
 		button 			btn_opn_lvl "Open Sub-Categories"	width:125	height:15	offset:[30,0]
 		button 			btn_lvl_del "Del"					width:25	height:15	offset:[25,0]
-		listbox 		lst_areas "Content List - "	
+		listbox 		lst_areas 	"Content List - "	
 		
 		
-		button 			btn_iso_lvl "Isolate Selected"		width:100	height:25	offset:[-30,0]	across:2
+		button 			btn_iso_lvl "Isolate Selected"		width:100	height:25	offset:[-30,0]							across:2
 		button			btn_new_win "Delete Selected"		width:100	height:25	offset:[-80,0]
 			
-		edittext		edt_lowMesh "LP Mesh: "				width:240	height:20	pos:[012,320]	across:3	enabled:false	text:"...select a LP Mesh..." 	
+		edittext		edt_lowMesh "LP Mesh: "				width:240	height:20	pos:[012,320]							across:3	enabled:false	text:"...select a LP Mesh..." 	
 		button 			btn_updLP 	"Update"				width:50	height:20	pos:[252,320]
-		checkbutton 	chk_mulLP 	"Multiple"				width:50	height:20	pos:[302,320]		tooltip:"Check ON, if Multiple Lowpoly Objects exist."
+		checkbutton 	chk_mulLP 	"Multiple"				width:50	height:20	pos:[302,320]														tooltip:"Check ON, if Multiple Lowpoly Objects exist."
 			
-		edittext 		edt_higMesh "HP Mesh: "				width:240	height:20	pos:[012,350]	across:3	enabled:false	text:"...select a HP Mesh..." 	
+		edittext 		edt_higMesh "HP Mesh: "				width:240	height:20	pos:[012,350]							across:3	enabled:false	text:"...select a HP Mesh..." 	
 		button 			btn_updHP 	"Update"				width:50	height:20	pos:[252,350]
-		checkbutton 	chk_mulHP 	"Multiple"				width:50	height:20	pos:[302,350]		tooltip:"Check ON, if Multiple Lowpoly Objects exist."
+		checkbutton 	chk_mulHP 	"Multiple"				width:50	height:20	pos:[302,350]														tooltip:"Check ON, if Multiple Lowpoly Objects exist."
 			
-		dropdownList 	ddl_lpDest "LP Destination:"		items:#("Painter", "Designer", "Zbrush", "Unity", "Custom")		across:3
-		dropdownList 	ddl_hpDest "HP Destination:"		items:#("Painter", "Designer", "Zbrush", "Unity", "Custom")
+		dropdownList 	ddl_lpDest "LP Destination:"																		across:3					items:#("Automation", "Painter", "Designer", "Zbrush", "Unity", "Custom")
+		dropdownList 	ddl_hpDest "HP Destination:"																									items:#("Automation", "Painter", "Designer", "Zbrush", "Unity", "Custom")
 		
-		edittext 		edt_cusLoc "Destination" 			width:220 	pos:[15,442]			enabled:false			--tooltip:
-		button 			btn_setLoc "Set Destination"		width:110	pos:[240,440]			enabled:false
+		edittext 		edt_cusLoc "Custom:" 				width:220 	pos:[15,442]													enabled:false			tooltip:""
+		button 			btn_setLoc "Set"					width:38	pos:[240,440]													enabled:false
+		checkbutton 	chk_frmAtr "from Attrs"				width:72	pos:[280,440]													enabled:false
 		
-		
-		checkbutton 	chk_sySend	"Sync Send"				pos:[240,392]								--checked:true
+		checkbutton 	chk_sySend	"Link"					width:50 	pos:[240,392]													checked:true
+		checkbutton 	chk_addMap	"Add Map"				width:60 	pos:[292,392]													--checked:true
 			
-		button 			btn_lpSend "Send to"				width:112				pos:[012,415]						across:5	
+		button 			btn_lpSend "Send to"				width:112				pos:[012,415]							across:5	
 		button 			btn_hpSend "Send to"				width:112				pos:[124,415]
 		checkbutton 	chk_fbxFmat ".fbx"					pos:[240,415]
 		checkbutton 	chk_abcFmat ".abc"					pos:[277,415]
 		checkbutton 	chk_usdFmat ".usd"					pos:[315,415]
 			
-		GroupBox 		grp_dirView "Viewer"					width:350	height:280	offset:[-8,-270]	
+		GroupBox 		grp_dirView "Viewer"				width:350	height:280	offset:[-8,-270]	
 			
 			
-		dropdownList ddl_surType	"Surface Type:"			width:110	height:25	offset:[2,30]	across:3	items:#("Opaque", "Transparent")
-		dropdownList ddl_shaType	"Shader Type:"			width:110	height:25	offset:[4,30]				items:#("Lit", "Lit Tessellation", "Layered", "Layered Lit Tessellation", "Decal", "Hair", "Eye", "Fabric", "Terrain Lit", "Unlit", "Water")
-		dropdownList ddl_matType	"Material Type:"		width:110	height:25	offset:[6,30]				items:#("Standard", "Anisotropy", "Translucent", "Iridescence", "Subsurface Scattering", "Specular Color")
-		button btn_setMats	 "Set to Selected"				width:110	height:30	offset:[0,-2]	across:3
-		button btn_selMat	 "Select Material"				width:110	height:30	offset:[4,-2]		
-		button btn_edtMats	 "Convert Selected"				width:110	height:30	offset:[5,-2]	
+		dropdownList 	ddl_surType	"Surface Type:"			width:110	height:25	offset:[2,30]							across:3	items:#("Opaque", "Transparent")
+		dropdownList 	ddl_shaType	"Shader Type:"			width:110	height:25	offset:[4,30]										items:#("Lit", "Lit Tessellation", "Layered", "Layered Lit Tessellation", "Decal", "Hair", "Eye", "Fabric", "Terrain Lit", "Unlit", "Water")
+		dropdownList 	ddl_matType	"Material Type:"		width:110	height:25	offset:[6,30]										items:#("Standard", "Anisotropy", "Translucent", "Iridescence", "Subsurface Scattering", "Specular Color")
+		button 			btn_setMats	"Set to Selected"		width:110	height:30	pos:[240,535]							across:3
+		button 			btn_selMat	"Select Material"		width:110	height:30	pos:[240,570]		
+		button 			btn_edtMats	"Convert Selected"		width:110	height:30	pos:[240,605]	
 			
-		listbox lst_matElem "Materials List:"				items:#(":01::Material_Name::Opa::Lit:Standard", ":02::Material_Name::Opa::Decal:Standard")
+		listbox 		lst_matElem "Materials List:"		width:220	height:06	pos:[015,535]										items:#(":01::Material_Name::Opa::Lit:Standard", ":02::Material_Name::Opa::Decal:Standard")
 			
-		GroupBox grp_matSetr "Material Settings"			width:350	height:280	offset:[-8,-262]	
-		
-		
-		dropdownList ddl_objType "Object Type:"				selection:1			items:TypeList		offset:[5, 20]		across:3
-		dropdownList ddl_objAttr "Attribute:"				selection:2			items:AttrList		offset:[5, 20]
-		dropdownList ddl_objLayr "Layer:"					selection:1			items:LayersList	offset:[5, 20]
-		
-		dropdownList ddl_objInte "Object Interact:"			selection:1			items:CompList		offset:[5, 00]		across:2
-		dropdownList ddl_objComp "Object Component:"		selection:1			items:CompList		offset:[5, 00]		
-		
-		
-		
-		
-		
-		
+		GroupBox 		grp_matSetr "Material Settings"		width:350	height:280	offset:[-8,-262]	
+			
+		checkbutton 	chk_prefab 	"Is Prefab"				width:60	height:24	offset:[-10, 15]						across:4
+		checkbutton 	chk_genLods "Create LODs"			width:90	height:24	offset:[-17, 15]
+		checkbutton 	chk_genLmap "Create Lightmap"		width:90	height:24	offset:[-05, 15]
+		checkbutton 	chk_genCols "Create Collider"		width:90	height:24	offset:[00, 15]
+		dropdownList 	ddl_objType "Object Type:"									offset:[05, 00]							across:3	items:TypeList			selection:1					
+		dropdownList 	ddl_objAttr "Attribute:"									offset:[05, 00]										items:AttrList			selection:2				
+		dropdownList 	ddl_objLayr "Layer:"										offset:[05, 00]										items:LayersList		selection:1					
+		dropdownList 	ddl_objCate "Category:"										offset:[5, 00]							across:3	items:#("None")			selection:1					
+		dropdownList 	ddl_objSCat "Sub-Category:"									offset:[5, 00]										items:#("None")			selection:1	
+		dropdownList 	ddl_objClas "Classification:"								offset:[5, 00]										items:#("None")			selection:1	
+		dropdownList 	ddl_objStan "Standardization:"								offset:[5, 00]							across:3	items:#("None")			selection:1	
+		dropdownList 	ddl_objInte "Object Interact:"								offset:[5, 00]										items:CompList			selection:1	
+		dropdownList 	ddl_objComp "Object Component:"								offset:[5, 00]										items:CompList			selection:1				
+			
+		button 			btn_setLOBJ "Set Object Attributes" width:160	height:30	across:2 
+		button 			btn_go 		"GO"
+			
 		GroupBox grp_attSetr "Attribute Settings"			width:350	height:150	offset:[-8, -110]	
 			
-	--)
-		
-	--Group "Viewer Filters"
-	--(
-		checkbutton chk_art "_Art" 							width:56	height:24	across:6		pos:[008,700]			
-		checkbutton chk_dsn "_Design"						width:56	height:24					pos:[065,700]		
-		checkbutton chk_inst "_Inst"						width:56 	height:24					pos:[122,700]		
-		checkbutton chk_prop "_Prop"						width:56	height:24					pos:[179,700]		
-		checkbutton chk_veh "_Vehicle"						width:56	height:24					pos:[236,700]		
-		checkbutton chk_wea "_Weapon"						width:57	height:24					pos:[293,700]		
-	--)
-		
-	--Group "Reference Assets"
-	--(
-		button btn_lod_pref "Open Pure Ref"						pos:[0,	740]	align:#left				across:3
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Viewer Filters"
+	---------------------------------------------------------------------------------------------------------------
+			
+		checkbutton 	chk_art "_Art" 						width:56	height:24	pos:[008,700]							across:6		
+		checkbutton 	chk_dsn "_Design"					width:56	height:24	pos:[065,700]		
+		checkbutton 	chk_inst "_Inst"					width:56 	height:24	pos:[122,700]		
+		checkbutton 	chk_prop "_Prop"					width:56	height:24	pos:[179,700]		
+		checkbutton 	chk_veh "_Vehicle"					width:56	height:24	pos:[236,700]		
+		checkbutton 	chk_wea "_Weapon"					width:57	height:24	pos:[293,700]		
+			
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Reference Assets"
+	---------------------------------------------------------------------------------------------------------------
+			
+		button btn_lod_pref "Open Pure Ref"					pos:[0,	740]								align:#left			across:3
 		button btn_lod_pint "Open Pinterest Board"
 		button btn_lod_ "Open " 
-	--)
-	--Group "Scene XRefs"
-	--(
-		
-		button btn_lod_ava "Avatar XRef"					width:100			across:3		
+			
+	---------------------------------------------------------------------------------------------------------------
+	-- Group "Scene XRefs" 
+	---------------------------------------------------------------------------------------------------------------
+			
+		button btn_lod_ava "Avatar XRef"					width:100														across:3		
 		button btn_lod_met "Metrics XRef"					width:100
 		checkbutton chk_asObj "Import as Object"			width:100
 			
-		dropdownList ddl_refs ""	 						width:200 across:6
+		dropdownList ddl_refs ""	 						width:200 														across:6
 		label lbl_space ""
 		label lbl_space2 ""
 		label lbl_space3 ""
-		button btn_rmv_ref "Remove"							align:#right 
-		button btn_upd_ref "Update"				--align:#right
-	--)
-		
-	----------------------------------------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------------------------------------
-		
+		button btn_rmv_ref "Remove"																		align:#right 
+		button btn_upd_ref "Update"																		align:#right
 			
-	local filsList = #(chk_art.checked, chk_dsn.checked, chk_inst.checked, chk_prop.checked, chk_veh.checked, chk_wea.checked)
-		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+			
+		local filsList = #(chk_art.checked, chk_dsn.checked, chk_inst.checked, chk_prop.checked, chk_veh.checked, chk_wea.checked)
 			
 	--TICK-----------------------------------------------------------------------
 	-----------------------------------------------------------------------------
-	timer tick_LauncherUpdate "" 			interval:200
+			
+		timer tick_LauncherUpdate "" 			interval:200
+			
+	-----------------------------------------------------------------------------	
 		
 		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+		
+	-- UI COMMANDS -- BELOW
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------	
 	fn LocalGetXMLData = 
 	(
 		GetXMLData()
@@ -755,6 +801,7 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)			
 		
+	--Create Asset Directory
 	fn CreateAssetDirectory newloc = 
 	(				
 		--create prop directory 
@@ -762,18 +809,15 @@ Rollout flowProjectHelper "Project Manager"
 		makeDir (newloc + "\\_pref"  as string)
 		makeDir (newloc + "\\models\\_max"  as string)
 		makeDir (newloc + "\\models\\_painter"  as string)
--- 			makeDir (newloc + "\\models\\_painter\\high"  as string)
--- 			makeDir (newloc + "\\models\\_painter\\low"  as string)
 		makeDir (newloc + "\\models\\_zbrush"  as string) 
 		makeDir (newloc + "\\models"  as string)
 		makeDir (newloc + "\\textures"  as string)	
 		makeDir (newloc + "\\textures\\_painter"  as string)
 		makeDir (newloc + "\\textures\\_designer"  as string)
-		
-		
+			
 	)
-	
-	--Viewer Mode - Asset Mode 
+		
+	--Toggle Viewer Mode - Asset Mode 
 	fn AssetModeVIew bool = 
 	(
 		btn_fndLP.visible = 	bool
@@ -816,10 +860,26 @@ Rollout flowProjectHelper "Project Manager"
 		
 		edt_cusLoc.visible = 	bool
 		btn_setLoc.visible = 	bool
+		ddl_objInte.visible = 	bool
+		chk_prefab.visible = 	bool
+		chk_genLods.visible = 	bool
+		chk_genLmap.visible = 	bool
+		chk_genCols.visible = 	bool
+		ddl_objType.visible = 	bool
+		ddl_objAttr.visible = 	bool
+		ddl_objLayr.visible = 	bool
+		ddl_objCate.visible = 	bool
+		ddl_objSCat.visible = 	bool
+		ddl_objClas.visible = 	bool
+		ddl_objInte.visible = 	bool
+		ddl_objComp.visible = 	bool
 		
+		btn_setLOBJ.visible = 	bool
+		btn_go.visible 		= 	bool
+		chk_frmAtr.visible 	= 	bool
 	)
-	
-	--Viewer Mode - Directory Mode 
+		
+	--Toggle Viewer Mode - Directory Mode 
 	fn DirectoryViewMode bool = 
 	(
 		chk_art.visible = 	bool
@@ -881,7 +941,7 @@ Rollout flowProjectHelper "Project Manager"
 		clr_prj_clr.visible = 	bool
 					
 	)
-	
+		
 	--set viewer mode to Directory - 3ds max project view 
 	fn SetDirectoryViewerMode = 
 	(
@@ -898,7 +958,7 @@ Rollout flowProjectHelper "Project Manager"
 		grp_prjHlpr.visible = 	true
 			
 	)
-	
+		
 	--set viewer mode to Asset Mode - Unity Mode
 	fn SetAssetViewerMode = 
 	(
@@ -908,7 +968,7 @@ Rollout flowProjectHelper "Project Manager"
 		--set directorymode panel-- visible
 		DirectoryViewMode false
 			
-			
+		-------------------------------------
 			
 		grp_prjHlpr.caption = "Bake Setup"
 		grp_prjHlpr.height = 90
@@ -918,13 +978,14 @@ Rollout flowProjectHelper "Project Manager"
 		grp_dirView.height = 175
 			
 		grp_matSetr.pos = [5,470] 
-		grp_matSetr.height = 100
+		grp_matSetr.height = 180
 			
-		grp_attSetr.visible = 	true	
-		grp_attSetr.pos = [5,740] 
-		grp_attSetr.height = 135
-	)
-	
+		grp_attSetr.visible = true	
+		grp_attSetr.pos = [5,655] 
+		grp_attSetr.height = 220
+			
+	)	
+		
 	--reset folder dropdowns 
 	fn ResetDirectoryDropdowns = 
 	(
@@ -934,8 +995,123 @@ Rollout flowProjectHelper "Project Manager"
 		ddl_clafol.selection = 1
 		
 	)
-	
-	
+		
+	--Get scene bake mesh data 
+	fn GetSceneBakeMeshReferences = 
+	(
+		--Find and set highpoly  
+		Highpoly = undefined 
+		Lowpoly = undefined
+			
+		objHighName = ""
+				
+		for i in geometry do 
+		(
+			
+			bakingParams = #()
+			
+			
+			if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+			(
+				--load Selection's Unity Attributes 
+				bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+					
+				--changed setting
+				if bakingParams[1] == "Highpoly Mesh" then 
+				(
+					objHighName = i.name
+					
+					
+					--set high
+					findHigh = (getNodeByName objHighName)
+					Highpoly = findHigh
+					if Highpoly != undefined then 
+					(
+						if (matchpattern Highpoly.name pattern:"*_HP*") then
+						(
+							
+						)
+						else(
+							Highpoly.name = (Highpoly.name+"_HP" as string)
+						)
+					)	
+						
+					if Highpoly != undefined then 
+					(
+						btn_pckHP.object = Highpoly
+						edt_higMesh.text = Highpoly.name as string
+					)
+				)
+			)
+		)					
+			
+		--if chk_low.checked then
+		(
+				
+			objLowName = ""
+				
+			for i in geometry do 
+			(
+				
+				bakingParams = #()
+				
+				if (getUserPropVal i "Baking Attributes" asString:true) != undefined then 
+				(
+					--load Selection's Unity Attributes 
+					bakingParams = execute (getUserPropVal i "Baking Attributes" asString:true)	
+						
+					--changed setting
+					if bakingParams[1] == "Lowpoly Mesh" then 
+					(
+						objLowName = i.name
+							
+						--set low
+						findLow = getNodeByName objLowName
+						Lowpoly = findLow
+						if Lowpoly != undefined then 
+						(
+							if (matchpattern Lowpoly.name pattern:"*_LP*") then
+							(
+								
+							)
+							else(
+								Lowpoly.name = (Lowpoly.name+"_LP" as string)
+							)
+						)
+							
+						if Lowpoly != undefined then 
+						(
+							btn_pckLP.object = Lowpoly
+							edt_lowMesh.text = Lowpoly.name as string
+						)
+					)
+				)
+			)	
+		)
+	)
+		
+		
+	--set Send To - Link 
+	fn SetSendToExportLink state = 
+	(
+		if state then 
+		(
+			origSel = ddl_hpDest.selection 
+			ddl_hpDest.enabled = false 
+			btn_hpSend.enabled = false
+			
+			ddl_hpDest.selection = ddl_lpDest.selection
+						
+		)
+		else(
+			
+			ddl_hpDest.selection = origSel
+			ddl_hpDest.enabled = true 
+			btn_hpSend.enabled = true
+			
+		)
+	)
+		
 	--Viewer Mode Dropdown 
 	fn SetToolsetViewerMode = 
 	(
@@ -959,6 +1135,13 @@ Rollout flowProjectHelper "Project Manager"
 					
 				--set asset mode 
 				SetAssetViewerMode()
+					
+				--set mesh references, if available in scene 
+				GetSceneBakeMeshReferences()
+					
+				--set export destination link 
+				status = chk_sySend.state
+				SetSendToExportLink status 
 					
 			)
 			4:
@@ -994,7 +1177,7 @@ Rollout flowProjectHelper "Project Manager"
 				--project mode 
 			
 				ddl_proj.enabled = true
-				scnTypeFolder = "\scenes\Areas\\"
+				scnTypeFolder = defaultGeomFolder
 					
 				chk_geoExport.enabled = false 
 				chk_aniExport.enabled = false 
@@ -1058,11 +1241,147 @@ Rollout flowProjectHelper "Project Manager"
 		
 		
 	)
-	
-
-	----------------------------------------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------------------------------------
 		
+	fn SetCategoryDropdown = (
+		
+		itms = #()
+		
+		dir = (GetDirectories  (unityProjectLocations[1]+"\\"+ddl_objType.selected as string+"\*") recurse:false)   --getFiles (unityProjectLocations[1]+"//"+ddl_objType.selected as string)
+			
+		for i in dir do 
+		(
+			str = filenameFromPath i
+			str = substituteString str "\\" ""
+			
+			append itms (str)
+		)
+			
+		if itms.count == 0 then
+		(
+			itms[1] = "None"
+		)
+			
+		ddl_objCate.items = itms
+		ddl_objCate.selection = 1 
+	)
+		
+	
+	fn SetSubCategoryDropdown = (
+		
+		subCats = #()
+		
+		dir = (GetDirectories  (unityProjectLocations[1]+"\\"+ddl_objType.selected as string+"\\"+ddl_objCate.selected+"\*") recurse:false)   --getFiles (unityProjectLocations[1]+"//"+ddl_objType.selected as string)
+			
+		for i in dir do 
+		(
+			str = filenameFromPath i
+			str = substituteString str "\\" ""
+			
+			append subCats (str)
+		)
+			
+		if subCats.count == 0 then
+		(
+			subCats[1] = "None"
+		)
+		
+		ddl_objSCat.items = subCats
+		ddl_objSCat.selection = 1 
+	)
+		
+	
+	fn SetClassificationDropdown = (
+		
+		objClas = #()
+		
+		dir = (GetDirectories  (unityProjectLocations[1]+"\\"+ddl_objType.selected as string+"\\"+ddl_objCate.selected+"\\"+ddl_objSCat.selected +"\*") recurse:false)   --getFiles (unityProjectLocations[1]+"//"+ddl_objType.selected as string)
+			
+		for i in dir do 
+		(
+			str = filenameFromPath i
+			str = substituteString str "\\" ""
+			
+			append objClas (str)
+		)
+			
+		if objClas.count == 0 then
+		(
+			objClas[1] = "None"
+		)
+		
+		ddl_objClas.items = objClas
+		ddl_objClas.selection = 1 
+	)
+		
+	
+	fn SetStandardizationDropdown = (
+		
+		objClas = #()
+		
+		dir = (GetDirectories  (unityProjectLocations[1]+"\\"+ddl_objType.selected as string+"\\"+ddl_objCate.selected+"\\"+ddl_objSCat.selected+"\\"+ddl_objClas.selected+"\*") recurse:false)   --getFiles (unityProjectLocations[1]+"//"+ddl_objType.selected as string)
+			
+		for i in dir do 
+		(
+			str = filenameFromPath i
+			str = substituteString str "\\" ""
+			
+			append objClas (str)
+		)
+			
+		if objClas.count == 0 then
+		(
+			objClas[1] = "None"
+		)
+		
+		ddl_objStan.items = objClas
+		ddl_objStan.selection = 1 
+	)
+	
+	
+	fn SetObjectAttributes list = 
+	(
+		list[1]		= chk_prefab.checked --chk_IsPrefab.checked 	
+		list[2]		= 1 --ddl_Tags.selection 		
+		list[3] 	= ddl_objLayr.selection --ddl_Lyrs.selection 		
+		list[4]		= ddl_objType.selection --ddl_ObjT.selection		
+		list[5]		= 2 --ddl_MshComp.selection	
+		list[6]		= chk_genCols.checked --chk_Cols.checked		
+		list[7]		= chk_genLmap.checked	--chk_Lmaps.checked 		
+		list[8]		= false	--chk_Amin.checked 		
+		list[9]		= false	--chk_Blnd.checked 		
+		list[10]	= false	--chk_Cams.checked 		
+		list[11]	= false		--chk_Lght.checked 		
+		list[12]	= false	--chk_Visi.checked 		
+		list[13]	= 1 	--ddl_Nmls.selection 		
+		list[14]	= 1 --ddl_MCM.selection 		
+		list[15]	= 1 --ddl_MLoc.selection 		
+		list[16]	= ddl_objAttr.selection --ddl_oAtr.selection		
+		list[17]	= false --chk_preHier.checked 	
+		list[18]	= 1 --spn_filScale.value 		
+		list[19]	= true --chk_BakeXform.checked	
+		list[20]	= false --chk_fileUnits.checked	
+		list[21]	= true --chk_SortHier.checked	
+		list[22]	= true --chk_KeepQads.checked	
+		list[23]	= false --chk_SwapChn.checked		
+		list[24]	= true --chk_fileScale.checked	
+		list[25]	= 1		
+		list[26]	= 1
+		list[27] 	= 1
+		list[28] 	= ddl_objCate.selected 
+		list[29]	= #()
+		list[30]	= #()
+		list[31] 	= ddl_objClas.selected
+		list[32]	= #()
+		list[33]	= #()
+		list[34] 	= ddl_objComp.selection
+		list[35] 	= ddl_objSCat.selected
+		list[36]	= #()
+		list[37] 	= ddl_objStan.selected
+		
+	)
+	
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
 		
 	-- UI COMMANDS -- BELOW
 		
@@ -1074,14 +1393,13 @@ Rollout flowProjectHelper "Project Manager"
 		print areatag[rad_are_type.state]
 	)
 		
-		
 	on tick_LauncherUpdate tick do 
 	(
 		--filters list
 		filsList = #(chk_art.state, chk_dsn.state, chk_inst.state, chk_prop.state, chk_veh.state, chk_wea.state)
 		--update status 
 		--UpdateToolsetStatus()		
-		
+			
 		if chk_sel_nam.checked then 
 		(
 			edt_dir_name.enabled = false
@@ -1098,7 +1416,7 @@ Rollout flowProjectHelper "Project Manager"
 		else (edt_dir_name.enabled = true )
 			
 			
-	
+			
 		--flip folders 
 		case chk_geoExport.checked of
 		(
@@ -1114,7 +1432,7 @@ Rollout flowProjectHelper "Project Manager"
 				chk_aniExport.enabled = true
 			)
 		)
-		
+			
 		case chk_aniExport.checked of 
 		(
 			true:
@@ -1129,19 +1447,9 @@ Rollout flowProjectHelper "Project Manager"
 				chk_geoExport.enabled = true
 			)
 		)
-		
-		if ddl_lpDest.selection == 5 then 
-		(
-			btn_setLoc.enabled = true 
-			edt_cusLoc.enabled = true 
-		)
-		else(
-			btn_setLoc.enabled = false 
-			edt_cusLoc.enabled = false 
-		)
-		
-		
-		
+			
+			
+			
 	)
 	
 	on btn_projSync pressed do 
@@ -1168,8 +1476,22 @@ Rollout flowProjectHelper "Project Manager"
 		)
 
 	)
+		
+	on chk_frmAtr changed state do 
+	(
+		originalText = edt_cusLoc.text 
+		
+		if state then 
+		(
+			--set path from attributes destination 
+			customPathFromAttributes = (unityProjectLocations[1]+"\\"+ddl_objType.selected+"\\"+ddl_objCate.selected+"\\"+ddl_objSCat.selected+"\\"+ddl_objClas.selected+"\\"+Lowpoly.name) as string 
+			edt_cusLoc.text = customPathFromAttributes
+		)
+		else 
+		(edt_cusLoc.text = originalText)
+		
+	)
 	
-
 	--autoname check
 	on chk_sel_nam changed state do 
 	(			
@@ -1247,7 +1569,7 @@ Rollout flowProjectHelper "Project Manager"
 -- 			hiddenNodes = #()
 -- 			hiddenLayers = #()
 	)
-
+		
 	--Areas List -- when double clicked 
 	on lst_areas selected i do 
 	(
@@ -1260,7 +1582,6 @@ Rollout flowProjectHelper "Project Manager"
 		)
 	)
 		
-		
 	--Areas List -- when double clicked 
 	on lst_areas doubleClicked i do 
 	(
@@ -1268,7 +1589,6 @@ Rollout flowProjectHelper "Project Manager"
 		--launch new max window 
 		--print (levels[i] as string)  
 	)
-		
 	
 	--Areas List -- when right clicked 
 	on lst_areas rightClick i do 
@@ -1295,9 +1615,208 @@ Rollout flowProjectHelper "Project Manager"
 		
 
 	)
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	-- UI COMMANDS -- DROPDOWNLISTS
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	--project name selected 
+	on ddl_proj selected i do 
+	(
+		subsfol_array = #()
+		ddl_subfol.items = #()
+			
+		--get Project levels and filter types 
+		GetProjectLevels()
+			
+		--reload pref button status 
+		CheckIfReferenceExists()
+		--reset drop down list
+		ddl_folder.selection = 1
+			
+		--set array
+		curProjectFolder = substituteString curProjectFolder "\\" "/"
+		print curProjectFolder	
+		
+		--save launcher data 
+		SetLauncherData curProjectFolder 10
+		SetLauncherData ddl_proj.selection 11
+			
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
+		
+	)		
+		
+	--Viewer Mode selected
+	on ddl_viewerMode selected i do 
+	(
+		--viewer mode setting 
+		SetToolsetViewerMode()
+		
+	)	
+		
+	--sub-folders list 
+	on ddl_subfol selected i do
+	(
+			
+		--get Project levels and filter types 
+		GetProjectLevels()
+			
+		--reload pref button status 
+		CheckIfReferenceExists()
+			
+		--set array
+		SetLauncherData i 3
+		
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
+			
+	)
+		
+	--folders list 
+	on ddl_folder selected i do 
+	(
+		
+		--reset drop down list
+		ddl_subfol.selection = 1 
+			
+		--Reload sub folders list
+		GetProjectLevels()
+			
+		--reload pref button status 
+		CheckIfReferenceExists()
+			
+		--set array
+		SetLauncherData i 2
+			
+		--set array
+		SetLauncherData ddl_subfol.selection 3
+		
+		--save 'mainFPFolder' 
+		SaveLauncherData toolFolder	
+		
+	)
+		
+	--LP Destination 
+	on ddl_lpDest selected i do 
+	(
+		if i < 6 then 
+		(
+			--toggles - off 
+			btn_setLoc.enabled = false 
+			edt_cusLoc.enabled = false 
+			chk_frmAtr.enabled = false 
+			
+		)
+		case i of 
+		(
+			1: 
+			(
+				print "YES BITCH"
+			)
+			6:
+			(
+				--toggles - on 
+				btn_setLoc.enabled = true 
+				edt_cusLoc.enabled = true 
+				chk_frmAtr.enabled = true 
+				
+				originalText = edt_cusLoc.text
+				
+					
+			)
+		)
+		
+		
+		
+		
+		if chk_sySend.checked then 
+		(
+			
+			ddl_hpDest.selection = ddl_lpDest.selection
+		)
+		else(
+			
+			
+			--ddl_hpDest.selection = ddl_hpDest.selection 
+		)
+		
+	)
+		
+	on ddl_area_suf selected i do 
+	(
+-- 		LocalGetXMLData()
+-- 		flowMethods = flowParams()
+-- 		ddl_area_suf.items = flowMethods.areasuf 
+	)
+		
+	--object type selected 
+	on ddl_objType selected i do 
+	(
+		--set category drop down 
+		SetCategoryDropdown()
+		--set sub-category drop down
+		SetSubCategoryDropdown()
+		--set classification drop down
+		SetClassificationDropdown()
+		--set standardization drop down
+		SetStandardizationDropdown()
+	)
+		
+	--category selected 
+	on ddl_objCate selected i do 
+	(
+		--set sub-category drop down
+		SetSubCategoryDropdown()
+		--set classification drop down
+		SetClassificationDropdown()	
+		--set standardization drop down
+		SetStandardizationDropdown()
+	)
+		
+	--subcategory selected 
+	on ddl_objSCat selected i do 
+	(
+		--set classification drop down
+		SetClassificationDropdown()
+		--set standardization drop down
+		SetStandardizationDropdown()
+	)
 	
+	on ddl_objClas selected i do 
+	(
+		SetStandardizationDropdown()
+	)
+	
+		
+	on btn_go pressed do 
+	(
+		
+	)
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	-- UI COMMANDS -- BUTTONS
+		
+	----------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
+		
+	on btn_fndLP pressed do 
+	(
+		--setup bake mesh references 
+		GetSceneBakeMeshReferences()
+	)
+		
+		
+		
+	------------------------------------------------------------------------------------------------	
 	--Areas List - Buttons -------------------------------------------------------------------------
-	---------------------------------------------------------------------------------------------------------------------------
+	------------------------------------------------------------------------------------------------
 		
 	--new button tests 
 	on btn_new_win pressed do 
@@ -1322,7 +1841,8 @@ Rollout flowProjectHelper "Project Manager"
 		)
 		else()
 	)
-		--new button tests 
+		
+	--new button tests 
 	on btn_iso_lvl pressed do 
 	(	
 		
@@ -1409,158 +1929,24 @@ Rollout flowProjectHelper "Project Manager"
 		)
 	)
 		
-	----------------------------------------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------------------------------------
-		
-	-- UI COMMANDS -- DROPDOWNLISTS
-		
-	----------------------------------------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------------------------------------
-		
-	--project name selected 
-	on ddl_proj selected i do 
-	(
-		subsfol_array = #()
-		ddl_subfol.items = #()
-			
-		--get Project levels and filter types 
-		GetProjectLevels()
-			
-		--reload pref button status 
-		CheckIfReferenceExists()
-		--reset drop down list
-		ddl_folder.selection = 1
-			
-		--set array
-		curProjectFolder = substituteString curProjectFolder "\\" "/"
-		print curProjectFolder	
-		
-		--save launcher data 
-		SetLauncherData curProjectFolder 10
-		SetLauncherData ddl_proj.selection 11
-			
-		--save 'mainFPFolder' 
-		SaveLauncherData toolFolder	
-		
-	)
-		
-		
-	--Viewer Mode selected
-	on ddl_viewerMode selected i do 
-	(
-		--viewer mode setting 
-		SetToolsetViewerMode()
-		
-	)	
-		
-	--sub-folders list 
-	on ddl_subfol selected i do
-	(
-			
-		--get Project levels and filter types 
-		GetProjectLevels()
-			
-		--reload pref button status 
-		CheckIfReferenceExists()
-			
-		--set array
-		SetLauncherData i 3
-		
-		--save 'mainFPFolder' 
-		SaveLauncherData toolFolder	
-			
-	)
-		
-	--folders list 
-	on ddl_folder selected i do 
-	(
-		
-		--reset drop down list
-		ddl_subfol.selection = 1 
-			
-		--Reload sub folders list
-		GetProjectLevels()
-			
-		--reload pref button status 
-		CheckIfReferenceExists()
-			
-		--set array
-		SetLauncherData i 2
-			
-		--set array
-		SetLauncherData ddl_subfol.selection 3
-		
-		--save 'mainFPFolder' 
-		SaveLauncherData toolFolder	
-		
-	)
-		
-	--LP Destination 
-	on ddl_lpDest selected i do 
-	(
-		if chk_sySend.checked then 
-		(
-			
-			ddl_hpDest.selection = ddl_lpDest.selection
-		)
-		else(
-			
-			
-			--ddl_hpDest.selection = ddl_hpDest.selection 
-		)
-		
-	)
-	
-	on ddl_area_suf selected i do 
-	(
--- 		LocalGetXMLData()
--- 		flowMethods = flowParams()
--- 		ddl_area_suf.items = flowMethods.areasuf 
-	)
-	
-	
-	----------------------------------------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------------------------------------
-		
-	-- UI COMMANDS -- BUTTONS
-		
-	----------------------------------------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------------------------------------
-		
-		
-		
-		
 	-------------------------------------------------------------------------------------------------------------Check Buttons ----
 	----------------------------------------------------------------------------------------------------------------------------------	
 
 	on chk_sySend changed state do 
 	(
-		
-		if state then 
-		(
-			origSel = ddl_hpDest.selection 
-			ddl_hpDest.enabled = false 
-			btn_hpSend.enabled = false
+		--set export destination link 
+		SetSendToExportLink state 
 			
-			ddl_hpDest.selection = ddl_lpDest.selection
-						
-		)
-		else(
-			
-			ddl_hpDest.selection = origSel
-			ddl_hpDest.enabled = true 
-			btn_hpSend.enabled = true
-			
-		)
-			
-		
-		
 	)	
 		
 	on btn_setLoc pressed do 
 	(
-		edt_cusLoc.text =  getSavePath()
+		customDest = getSavePath()
 		
+		if customDest != undefined then 
+		(
+			edt_cusLoc.text = customDest
+		)
 	)
 		
 		
@@ -1826,14 +2212,13 @@ Rollout flowProjectHelper "Project Manager"
 			else()
 			
 		)
-	)
-	
-	
-	
+	)	
+		
+		
 	-----------------------------------------------------------------------------------------------------------Project Dir Helper ----
 	----------------------------------------------------------------------------------------------------------------------------------
-	
-	
+		
+		
 	--Create New Project Button 
 	on btn_crt pressed do 
 	(	
@@ -2008,11 +2393,154 @@ Rollout flowProjectHelper "Project Manager"
 -- 			)
 			
 	)
+		
+	local LabelGrp = false
+		
+	--Set Object Attributes
+	on btn_setLOBJ pressed do 
+	(
+		
+		undo on			
+		if chk_prefab.checked then 
+		(
+			local attachedObjs = #()
+			selObjs = #()
+			sel = selection as array 	
+				
+			if selection.count > 0 then
+			(
+					
+				--create temp//fail safe material 
+				--newmat = standard diffuseMap:(checker()) showInViewport:true
+					
+				--for i in sel do
+				--(
+					--apply material 
+					--i.material = newmat
+					--set prefab wirecolor	
+					--i.wirecolor = clr_text.color		
+				--)
+						
+				
+				selObjs = for obj in selection collect obj
+					
+				tempObj = selObjs[1]
+					
+				bbObj = Rectangle() --box()
+				--bbObj.wirecolor = clr_text.color
+				bbObj.name = "BoundingBox"
+				bbMin = tempObj.min
+				bbMax = tempObj.max
+				bbSize = bbMin - bbMax
+				bbSize.x = abs(bbSize.x)
+				bbSize.y = abs(bbSize.y)
+				bbSize.z = abs(bbSize.z)
+					
+				
+				bbObj.width = (bbSize[1])
+				bbObj.length = (bbSize[2])				
+					
+					
+				--bbObj.height = bbSize.z
+				--bbObj.wirecolor = clr_text
+				bbObj.pivot = bbObj.center
+				bbObj.pos = [0,0,0]--[tempObj.center.x, tempObj.center.y, tempObj.min.z]--tempObj.center
+					
+					
+				txt = text()
+				txt.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected)			--txt.rotation = quat 0 0 180 0
+				txt.size = .05
+				txt.pos = [tempObj.center.x, ((bbObj.min.y) + -.20), tempObj.min.z]
+				txt.parent = bbObj			
+				
+				txt2 = text()
+				txt2.text = ("::"+selection[1].name+"::")			--txt.rotation = quat 0 0 180 0
+				txt2.size = .14
+				txt2.pos = [tempObj.center.x, ((bbObj.min.y) + -.35), tempObj.min.z]
+				txt2.parent = bbObj	
+					
+					
+				-- place on selection's pivot point
+				for i in selObjs do 
+				(					
+						
+					--position variable
+					place = i.pos
+						
+					--places container on selection's pivot 
+					myCont = Container isSelected:on allowInPlaceEditing:true  displayLabel:true
+						
+					--adds node to container
+					myCont.AddNodeToContent i
+						
+					--names container
+					myCont.name = "inst_" + i.name as string
+					--myCont.wirecolor = clr_text.color
+					myCont.size = bbObj.length
+					myCont.pos = bbObj.pos
+						
+					--Creates a layer for each selected container and names it accordingly			
+					layer = LayerManager.newLayer()
+					layer.setname (myCont.name as string)
+					layer.addnode i
+					layer.addnode myCont
+						
+					----------------------------------------------------------------------------
+						
+				)
+				
+				bbObj.length += .25
+				bbObj.width += .25 
+				
+				
+				
+					
+				completeRedraw() 
+				forceCompleteRedraw doDisabled:true 	
+				
+					
+				--grp = ungroup selObjs
+					
+			)
+		)
+			
+		--set attributes 
+		objAttributes = #() 
+				
+		for i in selection as array do 
+		(
+			if (getUserPropVal i "Unity Attributes") == undefined then 	
+			(
+				print "New Attributes Object"
+					
+				--set attributes	--list param
+				SetObjectAttributes objAttributes
+						
+				--record settings	
+				setUserPropVal i "Unity Attributes" objAttributes 
+			)
+			else
+			(  					
+				--set attributes	--list param
+				SetObjectAttributes objAttributes
+					
+				--record settings	
+				setUserPropVal i "Unity Attributes" objAttributes 
+					
+			)				
+				
+			
+			
+				
+		)		
+			
+		macros.run "FlowAttributes" "IBGUnityAttributesAdd"
+	)
+		
 	
 	----------------------------------------------------------------------------------------------------------------Level Filters ----
 	----------------------------------------------------------------------------------------------------------------------------------
-	
-	
+		
 	--level filter - art 
 	on chk_art changed state do 
 	(
@@ -2200,6 +2728,7 @@ Rollout flowProjectHelper "Project Manager"
 	--on toolset open 
 	on flowProjectHelper open do 
 	(
+		origSel = ddl_hpDest.selection 
 		--chk_art.state = launcherdata[4]
 		--chk_dsn.state = launcherdata[5]
 		--chk_inst.state = launcherdata[6]
@@ -2289,6 +2818,8 @@ Rollout flowProjectHelper "Project Manager"
 		--reload pref button status 
 		CheckIfReferenceExists()						
 			
+		--start mode - viewer 
+		ddl_viewerMode.selection = startMode 
 		--set toolset viewer mode 
 		SetToolsetViewerMode()
 	)

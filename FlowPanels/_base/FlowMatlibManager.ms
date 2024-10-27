@@ -46,31 +46,32 @@
 				
 			
 			edittext 		edt_mat_name "Selected Material:" 							width:280													offset:[00,17]	
-			label 			lbl_space1 	"Active Nodes: "							height:30					across:9						offset:[10,0]
-			checkbutton 	chk_ab_map "ab"											width:30													offset:[15,00]				
-			checkbutton 	chk_rg_map "rg"											width:30													offset:[0,00]	
-			checkbutton 	chk_nm_map "nm"											width:30													offset:[-15,00]				
-			checkbutton 	chk_op_map "op"											width:30													offset:[-30,00]	
-			checkbutton 	chk_mt_map "mt"											width:30													offset:[-45,00]	
-			checkbutton 	chk_ao_map "ao"											width:30													offset:[-60,00]	
-			checkbutton 	chk_hg_map "hg"											width:30													offset:[-75,00]	
-			checkbutton 	chk_em_map "em"											width:30													offset:[-90,00]	
-			checkbutton 	chk_bk_map "  "											width:30													offset:[122,-35]		enabled:false
+			label 			lbl_space1 	"Active Nodes: "							height:30					across:9							offset:[10,0]
+			checkbutton 	chk_ab_map "ab"											width:30														offset:[15,00]				
+			checkbutton 	chk_rg_map "rg"											width:30														offset:[0,00]	
+			checkbutton 	chk_nm_map "nm"											width:30														offset:[-15,00]				
+			checkbutton 	chk_op_map "op"											width:30														offset:[-30,00]	
+			checkbutton 	chk_mt_map "mt"											width:30														offset:[-45,00]	
+			checkbutton 	chk_ao_map "ao"											width:30														offset:[-60,00]	
+			checkbutton 	chk_hg_map "hg"											width:30														offset:[-75,00]	
+			checkbutton 	chk_em_map "em"											width:30														offset:[-90,00]	
+			checkbutton 	chk_bk_map "  "											width:30														offset:[122,-35]		enabled:false
 			
 			label 			lbl_space2	""											height:5
 		)
 			
 		Group "Material Toolkit: "
 		(
-			edittext 	edt_mmtl_name "New Material Name:"	 						width:260 	height:20 		across:1				text:"Rename Me"
-			checkbutton chk_mtlb_slnt "Open SME"									height:25 					across:4		checked:false   	offset:[-20,0]
-			button 		btn_comb_mats "Create Multi-Mat"							height:25 														offset:[-20,0]
-			button 		btn_new_mtl  "Import Material"								height:25														offset:[3,0]
-			button 		btn_sub_mtl  "Import Substance"								height:25														offset:[0,0]
+			edittext 		edt_mmtl_name "New Material Name:"	 						width:260 	height:20 		across:1		text:"Rename Me"
+			checkbutton 	chk_mtlb_slnt "Open SME"									height:25 					across:4		checked:false   offset:[-20,0]
+			button 			btn_comb_mats "Create Multi-Mat"							height:25 													offset:[-20,0]
+			button 			btn_new_mtl  "Import Material"								height:25													offset:[3,0]
+			button 			btn_sub_mtl  "Import Substance"								height:25													offset:[0,0]
 			--timer 	tck_updt_mtlb ""		interval:100
 			
-			spinner 	spn_uv_ctrl "UVs Scaler"   									width:280		           	range:[0, 1000, 100]				offset:[00,00]
-			
+			spinner 		spn_uv_ctrl "UV Numeric"   								width:150		       range:[0,9999,0]    		across:3						offset:[00,00]		
+			dropdownList 	ddl_uv_axis ""											width:100														offset:[50,00]					items:#("XY", "X", "Y")
+			button 			btn_uv_setS	"Set UVs"	
 		)
 		----------------------------------------------------------------------------------------------------------
 		
@@ -358,9 +359,13 @@
 			edt_mtlb_name.text = ""
 				
 		)
-			
+		---------------------------------------------------------------------------------------------------------------------------	
+		
 		--uv scalar spinner ui - on value change 
-		on spn_uv_ctrl changed val do 
+		
+		---------------------------------------------------------------------------------------------------------------------------
+		
+		on btn_uv_setS pressed do 
 		(
 			undo on 
 				
@@ -368,16 +373,19 @@
 			(			
 				uvMod = i.modifiers[#Unwrap_uvw]
 				uvMod2 = uvMod.unwrap2
-				uvMod2.ScaleSelectedCenter (spn_uv_ctrl.value) 0 
+				i.modifiers[#unwrap_uvw].unwrap4.SetRelativeTypeIn on
+				--uvMod2.ScaleSelected (((spn_uv_ctrl.value*100)/100)) (ddl_uv_axis.selection-1) (uvMod2.getSelCenter())
+					
+				b = selection[1]
+				bb = (b.max - b.min) -- collect BBox to variable
+				-- simple format [x,y,z]:
+				format "%;%;%\n" bb[1] bb[2] bb[3]
+					
+				uvMod2.scaleSelectedXY (bb[1])  (bb[3])  (uvMod2.getSelCenter())
+					
 			)
 				
 		)		
-			
-		--uv scalar tester 
-		on spn_uv_ctrl entered do 
-		(
-			spn_uv_ctrl.value = 100
-		)	
 			
 		--save library as - dialog
 		on btn_crt_mtlb pressed do 
