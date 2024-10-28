@@ -54,6 +54,26 @@ Rollout flowProjectHelper "Project Manager"
 (
 
 	--tool parameters 
+	
+	--Colors
+	local prefabColor 	= (color 28 89 177 255)
+	local custGeoColor 	= (color 150 89 66 255)
+	
+	local structColor 	= (color 177 89 27 255)
+	local intWallColor 	= (color 66 89 35 255)
+	local intCeiColor 	= (color 66 120 45 255)
+	local propColor 	= (color 10 125 150 255)
+	local vehiColor 	= (color 200 89 80 255)
+	local decalColor 	= (color 255 23 23 255)
+	local dynamicColor 	= (color 125 89 23 255)
+	local shaOnlyColor 	= (color 50 50 50 255)
+	local mshColColor 	= (color 2 255 255 255)
+	local finalColor 	= (color 28 89 177 255)
+		
+	
+	local assetClassLabel
+	local assetNameLabel
+	
 	local newArr = #()
 	local levels = #()
 	local newLevels = #()
@@ -807,10 +827,10 @@ Rollout flowProjectHelper "Project Manager"
 		--create prop directory 
 			
 		makeDir (newloc + "\\_pref"  as string)
+		makeDir (newloc + "\\models"  as string)
 		makeDir (newloc + "\\models\\_max"  as string)
 		makeDir (newloc + "\\models\\_painter"  as string)
-		makeDir (newloc + "\\models\\_zbrush"  as string) 
-		makeDir (newloc + "\\models"  as string)
+		makeDir (newloc + "\\models\\_zbrush"  as string)
 		makeDir (newloc + "\\textures"  as string)	
 		makeDir (newloc + "\\textures\\_painter"  as string)
 		makeDir (newloc + "\\textures\\_designer"  as string)
@@ -1353,7 +1373,7 @@ Rollout flowProjectHelper "Project Manager"
 		list[11]	= false		--chk_Lght.checked 		
 		list[12]	= false	--chk_Visi.checked 		
 		list[13]	= 1 	--ddl_Nmls.selection 		
-		list[14]	= 1 --ddl_MCM.selection 		
+		list[14]	= 3 --ddl_MCM.selection 		
 		list[15]	= 1 --ddl_MLoc.selection 		
 		list[16]	= ddl_objAttr.selection --ddl_oAtr.selection		
 		list[17]	= false --chk_preHier.checked 	
@@ -1364,9 +1384,9 @@ Rollout flowProjectHelper "Project Manager"
 		list[22]	= true --chk_KeepQads.checked	
 		list[23]	= false --chk_SwapChn.checked		
 		list[24]	= true --chk_fileScale.checked	
-		list[25]	= 1		
-		list[26]	= 1
-		list[27] 	= 1
+		list[25]	= 2		
+		list[26]	= 3
+		list[27] 	= 2
 		list[28] 	= ddl_objCate.selected 
 		list[29]	= #()
 		list[30]	= #()
@@ -2399,6 +2419,7 @@ Rollout flowProjectHelper "Project Manager"
 	--Set Object Attributes
 	on btn_setLOBJ pressed do 
 	(
+		labels = #() 
 		
 		undo on			
 		if chk_prefab.checked then 
@@ -2428,7 +2449,7 @@ Rollout flowProjectHelper "Project Manager"
 					
 				bbObj = Rectangle() --box()
 				--bbObj.wirecolor = clr_text.color
-				bbObj.name = "BoundingBox"
+				bbObj.name = "flow_prefab_asset"
 				bbMin = tempObj.min
 				bbMax = tempObj.max
 				bbSize = bbMin - bbMax
@@ -2445,21 +2466,60 @@ Rollout flowProjectHelper "Project Manager"
 				--bbObj.wirecolor = clr_text
 				bbObj.pivot = bbObj.center
 				bbObj.pos = [0,0,0]--[tempObj.center.x, tempObj.center.y, tempObj.min.z]--tempObj.center
+				bbObj.wirecolor = prefabColor	
 					
+				--check for labels 
+				labels = (for obj in objects where (isKindOf obj text) collect obj) 
 					
-				txt = text()
-				txt.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected)			--txt.rotation = quat 0 0 180 0
-				txt.size = .05
-				txt.pos = [tempObj.center.x, ((bbObj.min.y) + -.20), tempObj.min.z]
-				txt.parent = bbObj			
-				
-				txt2 = text()
-				txt2.text = ("::"+selection[1].name+"::")			--txt.rotation = quat 0 0 180 0
-				txt2.size = .14
-				txt2.pos = [tempObj.center.x, ((bbObj.min.y) + -.35), tempObj.min.z]
-				txt2.parent = bbObj	
+				if labels.count != 0 then
+				(
+					for i in labels do 
+					(
+						if i.name == "asset_classification_label" then 
+						(							
+							--assetClassLabel.name = "asset_classification_label"
+							i.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
+							i.size = .0725
+							i.pos = [tempObj.center.x, ((bbObj.min.y) + -.20), tempObj.min.z]
+							i.parent = bbObj	
+							i.wirecolor = prefabColor
+						)
+					)
+				)
+				else
+				(
+					assetClassLabel = text()
+					assetClassLabel.name = "asset_classification_label"
+					assetClassLabel.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
+					assetClassLabel.size = .0725
+					assetClassLabel.pos = [tempObj.center.x, ((bbObj.min.y) + -.20), tempObj.min.z]
+					assetClassLabel.parent = bbObj			
+				)
 					
-					
+				if labels.count != 0 then 
+				(
+					for i in labels do 
+					(
+						if i.name == "asset_name_label" then 
+						(						
+							--assetNameLabel.name = "asset_name_label"
+							i.text = ("::"+selection[1].name+"::")			--txt.rotation = quat 0 0 180 0
+							i.size = .14
+							i.pos = [tempObj.center.x, ((bbObj.min.y) + -.35), tempObj.min.z]
+							i.parent = bbObj
+							i.wirecolor = prefabColor
+						)
+					)
+				)
+				else (
+					assetNameLabel = text()
+					assetNameLabel.name = "asset_name_label"
+					assetNameLabel.text = ("::"+selection[1].name+"::")			--txt.rotation = quat 0 0 180 0
+					assetNameLabel.size = .14
+					assetNameLabel.pos = [tempObj.center.x, ((bbObj.min.y) + -.35), tempObj.min.z]
+					assetNameLabel.parent = bbObj	
+				)
+						
 				-- place on selection's pivot point
 				for i in selObjs do 
 				(					
@@ -2479,6 +2539,8 @@ Rollout flowProjectHelper "Project Manager"
 					myCont.size = bbObj.length
 					myCont.pos = bbObj.pos
 						
+					
+					--PLACE { PREFABS } LAYER inside the 'models' layer and inside a '_prefabs' layer 
 					--Creates a layer for each selected container and names it accordingly			
 					layer = LayerManager.newLayer()
 					layer.setname (myCont.name as string)

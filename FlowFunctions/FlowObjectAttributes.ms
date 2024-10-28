@@ -682,12 +682,14 @@ toolTip:"Add Unity Attributes"
 				
 			)--end posAttribs
 			
-			--add modifier -- needs optimizing 
-			modPanel.addModToSelection (modi) ui:on
-			for i in selection as array do 
+			
+			for i =  1 to  selection.count do 
 			(
+				--add modifier -- needs optimizing 
+				modPanel.addModToSelection (modi) ui:on
+					
 				--add the attribute in the first modifier
-				custAttributes.add i.modifiers[1] UnityAttributes 
+				custAttributes.add selection[i].modifiers[1] UnityAttributes 
 				
 			)
 			
