@@ -89,6 +89,9 @@ Rollout flowProjectHelper "Project Manager"
 	local arealab = flowMethods.arealab 
 	
 	local originalText = ""
+	local bbObj = rectangle
+	local prefabLayer 
+	
 	
 	--create an empty select level
 	local selLevel = 1
@@ -98,7 +101,7 @@ Rollout flowProjectHelper "Project Manager"
 	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile 			align:#center gamma:1.0 
 	local editorMode = #("3DSMax Project", "Asset Creation", "Global Mode", "Unity Projekt")	
 	local origSel = integer
-		
+	
 	subRollout sub_roll_a "" 
 		
 		
@@ -1262,6 +1265,7 @@ Rollout flowProjectHelper "Project Manager"
 		
 	)
 		
+	--create category dropdown
 	fn SetCategoryDropdown = (
 		
 		itms = #()
@@ -1285,7 +1289,7 @@ Rollout flowProjectHelper "Project Manager"
 		ddl_objCate.selection = 1 
 	)
 		
-	
+	--create subcategory dropdown
 	fn SetSubCategoryDropdown = (
 		
 		subCats = #()
@@ -1309,7 +1313,7 @@ Rollout flowProjectHelper "Project Manager"
 		ddl_objSCat.selection = 1 
 	)
 		
-	
+	--create classification dropdown
 	fn SetClassificationDropdown = (
 		
 		objClas = #()
@@ -1333,7 +1337,7 @@ Rollout flowProjectHelper "Project Manager"
 		ddl_objClas.selection = 1 
 	)
 		
-	
+	--create standardization dropdown
 	fn SetStandardizationDropdown = (
 		
 		objClas = #()
@@ -1357,7 +1361,7 @@ Rollout flowProjectHelper "Project Manager"
 		ddl_objStan.selection = 1 
 	)
 	
-	
+	--set attrributes to object 
 	fn SetObjectAttributes list = 
 	(
 		list[1]		= chk_prefab.checked --chk_IsPrefab.checked 	
@@ -1399,6 +1403,8 @@ Rollout flowProjectHelper "Project Manager"
 		list[37] 	= ddl_objStan.selected
 		
 	)
+		
+	
 	
 	----------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------
@@ -1472,6 +1478,7 @@ Rollout flowProjectHelper "Project Manager"
 			
 	)
 	
+	--link to Unity Project - Button 
 	on btn_projSync pressed do 
 	(
 		loc = undefined 		
@@ -1497,21 +1504,39 @@ Rollout flowProjectHelper "Project Manager"
 
 	)
 		
+	--create path from attributes 
 	on chk_frmAtr changed state do 
 	(
+		asstName = ""
 		originalText = edt_cusLoc.text 
 		
 		if state then 
 		(
-			--set path from attributes destination 
-			customPathFromAttributes = (unityProjectLocations[1]+"\\"+ddl_objType.selected+"\\"+ddl_objCate.selected+"\\"+ddl_objSCat.selected+"\\"+ddl_objClas.selected+"\\"+Lowpoly.name) as string 
-			edt_cusLoc.text = customPathFromAttributes
+			if Lowpoly == undefined then 
+			(
+				asstName = "NoLowpolyFound"
+			)
+			else 
+			(
+				asstName = Lowpoly.name
+					
+				typePath = ("\\"+ ddl_objType.selected as string)
+				catePath = ("\\"+ ddl_objCate.selected as string)
+				subcPath = ("\\"+ ddl_objSCat.selected as string)
+				clasPath = ("\\"+ ddl_objClas.selected as string)
+					
+				fullUnityPath = (unityProjectLocations[1] + typePath + catePath + subcPath + clasPath)
+					
+				print fullUnityPath
+				--set path from attributes destination 
+				edt_cusLoc.text = fullUnityPath
+			)
 		)
 		else 
 		(edt_cusLoc.text = originalText)
 		
 	)
-	
+		
 	--autoname check
 	on chk_sel_nam changed state do 
 	(			
@@ -1609,7 +1634,7 @@ Rollout flowProjectHelper "Project Manager"
 		--launch new max window 
 		--print (levels[i] as string)  
 	)
-	
+		
 	--Areas List -- when right clicked 
 	on lst_areas rightClick i do 
 	(
@@ -1635,6 +1660,8 @@ Rollout flowProjectHelper "Project Manager"
 		
 
 	)
+		
+		
 		
 	----------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------
@@ -1945,13 +1972,14 @@ Rollout flowProjectHelper "Project Manager"
 		--save 'mainFPFolder' 
 		SaveLauncherData toolFolder	
 			
-				
 		)
+
 	)
 		
 	-------------------------------------------------------------------------------------------------------------Check Buttons ----
 	----------------------------------------------------------------------------------------------------------------------------------	
-
+		
+	--link LP & HP destination - button 
 	on chk_sySend changed state do 
 	(
 		--set export destination link 
@@ -1959,6 +1987,7 @@ Rollout flowProjectHelper "Project Manager"
 			
 	)	
 		
+	--set custom location path - button 
 	on btn_setLoc pressed do 
 	(
 		customDest = getSavePath()
@@ -1967,8 +1996,7 @@ Rollout flowProjectHelper "Project Manager"
 		(
 			edt_cusLoc.text = customDest
 		)
-	)
-		
+	)		
 		
 	-------------------------------------------------------------------------------------------------------------Directory Helper ----
 	----------------------------------------------------------------------------------------------------------------------------------
@@ -2420,15 +2448,20 @@ Rollout flowProjectHelper "Project Manager"
 	on btn_setLOBJ pressed do 
 	(
 		labels = #() 
+		local attachedObjs = #()
+		local bbSize = #()
 		
+		selObjs = #()
+		sel = selection as array 	
+		local lyrName  = ""
+		
+		
+		--if 'is prefab' 
 		undo on			
 		if chk_prefab.checked then 
 		(
-			local attachedObjs = #()
-			selObjs = #()
-			sel = selection as array 	
-				
-			if selection.count > 0 then
+
+			if selection.count >= 1 then
 			(
 					
 				--create temp//fail safe material 
@@ -2443,125 +2476,212 @@ Rollout flowProjectHelper "Project Manager"
 				--)
 						
 				
-				selObjs = for obj in selection collect obj
+				selObjs = for obj in selection as array collect obj
 					
-				tempObj = selObjs[1]
+
 					
-				bbObj = Rectangle() --box()
-				--bbObj.wirecolor = clr_text.color
-				bbObj.name = "flow_prefab_asset"
-				bbMin = tempObj.min
-				bbMax = tempObj.max
-				bbSize = bbMin - bbMax
-				bbSize.x = abs(bbSize.x)
-				bbSize.y = abs(bbSize.y)
-				bbSize.z = abs(bbSize.z)
-					
-				
-				bbObj.width = (bbSize[1])
-				bbObj.length = (bbSize[2])				
-					
-					
-				--bbObj.height = bbSize.z
-				--bbObj.wirecolor = clr_text
-				bbObj.pivot = bbObj.center
-				bbObj.pos = [0,0,0]--[tempObj.center.x, tempObj.center.y, tempObj.min.z]--tempObj.center
-				bbObj.wirecolor = prefabColor	
-					
-				--check for labels 
-				labels = (for obj in objects where (isKindOf obj text) collect obj) 
-					
-				if labels.count != 0 then
-				(
-					for i in labels do 
-					(
-						if i.name == "asset_classification_label" then 
-						(							
-							--assetClassLabel.name = "asset_classification_label"
-							i.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
-							i.size = .0725
-							i.pos = [tempObj.center.x, ((bbObj.min.y) + -.20), tempObj.min.z]
-							i.parent = bbObj	
-							i.wirecolor = prefabColor
-						)
-					)
-				)
-				else
-				(
-					assetClassLabel = text()
-					assetClassLabel.name = "asset_classification_label"
-					assetClassLabel.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
-					assetClassLabel.size = .0725
-					assetClassLabel.pos = [tempObj.center.x, ((bbObj.min.y) + -.20), tempObj.min.z]
-					assetClassLabel.parent = bbObj			
-				)
-					
-				if labels.count != 0 then 
-				(
-					for i in labels do 
-					(
-						if i.name == "asset_name_label" then 
-						(						
-							--assetNameLabel.name = "asset_name_label"
-							i.text = ("::"+selection[1].name+"::")			--txt.rotation = quat 0 0 180 0
-							i.size = .14
-							i.pos = [tempObj.center.x, ((bbObj.min.y) + -.35), tempObj.min.z]
-							i.parent = bbObj
-							i.wirecolor = prefabColor
-						)
-					)
-				)
-				else (
-					assetNameLabel = text()
-					assetNameLabel.name = "asset_name_label"
-					assetNameLabel.text = ("::"+selection[1].name+"::")			--txt.rotation = quat 0 0 180 0
-					assetNameLabel.size = .14
-					assetNameLabel.pos = [tempObj.center.x, ((bbObj.min.y) + -.35), tempObj.min.z]
-					assetNameLabel.parent = bbObj	
-				)
-						
 				-- place on selection's pivot point
-				for i in selObjs do 
-				(					
-						
-					--position variable
-					place = i.pos
-						
-					--places container on selection's pivot 
-					myCont = Container isSelected:on allowInPlaceEditing:true  displayLabel:true
-						
-					--adds node to container
-					myCont.AddNodeToContent i
-						
-					--names container
-					myCont.name = "inst_" + i.name as string
-					--myCont.wirecolor = clr_text.color
-					myCont.size = bbObj.length
-					myCont.pos = bbObj.pos
-						
+				for i = 1 to selObjs.count do 
+				(		
+					-------------------------------------------------------
 					
-					--PLACE { PREFABS } LAYER inside the 'models' layer and inside a '_prefabs' layer 
-					--Creates a layer for each selected container and names it accordingly			
-					layer = LayerManager.newLayer()
-					layer.setname (myCont.name as string)
-					layer.addnode i
-					layer.addnode myCont
+					tempObj = selObjs
+					classID = ("classID_" + tempObj[i].name)
+					assetID = ("asset_"+tempObj[i].name)
+					assetBD = ("fpa_"+tempObj[i].name)
+					
+					-------------------------------------------------------
+						
+						
+					bbMin = tempObj[i].min
+					bbMax = tempObj[i].max
+					bbSize = bbMin - bbMax
+					bbSize.x = abs(bbSize.x)
+					bbSize.y = abs(bbSize.y)
+					bbSize.z = abs(bbSize.z)
+						
+					-------------------------------------------------------
+						
+						
+					modLayer = (LayerManager.getLayerFromName "models")
+					
+					if (LayerManager.getLayerFromName "prefabs") == undefined then 
+					(
+						prefLayer = (LayerManager.newLayerFromName "prefabs")
+						prefLayer.setParent modLayer
+					)
+					else(
+						prefLayer = (LayerManager.getLayerFromName "prefabs")
+						prefLayer.setParent modLayer 
+					)
 						
 					----------------------------------------------------------------------------
 						
+					--create rectangle bounds shape list 
+					bbObj = #()
+					rect = Rectangle()
+						
+					--create rectangle bounds shape 	
+					if (getNodeByName assetBD) == undefined then 
+					(
+							
+						rect.name = assetBD
+						rect.width = (bbSize[1])
+						rect.length = (bbSize[2])
+						rect.pivot = rect.center
+						rect.pos = [tempObj[i].center.x, tempObj[i].center.y, tempObj[i].min.z]
+						rect.wirecolor = prefabColor
+							
+						--freeze bounds shape in place 
+						freeze rect 
+						rect.showFrozeninGray = false 
+							
+					)
+					else
+					(
+						delete rect 
+						rect = (getNodeByName assetBD)
+						rect.wirecolor = prefabColor
+						rect.width = (bbSize[1])
+						rect.length = (bbSize[2])										
+							
+						--bbObj.height = bbSize.z
+						--bbObj.wirecolor = clr_text
+						rect.pivot = rect.center
+						rect.pos = [tempObj[i].center.x, tempObj[i].center.y, tempObj[i].min.z]
+						rect.wirecolor = prefabColor
+							
+					)		
+						
+					--add to boundShapesList
+					append bbObj rect 
+						
+					--check for labels 
+					labels = #() --(for obj in objects where (isKindOf obj text) collect obj) 
+						
+					if (getNodeByName classID) != undefined then 
+					(
+						o = (getNodeByName classID)
+						o.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
+						o.size = .0725
+						o.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.20), tempObj[i].min.z]
+						o.parent = bbObj[i]	
+						o.wirecolor = prefabColor
+						append labels o
+							
+					)
+					else
+					(
+						assetClassLabel = text()
+						assetClassLabel.name = classID
+						assetClassLabel.wirecolor = prefabColor
+						assetClassLabel.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
+						assetClassLabel.size = .0725
+						assetClassLabel.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.20), tempObj[i].min.z]
+						assetClassLabel.parent = bbObj[i]		
+							
+						freeze assetClassLabel
+						assetClassLabel.showFrozeninGray = false 
+						append labels assetClassLabel
+					)
+						
+					--check asset name labels 
+					nameLabels = #()
+						
+					if (getNodeByName assetID) != undefined then 
+					(
+						o = (getNodeByName assetID)
+						o.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
+						o.size = .14
+						o.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.35), tempObj[i].min.z]
+						o.parent = bbObj[i]
+							
+						--add to list 
+						append nameLabels o
+					)
+					else 
+					(
+						assetNameLabel = text()
+						assetNameLabel.name = assetID
+						assetNameLabel.wirecolor = custGeoColor
+						assetNameLabel.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
+						assetNameLabel.size = .14
+						assetNameLabel.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.35), tempObj[i].min.z]
+						assetNameLabel.parent = bbObj[i]	
+							
+						--freeze labels 
+						freeze assetNameLabel
+						assetNameLabel.showFrozeninGray = false 
+							
+						--add to list
+						append nameLabels assetNameLabel
+					)
+					
+					--position variable
+					--place = tempObj[i].pos
+						
+					--create and organize 
+					tempLayer = LayerManager.getLayerFromName ("-Prefab- | " + tempObj[i].name) 
+					if (tempLayer) != undefined then 
+					(
+						tempLayer.addnode tempObj[i]
+						
+						for j in nameLabels do 
+						(
+							tempLayer.addnode j
+						)
+							
+						for m in labels do 
+						(
+							tempLayer.addnode m
+						)
+							
+						for l in bbObj do 
+						(
+							tempLayer.addnode l
+						)
+						--prefabLayer.addnode myCont
+						--prefabLayer.setParent modLayer 
+						tempLayer.setParent prefLayer
+					)
+					else
+					(						
+						prefabLayer = LayerManager.newLayer()
+							
+						--set layer name
+						lyrName = ("-Prefab- | " + tempObj[i].name)
+						prefabLayer.setname lyrName
+						--add objects to layer 
+						prefabLayer.addnode tempObj[i]
+						prefabLayer.addnode labels[i]
+						for l in bbObj do 
+						(
+							prefabLayer.addnode l
+						)	
+							
+						--prefabLayer.addnode myCont
+							
+						prefabLayer.setParent prefLayer
+							
+							
+					)	
+						
+					--add buffer to bounds rectangle 
+					for t in bbObj do 
+					(
+						t.length += .25
+						t.width += .25 
+					)
+					
+					
+					
+					
+					
 				)
-				
-				bbObj.length += .25
-				bbObj.width += .25 
-				
-				
-				
+					
 					
 				completeRedraw() 
 				forceCompleteRedraw doDisabled:true 	
-				
-					
-				--grp = ungroup selObjs
 					
 			)
 		)
@@ -2569,7 +2689,7 @@ Rollout flowProjectHelper "Project Manager"
 		--set attributes 
 		objAttributes = #() 
 				
-		for i in selection as array do 
+		for i in selection do 
 		(
 			if (getUserPropVal i "Unity Attributes") == undefined then 	
 			(
@@ -2589,14 +2709,29 @@ Rollout flowProjectHelper "Project Manager"
 				--record settings	
 				setUserPropVal i "Unity Attributes" objAttributes 
 					
-			)				
+			)
 				
-			
-			
+			--places container on selection's pivot 
+			myCont = Container  allowInPlaceEditing:true  displayLabel:true
+				
+			--names container
+			myCont.name = ("inst_" + i.name)as string 
+			myCont.wirecolor = custGeoColor
+				
+			for n in bbObj do 
+			(
+				myCont.size = .385
+				myCont.pos = i.pos
+			)
+				
+			--adds node to container
+			myCont.AddNodeToContent i
+				
 				
 		)		
 			
 		macros.run "FlowAttributes" "IBGUnityAttributesAdd"
+			
 	)
 		
 	
