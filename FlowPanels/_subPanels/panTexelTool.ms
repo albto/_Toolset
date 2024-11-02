@@ -16,7 +16,7 @@ rollout flowTexelTool "Texel Density tool"
 			
 			uvwMod = obj.modifiers[#UnwrapUVW] 
 			
-			faceSel = uvwMod.GetSelectionFromFace() 
+			--faceSel = uvwMod.GetSelectionFromFace() 
 			
 			---print uvMod.UVWScale 
 			if (uvwMod != undefined) then

@@ -50,13 +50,13 @@ rollout dRol "Baking Manager"
 		(
 			nameStr = uniquename + "mat_example_"
 		)
-
+			
 		--create new material
 		material = PBRMetalRough name:nameStr
-
+			
 		return material
-
-
+			
+			
 	)
 
 	------------------------------------------------------------

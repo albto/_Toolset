@@ -2447,291 +2447,383 @@ Rollout flowProjectHelper "Project Manager"
 	--Set Object Attributes
 	on btn_setLOBJ pressed do 
 	(
-		labels = #() 
+		local labels = #() 
+		local nameLabels = #()
+		local tempObj = #()
 		local attachedObjs = #()
 		local bbSize = #()
-		
-		selObjs = #()
-		sel = selection as array 	
+		local lblStr = ""
+		local lblLayer = undefined
+		local selObjs = #()
+		local sel = selection as array 	
 		local lyrName  = ""
-		
-		
-		--if 'is prefab' 
-		undo on			
-		if chk_prefab.checked then 
+			
+			
+		undo on 
+	
+		trigger = true 
+		if trigger then 
 		(
-
-			if selection.count >= 1 then
-			(
-					
-				--create temp//fail safe material 
-				--newmat = standard diffuseMap:(checker()) showInViewport:true
-					
-				--for i in sel do
-				--(
-					--apply material 
-					--i.material = newmat
-					--set prefab wirecolor	
-					--i.wirecolor = clr_text.color		
-				--)
-						
+			--collect selected objects 	
+			selObjs = for obj in sel collect obj
+			
 				
-				selObjs = for obj in selection as array collect obj
-					
+			--if 'is prefab' 
+			undo on			
+			if chk_prefab.checked then 
+			(
+				if selection.count >= 1 then
+				(					
+					-- place on selection's pivot point
+					for i = 1 to selObjs.count do 
+					(		
+						tempObj = selObjs
+						classID = ("classID_" 	+ tempObj[i].name)
+						assetID = ("asset_"		+ tempObj[i].name)
+						assetBD = ("fpa_"		+ tempObj[i].name)
+						assetCT = ("inst_" 		+ tempObj[i].name)
+						
+						-------------------------------------------------------
+							
+							
+						bbMin = tempObj[i].min
+						bbMax = tempObj[i].max
+						bbSize = bbMin - bbMax
+						bbSize.x = abs(bbSize.x)
+						bbSize.y = abs(bbSize.y)
+						bbSize.z = abs(bbSize.z)
+							
+						-------------------------------------------------------
+							
+							
+						modLayer = (LayerManager.getLayerFromName "models")
+							
+						-------------------------------------------------------
+							
+						if (LayerManager.getLayerFromName "prefabs") == undefined then 
+						(
+							prefLayer = (LayerManager.newLayerFromName "prefabs")
+							prefLayer.setParent modLayer
+						)
+						else(
+							prefLayer = (LayerManager.getLayerFromName "prefabs")
+							prefLayer.setParent modLayer 
+						)
+							
+						-------------------------------------------------------
+							
+						----------------------------------------------------------------------------
+							
+						--create rectangle bounds shape list 
+						bbObj = #()
+						rect = Rectangle()
+							
+						--create rectangle bounds shape 	
+						if (getNodeByName assetBD) == undefined then 
+						(
+								
+							rect.name = assetBD
+							rect.width = (bbSize[1])
+							rect.length = (bbSize[2])
+							rect.pivot = rect.center
+							rect.pos = [tempObj[i].center.x, tempObj[i].center.y, tempObj[i].min.z]
+							rect.wirecolor = prefabColor
+								
+							--freeze bounds shape in place 
+							freeze rect 
+							rect.showFrozeninGray = false 
+								
+							--add to boundShapesList
+							append bbObj rect 
+								
+						)
+						else
+						(
+							delete rect 
+							rect = (getNodeByName assetBD)
+							rect.wirecolor = prefabColor
+							rect.width = (bbSize[1])
+							rect.length = (bbSize[2])										
+								
+							--bbObj.height = bbSize.z
+							--bbObj.wirecolor = clr_text
+							rect.pivot = rect.center
+							rect.pos = [tempObj[i].center.x, tempObj[i].center.y, tempObj[i].min.z]
+							rect.wirecolor = prefabColor
+								
+							--add to boundShapesList
+							append bbObj rect 
+							
+						)		
+							
 
-					
-				-- place on selection's pivot point
-				for i = 1 to selObjs.count do 
-				(		
-					-------------------------------------------------------
-					
-					tempObj = selObjs
-					classID = ("classID_" + tempObj[i].name)
-					assetID = ("asset_"+tempObj[i].name)
-					assetBD = ("fpa_"+tempObj[i].name)
-					
-					-------------------------------------------------------
+						--clear the labels arrays 
+						labels 		= #() --(for obj in objects where (isKindOf obj text) collect obj) 
+						nameLabels 	= #()
 						
-						
-					bbMin = tempObj[i].min
-					bbMax = tempObj[i].max
-					bbSize = bbMin - bbMax
-					bbSize.x = abs(bbSize.x)
-					bbSize.y = abs(bbSize.y)
-					bbSize.z = abs(bbSize.z)
-						
-					-------------------------------------------------------
-						
-						
-					modLayer = (LayerManager.getLayerFromName "models")
-					
-					if (LayerManager.getLayerFromName "prefabs") == undefined then 
-					(
-						prefLayer = (LayerManager.newLayerFromName "prefabs")
-						prefLayer.setParent modLayer
-					)
-					else(
-						prefLayer = (LayerManager.getLayerFromName "prefabs")
-						prefLayer.setParent modLayer 
-					)
-						
-					----------------------------------------------------------------------------
-						
-					--create rectangle bounds shape list 
-					bbObj = #()
-					rect = Rectangle()
-						
-					--create rectangle bounds shape 	
-					if (getNodeByName assetBD) == undefined then 
-					(
-							
-						rect.name = assetBD
-						rect.width = (bbSize[1])
-						rect.length = (bbSize[2])
-						rect.pivot = rect.center
-						rect.pos = [tempObj[i].center.x, tempObj[i].center.y, tempObj[i].min.z]
-						rect.wirecolor = prefabColor
-							
-						--freeze bounds shape in place 
-						freeze rect 
-						rect.showFrozeninGray = false 
-							
-					)
-					else
-					(
-						delete rect 
-						rect = (getNodeByName assetBD)
-						rect.wirecolor = prefabColor
-						rect.width = (bbSize[1])
-						rect.length = (bbSize[2])										
-							
-						--bbObj.height = bbSize.z
-						--bbObj.wirecolor = clr_text
-						rect.pivot = rect.center
-						rect.pos = [tempObj[i].center.x, tempObj[i].center.y, tempObj[i].min.z]
-						rect.wirecolor = prefabColor
-							
-					)		
-						
-					--add to boundShapesList
-					append bbObj rect 
-						
-					--check for labels 
-					labels = #() --(for obj in objects where (isKindOf obj text) collect obj) 
-						
-					if (getNodeByName classID) != undefined then 
-					(
-						o = (getNodeByName classID)
-						o.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
-						o.size = .0725
-						o.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.20), tempObj[i].min.z]
-						o.parent = bbObj[i]	
-						o.wirecolor = prefabColor
-						append labels o
-							
-					)
-					else
-					(
-						assetClassLabel = text()
-						assetClassLabel.name = classID
-						assetClassLabel.wirecolor = prefabColor
-						assetClassLabel.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
-						assetClassLabel.size = .0725
-						assetClassLabel.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.20), tempObj[i].min.z]
-						assetClassLabel.parent = bbObj[i]		
-							
-						freeze assetClassLabel
-						assetClassLabel.showFrozeninGray = false 
-						append labels assetClassLabel
-					)
-						
-					--check asset name labels 
-					nameLabels = #()
-						
-					if (getNodeByName assetID) != undefined then 
-					(
-						o = (getNodeByName assetID)
-						o.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
-						o.size = .14
-						o.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.35), tempObj[i].min.z]
-						o.parent = bbObj[i]
-							
-						--add to list 
-						append nameLabels o
-					)
-					else 
-					(
-						assetNameLabel = text()
-						assetNameLabel.name = assetID
-						assetNameLabel.wirecolor = custGeoColor
-						assetNameLabel.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
-						assetNameLabel.size = .14
-						assetNameLabel.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.35), tempObj[i].min.z]
-						assetNameLabel.parent = bbObj[i]	
-							
-						--freeze labels 
-						freeze assetNameLabel
-						assetNameLabel.showFrozeninGray = false 
-							
-						--add to list
-						append nameLabels assetNameLabel
-					)
-					
-					--position variable
-					--place = tempObj[i].pos
-						
-					--create and organize 
-					tempLayer = LayerManager.getLayerFromName ("-Prefab- | " + tempObj[i].name) 
-					if (tempLayer) != undefined then 
-					(
-						tempLayer.addnode tempObj[i]
-						
-						for j in nameLabels do 
+						if (getNodeByName classID) != undefined then 
 						(
-							tempLayer.addnode j
+							o = (getNodeByName classID)
+							o.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
+							o.size = .0725
+							o.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.20), tempObj[i].min.z]
+							o.parent = bbObj[i]	
+							
+							for k = 1 to bbObj.count do 
+							(
+								o.parent = bbObj[k]
+							)
+							
+							o.wirecolor = prefabColor
+							append labels o
+								
+						)
+						else
+						(
+							assetClassLabel = text()
+							assetClassLabel.name = classID
+							assetClassLabel.wirecolor = prefabColor
+							assetClassLabel.text = (ddl_objType.selected+"::"+ddl_objCate.selected+"::"+ddl_objSCat.selected+"::"+ddl_objClas.selected+"::"+ddl_objStan.selected)			--txt.rotation = quat 0 0 180 0
+							assetClassLabel.size = .0725
+							assetClassLabel.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.20), tempObj[i].min.z]
+								
+							for k = 1 to bbObj.count do 
+							(
+								assetClassLabel.parent = bbObj[k]
+							)
+							
+								
+							freeze assetClassLabel
+							assetClassLabel.showFrozeninGray = false 
+							append labels assetClassLabel
 						)
 							
-						for m in labels do 
-						(
-							tempLayer.addnode m
-						)
 							
-						for l in bbObj do 
+						if (getNodeByName assetID) != undefined then 
 						(
-							tempLayer.addnode l
+							o = (getNodeByName assetID)
+							o.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
+							o.size = .14
+							o.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.35), tempObj[i].min.z]
+								
+							for k = 1 to bbObj.count do 
+							(
+								o.parent = bbObj[k]
+							)	
+								
+							--add to list 
+							append nameLabels o
 						)
-						--prefabLayer.addnode myCont
-						--prefabLayer.setParent modLayer 
-						tempLayer.setParent prefLayer
-					)
-					else
-					(						
-						prefabLayer = LayerManager.newLayer()
-							
-						--set layer name
-						lyrName = ("-Prefab- | " + tempObj[i].name)
-						prefabLayer.setname lyrName
-						--add objects to layer 
-						prefabLayer.addnode tempObj[i]
-						prefabLayer.addnode labels[i]
-						for l in bbObj do 
+						else 
 						(
-							prefabLayer.addnode l
+							assetNameLabel = text()
+							assetNameLabel.name = assetID
+							assetNameLabel.wirecolor = custGeoColor
+							assetNameLabel.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
+							assetNameLabel.size = .14
+							assetNameLabel.pos = [tempObj[i].center.x, ((tempObj[i].min.y) + -.35), tempObj[i].min.z]
+							
+							for k = 1 to bbObj.count do 
+							(
+								assetNameLabel.parent = bbObj[k]
+							)
+								
+							--freeze labels 
+							freeze assetNameLabel
+							assetNameLabel.showFrozeninGray = false 
+								
+							--add to list
+							append nameLabels assetNameLabel
 						)	
 							
-						--prefabLayer.addnode myCont
 							
-						prefabLayer.setParent prefLayer
-							
-							
-					)	
+						--create and organize 
+						tempLayer = LayerManager.getLayerFromName ("-Prefab- | " + tempObj[i].name) 
+						lblStr =  filterString  (tempObj[i].name as string) "_"
+						lblLayer = LayerManager.getLayerFromName("_labels_- "+lblStr[1][1]as string+"_"+lblStr[2][1]as string+"_"+lblStr[3][lblStr.count-1]as string+lblStr[3][lblStr.count]as string)
 						
-					--add buffer to bounds rectangle 
-					for t in bbObj do 
-					(
-						t.length += .25
-						t.width += .25 
+						if (tempLayer) != undefined and lblLayer != undefined then 
+						(													
+							
+							tempLayer.addnode tempObj[i]
+							
+							for j in nameLabels do 
+							(
+								tempLayer.addnode j
+							)
+								
+							for m in labels do 
+							(
+								lblLayer.addnode m
+							)
+								
+							for n in nameLabels do 
+							(
+								lblLayer.addnode n
+							)	
+								
+							for l in bbObj do 
+							(
+								lblLayer.addnode l
+							)
+								
+							--prefabLayer.addnode myCont
+							--prefabLayer.setParent modLayer 
+							--tempLayer.setParent prefLayer
+							--lblLayer.setParent tempLayer 	
+							
+						)
+						else
+						(						
+							prefabLayer = LayerManager.newLayer()
+							lblLayer = LayerManager.newLayer()
+								
+							--set layer name
+							lyrName = ("-Prefab- | " + tempObj[i].name)
+							prefabLayer.setname lyrName
+							
+							lblStr =  filterString  (tempObj[i].name as string) "_"
+							lblLayer.setname ("_labels_- "+lblStr[1][1]as string+"_"+lblStr[2][1]as string+"_"+lblStr[3][lblStr.count-2]as string+lblStr[3][lblStr.count-1]as string)
+								
+							--add objects to layer 
+							prefabLayer.addnode tempObj[i]
+							
+							for m in labels do 
+							(
+								lblLayer.addnode m
+							)
+								
+							for n in nameLabels do 
+							(
+								lblLayer.addnode n
+							)
+								
+							for l in bbObj do 
+							(
+								lblLayer.addnode l
+							)	
+								
+							--prefabLayer.addnode myCont
+							prefabLayer.setParent prefLayer
+							lblLayer.setParent prefabLayer	
+								
+						)	
+							
+						--add buffer to bounds rectangle 
+						for t in bbObj do 
+						(
+							t.length += .25
+							t.width += .25 
+						)
+							
+						completeRedraw() 
+						forceCompleteRedraw doDisabled:true 
+							
 					)
+						
+				)
+			)
+				
+			--set attributes 
+			objAttributes = #() 
+				
+			--set attributes	--list param
+			SetObjectAttributes objAttributes
+				
+			--
+			for z = 1 to  sel.count do 
+			(
 					
+				assetCT = ("inst_" + tempObj[z].name)
 					
-					
-					
-					
+				if (getUserPropVal tempObj[z] "Unity Attributes") == undefined then 	
+				(
+					print "New Attributes Object"
+							
+					--record settings	
+					setUserPropVal tempObj[z] "Unity Attributes" objAttributes 
+				)
+				else
+				(  					
+						
+					--record settings	
+					setUserPropVal tempObj[z] "Unity Attributes" objAttributes 
+						
 				)
 					
-					
-				completeRedraw() 
-				forceCompleteRedraw doDisabled:true 	
-					
-			)
-		)
-			
-		--set attributes 
-		objAttributes = #() 
-				
-		for i in selection do 
-		(
-			if (getUserPropVal i "Unity Attributes") == undefined then 	
-			(
-				print "New Attributes Object"
-					
-				--set attributes	--list param
-				SetObjectAttributes objAttributes
+				--create container 
+				if (getNodeByName assetCT) == undefined then 
+				(
+					--places container on selection's pivot 
+					myCont = Container  allowInPlaceEditing:true  displayLabel:true
 						
-				--record settings	
-				setUserPropVal i "Unity Attributes" objAttributes 
-			)
-			else
-			(  					
-				--set attributes	--list param
-				SetObjectAttributes objAttributes
+					--names container
+					myCont.name = assetCT
+					myCont.wirecolor = custGeoColor
+					myCont.pos = tempObj[z].pos
+					myCont.size = .385
+						
+					--adds node to container
+					myCont.AddNodeToContent tempObj[z]
+						
+					--add to layer 
+					layrNam = ("-Prefab- | " + tempObj[z].name)
+					prefabLayer = LayerManager.getLayerFromName layrNam
+					prefabLayer.addnode tempObj[z].parent
+						
+					--container parent 
+					myCont.parent = bbObj[z]
+						
+				)	
+				else ( 
+						
+					myCont = (getNodeByName assetCT)
 					
-				--record settings	
-				setUserPropVal i "Unity Attributes" objAttributes 
+					if (myCont) != undefined then 
+					(
+						--unfreeze container
+						unfreeze myCont
+						
+						--remove the old Node from container
+						myCont.RemoveNodeFromContent tempObj[z] true 
+						
+						--reposition container, just to be safe 
+						myCont.name = assetCT
+						myCont.pos = tempObj[z].pos	
+							
+						--add node back to cantainer as to not affect it's position 
+						myCont.addNodeToContent tempObj[z]
+						--add to layer 
+						layrNam = ("-Prefab- | " + tempObj[z].name)
+						prefabLayer = LayerManager.getLayerFromName layrNam
+						prefabLayer.addnode tempObj[z].parent
+							
+					)
+					else(
+							
+						--rename container, just in case
+						myCont.name = assetCT as string 
+						myCont.wirecolor = custGeoColor
+						myCont.size = .385
+						myCont.pos = tempObj[z].pos
+							
+						--add node to cantainer
+						myCont.addNodeToContent tempObj[z]
+							
+						--add to layer 
+						layrNam = ("-Prefab- | " + tempObj[z].name)
+						prefabLayer = LayerManager.getLayerFromName layrNam
+						prefabLayer.addnode tempObj[z].parent
+					)
 					
-			)
+					myCont.parent = bbObj[z]
+				)
 				
-			--places container on selection's pivot 
-			myCont = Container  allowInPlaceEditing:true  displayLabel:true
+			)		
 				
-			--names container
-			myCont.name = ("inst_" + i.name)as string 
-			myCont.wirecolor = custGeoColor
-				
-			for n in bbObj do 
-			(
-				myCont.size = .385
-				myCont.pos = i.pos
-			)
-				
-			--adds node to container
-			myCont.AddNodeToContent i
-				
-				
-		)		
-			
-		macros.run "FlowAttributes" "IBGUnityAttributesAdd"
-			
+			lblLayer = undefined 
+			macros.run "FlowAttributes" "IBGUnityAttributesAdd"
+		)			
 	)
 		
 	
