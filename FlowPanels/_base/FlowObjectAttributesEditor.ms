@@ -38,10 +38,7 @@
 	obs = #()
 		
 	rollout srl_Stats "Unity Attributes Helper"
-	(
-		
-		
-		
+	(		
 		
 		--obj = lst_focObj.items[item] as string 
 		local selectedMesh 

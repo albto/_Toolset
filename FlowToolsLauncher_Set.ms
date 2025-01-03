@@ -464,6 +464,37 @@ rcMenu LauncherSettingsMenu
 				
 				
 		)
+			
+		------------------------------------------------------------------------------------------------
+		--import data from the unity xml 
+		fn ImportDataFromUnity = 
+		(
+			--load xml data 
+			flowIns.LoadXml()
+				
+			--Load layers data 
+			LoadLayerDataFromXml flowIns.xmlDoc.DocumentElement name:"Layers"
+				
+			--Load tags data 
+			LoadTagDataFromXml flowIns.xmlDoc.DocumentElement name:"Tags"
+				
+			--Load attributes data 
+			LoadAttributeDataFromXml flowIns.xmlDoc.DocumentElement name:"Attributes"
+				
+			--Load types data 
+			LoadTypesDataFromXml flowIns.xmlDoc.DocumentElement name:"Types"
+				
+			--Load components data 
+			LoadComponentsDataFromXml flowIns.xmlDoc.DocumentElement name:"Components"
+			--print ("Layers List - " + LayersList as string)
+			--print ("Tags List - " + TagsList as string)
+			--print ("Attributes List - " + AttrList as string)
+				
+		)
+			
+		
+		
+		
 		
 		----------------------------------------------------------------------------------------------------------------------------
 		----------------------------------------------------------------------------------------------------------------------------
@@ -947,7 +978,10 @@ rcMenu LauncherSettingsMenu
 		on edt open do 
 		(
 			FlowDataStructure()		
-			
+				
+			--import unity data
+			ImportDataFromUnity()
+				
 			if mainFPFolder != undefined then
 			(
 					

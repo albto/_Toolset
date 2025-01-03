@@ -89,7 +89,7 @@ Rollout flowProjectHelper "Project Manager"
 	local arealab = flowMethods.arealab 
 	
 	local originalText = ""
-	local bbObj = rectangle
+	local bbObj = #()
 	local prefabLayer 
 	
 	
@@ -2731,10 +2731,15 @@ Rollout flowProjectHelper "Project Manager"
 			SetObjectAttributes objAttributes
 				
 			--
-			for z = 1 to  sel.count do 
+			for z = 1 to sel.count do 
 			(
+				try 
+				(					
+					assetCT = ("inst_" + tempObj[z].name) 
+				)	
+				catch( assetCT = tempObj[z].name)
 					
-				assetCT = ("inst_" + tempObj[z].name)
+					
 					
 				if (getUserPropVal tempObj[z] "Unity Attributes") == undefined then 	
 				(
@@ -2778,7 +2783,8 @@ Rollout flowProjectHelper "Project Manager"
 				else ( 
 						
 					myCont = (getNodeByName assetCT)
-					
+					myCont.parent = undefined 
+					link
 					if (myCont) != undefined then 
 					(
 						--unfreeze container
@@ -2798,8 +2804,12 @@ Rollout flowProjectHelper "Project Manager"
 						prefabLayer = LayerManager.getLayerFromName layrNam
 						prefabLayer.addnode tempObj[z].parent
 							
+						--container parent
+						myCont.parent = bbObj[z]
+							
 					)
 					else(
+							
 							
 						--rename container, just in case
 						myCont.name = assetCT as string 
@@ -2814,9 +2824,15 @@ Rollout flowProjectHelper "Project Manager"
 						layrNam = ("-Prefab- | " + tempObj[z].name)
 						prefabLayer = LayerManager.getLayerFromName layrNam
 						prefabLayer.addnode tempObj[z].parent
+							
+						--container parent
+						myCont.parent = bbObj[z]
+						
 					)
-					
-					myCont.parent = bbObj[z]
+						
+-- 					--container parent
+-- 					myCont.parent = bbObj[z]
+						
 				)
 				
 			)		
