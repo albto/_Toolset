@@ -47,7 +47,7 @@
 	--getParameters 
 	flowMethods = flowParams() 
 		
-		
+	
 		
 		
 Rollout flowProjectHelper "Project Manager"  
@@ -2468,10 +2468,11 @@ Rollout flowProjectHelper "Project Manager"
 			selObjs = for obj in sel collect obj
 			
 				
-			--if 'is prefab' 
+			--if 'is prefab' -- organize
 			undo on			
 			if chk_prefab.checked then 
 			(
+				
 				if selection.count >= 1 then
 				(					
 					-- place on selection's pivot point
@@ -2484,7 +2485,7 @@ Rollout flowProjectHelper "Project Manager"
 						assetCT = ("inst_" 		+ tempObj[i].name)
 						
 						-------------------------------------------------------
-							
+						tempObj[i].parent = undefined 	
 							
 						bbMin = tempObj[i].min
 						bbMax = tempObj[i].max
@@ -2541,6 +2542,7 @@ Rollout flowProjectHelper "Project Manager"
 						(
 							delete rect 
 							rect = (getNodeByName assetBD)
+								
 							rect.wirecolor = prefabColor
 							rect.width = (bbSize[1])
 							rect.length = (bbSize[2])										
@@ -2556,9 +2558,8 @@ Rollout flowProjectHelper "Project Manager"
 							
 						)		
 							
-
 						--clear the labels arrays 
-						labels 		= #() --(for obj in objects where (isKindOf obj text) collect obj) 
+						labels 		= #() 
 						nameLabels 	= #()
 						
 						if (getNodeByName classID) != undefined then 
@@ -2598,9 +2599,91 @@ Rollout flowProjectHelper "Project Manager"
 							append labels assetClassLabel
 						)
 							
+						--create container 
+						if (getNodeByName assetCT) == undefined then 
+						(
+							--places container on selection's pivot 
+							myCont = Container  allowInPlaceEditing:true  displayLabel:true
+							myCont.parent = undefined 
+							
+							--names container
+							myCont.name = assetCT
+							myCont.wirecolor = custGeoColor
+							myCont.pos = tempObj[i].pos
+							myCont.size = .385
+								
+							--adds node to container
+							myCont.AddNodeToContent tempObj[i]
+		-- 						
+		-- 					--add to layer 
+		-- 					layrNam = ("-Prefab- | " + tempObj[z].name)
+		-- 					prefabLayer = LayerManager.getLayerFromName layrNam
+		-- 					prefabLayer.addnode tempObj[z].parent
+		-- 						
+							--container parent 
+							myCont.parent = bbObj[i]
+								
+						)	
+						else 
+						( 
+								
+							myCont = (getNodeByName assetCT)
+							
+							if (myCont) != undefined then 
+							(
+								--unfreeze container
+								unfreeze myCont
+									
+								--remove the old Node from container
+								myCont.RemoveNodeFromContent tempObj[i] true 
+									
+								--reposition container, just to be safe 
+								myCont.name = assetCT
+								myCont.pos = tempObj[i].pos	
+									
+								--add node back to cantainer as to not affect it's position 
+								myCont.addNodeToContent tempObj[i]
+		-- 						--add to layer 
+		-- 						layrNam = ("-Prefab- | " + tempObj[z].name)
+		-- 						prefabLayer = LayerManager.getLayerFromName layrNam
+		-- 						prefabLayer.addnode tempObj[z].parent
+									
+								--container parent
+								myCont.parent = bbObj[i]
+									
+							)
+							else
+							(
+									
+								--rename container, just in case
+								myCont.name = assetCT as string 
+								myCont.wirecolor = custGeoColor
+
+								myCont.size = .385
+								--myCont.pos = tempObj[i].pos
+									
+								--add node to cantainer
+								myCont.addNodeToContent tempObj[i]
+									
+		-- 						--add to layer 
+		-- 						layrNam = ("-Prefab- | " + tempObj[z].name)
+		-- 						prefabLayer = LayerManager.getLayerFromName layrNam
+		-- 						prefabLayer.addnode tempObj[z].parent
+									
+								--container parent
+								myCont.parent = bbObj[i]
+								
+							)
+								
+		-- 					--container parent
+		-- 					myCont.parent = bbObj[z]
+								
+						)
 							
 						if (getNodeByName assetID) != undefined then 
 						(
+							bbObj = #()
+							
 							o = (getNodeByName assetID)
 							o.text = ("::"+selection[i].name+"::")			--txt.rotation = quat 0 0 180 0
 							o.size = .14
@@ -2616,6 +2699,7 @@ Rollout flowProjectHelper "Project Manager"
 						)
 						else 
 						(
+							
 							assetNameLabel = text()
 							assetNameLabel.name = assetID
 							assetNameLabel.wirecolor = custGeoColor
@@ -2636,78 +2720,7 @@ Rollout flowProjectHelper "Project Manager"
 							append nameLabels assetNameLabel
 						)	
 							
-							
-						--create and organize 
-						tempLayer = LayerManager.getLayerFromName ("-Prefab- | " + tempObj[i].name) 
-						lblStr =  filterString  (tempObj[i].name as string) "_"
-						lblLayer = LayerManager.getLayerFromName("_labels_- "+lblStr[1][1]as string+"_"+lblStr[2][1]as string+"_"+lblStr[3][lblStr.count-1]as string+lblStr[3][lblStr.count]as string)
 						
-						if (tempLayer) != undefined and lblLayer != undefined then 
-						(													
-							
-							tempLayer.addnode tempObj[i]
-							
-							for j in nameLabels do 
-							(
-								tempLayer.addnode j
-							)
-								
-							for m in labels do 
-							(
-								lblLayer.addnode m
-							)
-								
-							for n in nameLabels do 
-							(
-								lblLayer.addnode n
-							)	
-								
-							for l in bbObj do 
-							(
-								lblLayer.addnode l
-							)
-								
-							--prefabLayer.addnode myCont
-							--prefabLayer.setParent modLayer 
-							--tempLayer.setParent prefLayer
-							--lblLayer.setParent tempLayer 	
-							
-						)
-						else
-						(						
-							prefabLayer = LayerManager.newLayer()
-							lblLayer = LayerManager.newLayer()
-								
-							--set layer name
-							lyrName = ("-Prefab- | " + tempObj[i].name)
-							prefabLayer.setname lyrName
-							
-							lblStr =  filterString  (tempObj[i].name as string) "_"
-							lblLayer.setname ("_labels_- "+lblStr[1][1]as string+"_"+lblStr[2][1]as string+"_"+lblStr[3][lblStr.count-2]as string+lblStr[3][lblStr.count-1]as string)
-								
-							--add objects to layer 
-							prefabLayer.addnode tempObj[i]
-							
-							for m in labels do 
-							(
-								lblLayer.addnode m
-							)
-								
-							for n in nameLabels do 
-							(
-								lblLayer.addnode n
-							)
-								
-							for l in bbObj do 
-							(
-								lblLayer.addnode l
-							)	
-								
-							--prefabLayer.addnode myCont
-							prefabLayer.setParent prefLayer
-							lblLayer.setParent prefabLayer	
-								
-						)	
 							
 						--add buffer to bounds rectangle 
 						for t in bbObj do 
@@ -2716,14 +2729,22 @@ Rollout flowProjectHelper "Project Manager"
 							t.width += .25 
 						)
 							
+							
 						completeRedraw() 
 						forceCompleteRedraw doDisabled:true 
 							
 					)
 						
 				)
+			
+
 			)
-				
+			
+			for i = 1 to selObjs.count do 
+			(		
+				tempObj = selObjs
+			)
+							
 			--set attributes 
 			objAttributes = #() 
 				
@@ -2756,94 +2777,19 @@ Rollout flowProjectHelper "Project Manager"
 						
 				)
 					
-				--create container 
-				if (getNodeByName assetCT) == undefined then 
-				(
-					--places container on selection's pivot 
-					myCont = Container  allowInPlaceEditing:true  displayLabel:true
-						
-					--names container
-					myCont.name = assetCT
-					myCont.wirecolor = custGeoColor
-					myCont.pos = tempObj[z].pos
-					myCont.size = .385
-						
-					--adds node to container
-					myCont.AddNodeToContent tempObj[z]
-						
-					--add to layer 
-					layrNam = ("-Prefab- | " + tempObj[z].name)
-					prefabLayer = LayerManager.getLayerFromName layrNam
-					prefabLayer.addnode tempObj[z].parent
-						
-					--container parent 
-					myCont.parent = bbObj[z]
-						
-				)	
-				else ( 
-						
-					myCont = (getNodeByName assetCT)
-					myCont.parent = undefined 
-					link
-					if (myCont) != undefined then 
-					(
-						--unfreeze container
-						unfreeze myCont
-						
-						--remove the old Node from container
-						myCont.RemoveNodeFromContent tempObj[z] true 
-						
-						--reposition container, just to be safe 
-						myCont.name = assetCT
-						myCont.pos = tempObj[z].pos	
-							
-						--add node back to cantainer as to not affect it's position 
-						myCont.addNodeToContent tempObj[z]
-						--add to layer 
-						layrNam = ("-Prefab- | " + tempObj[z].name)
-						prefabLayer = LayerManager.getLayerFromName layrNam
-						prefabLayer.addnode tempObj[z].parent
-							
-						--container parent
-						myCont.parent = bbObj[z]
-							
-					)
-					else(
-							
-							
-						--rename container, just in case
-						myCont.name = assetCT as string 
-						myCont.wirecolor = custGeoColor
-						myCont.size = .385
-						myCont.pos = tempObj[z].pos
-							
-						--add node to cantainer
-						myCont.addNodeToContent tempObj[z]
-							
-						--add to layer 
-						layrNam = ("-Prefab- | " + tempObj[z].name)
-						prefabLayer = LayerManager.getLayerFromName layrNam
-						prefabLayer.addnode tempObj[z].parent
-							
-						--container parent
-						myCont.parent = bbObj[z]
-						
-					)
-						
--- 					--container parent
--- 					myCont.parent = bbObj[z]
-						
-				)
+
 				
 			)		
 				
 			lblLayer = undefined 
 			macros.run "FlowAttributes" "IBGUnityAttributesAdd"
-		)			
+				
+		)				
+			
 	)
 		
 	
-	----------------------------------------------------------------------------------------------------------------Level Filters ----
+	--------------------------------------------------------------------------------------------------------------- Level Filters ----
 	----------------------------------------------------------------------------------------------------------------------------------
 		
 	--level filter - art 

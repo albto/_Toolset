@@ -45,7 +45,7 @@
 			radiobuttons rad_dbg_maps ""											columns:4					labels:mapArr						offset:[145,40]
 				
 			
-			edittext 		edt_mat_name "Selected Material:" 							width:280													offset:[00,17]	
+			edittext 		edt_mat_name "Selected Material:" 						width:280														offset:[00,17]	
 			label 			lbl_space1 	"Active Nodes: "							height:30					across:9							offset:[10,0]
 			checkbutton 	chk_ab_map "ab"											width:30														offset:[15,00]				
 			checkbutton 	chk_rg_map "rg"											width:30														offset:[0,00]	

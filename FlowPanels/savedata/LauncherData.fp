@@ -1,1 +1,1 @@
-#("C:\Users\albto\OneDrive\Documents\GitHub\_Toolset", 9, 4, false, false, false, false, false, false, "G:/Dropbox/[main access]/3ds_Max_Source/_3ds Max - Projects/Prj_Buho_BathHouse/", 2)
+#("C:\Users\albto\OneDrive\Documents\GitHub\_Toolset", 2, 2, false, false, false, false, false, false, "G:/Dropbox/[main access]/3ds_Max_Source/_3ds Max - Projects/Prj_Buho_BathHouse/", 2)

@@ -47,4 +47,8 @@
     <Assign_Hotkey Shortcut="Ctrl+Shift+V" Description="UVTools__Open UV Tools UI" Id="647394-UVT_OpenUi`Nik Scripts - UV Tools"/>
     <Assign_Hotkey Shortcut="Alt+F" Description="Flip Face Normals (Poly)" Id="647394-EPoly_FFlip`Editable Polygon Object"/>
     <Assign_Hotkey Shortcut="Alt+F" Description="Flip Normals" Id="1250838234-40018"/>
+    <Assign_Hotkey Shortcut="X" Description="Rescale Clusters" Id="2077580866-40207"/>
+    <Assign_Hotkey Shortcut="Ctrl+Shift+W" Description="World Coordinate System" Id="647394-Coordsys_World`Coordinate System"/>
+    <Assign_Hotkey Shortcut="Ctrl+Shift+L" Description="Local Coordinate System" Id="647394-Coordsys_Local`Coordinate System"/>
+    <Assign_Hotkey Shortcut="Ctrl+Alt+L" Description="Local Aligned Coordinate System" Id="647394-Coordsys_Local_Aligned`Coordinate System"/>
 </MaxHotkeyTransformations>
