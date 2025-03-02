@@ -2512,7 +2512,81 @@ Rollout flowProjectHelper "Project Manager"
 						)
 							
 						-------------------------------------------------------
+
+						
+						if (tempLayer) != undefined and lblLayer != undefined then 
+						(			
+	
+							--create and organize 
+							tempLayer = LayerManager.getLayerFromName ("-Prefab- | " + tempObj[i].name) 
+							lblStr =  filterString  (tempObj[i].name as string) "_"
+							lblLayer = LayerManager.getLayerFromName   ("_labels_- "+lblStr[1][1]as string+"_"+lblStr[2][1]as string+"_"+lblStr[3][lblStr.count-1]as string+lblStr[3][lblStr.count]as string)
+								
+							tempLayer.addnode tempObj[i]
 							
+							for j in nameLabels do 
+							(
+								tempLayer.addnode j
+							)
+								
+							for m in labels do 
+							(
+								lblLayer.addnode m
+							)
+								
+							for n in nameLabels do 
+							(
+								lblLayer.addnode n
+							)	
+								
+							for l in bbObj do 
+							(
+								lblLayer.addnode l
+							)
+								
+							--prefabLayer.addnode myCont
+							--prefabLayer.setParent modLayer 
+							--tempLayer.setParent prefLayer
+							--lblLayer.setParent tempLayer 	
+							
+						)
+						else
+						(						
+							prefabLayer = LayerManager.newLayer()
+							lblLayer = LayerManager.newLayer()
+								
+							--set layer name
+							lyrName = ("-Prefab- | " + tempObj[i].name)
+							prefabLayer.setname lyrName
+							
+							lblStr =  filterString  (tempObj[i].name as string) "_"
+							lblLayer.setname "Labels" --("_labels_- "+lblStr[1][1]as string+"_"+lblStr[2][1]as string+"_"+lblStr[3][lblStr.count-2]as string+lblStr[3][lblStr.count-1]as string)
+								
+							--add objects to layer 
+							prefabLayer.addnode tempObj[i]
+							
+							for m in labels do 
+							(
+								lblLayer.addnode m
+							)
+								
+							for n in nameLabels do 
+							(
+								lblLayer.addnode n
+							)
+								
+							for l in bbObj do 
+							(
+								lblLayer.addnode l
+							)	
+								
+							--prefabLayer.addnode myCont
+							prefabLayer.setParent prefLayer
+							lblLayer.setParent prefabLayer	
+								
+						)	
+						
+						
 						----------------------------------------------------------------------------
 							
 						--create rectangle bounds shape list 
@@ -2557,6 +2631,13 @@ Rollout flowProjectHelper "Project Manager"
 							append bbObj rect 
 							
 						)		
+							
+						--add buffer to bounds rectangle 
+						for t in bbObj do 
+						(
+							t.length += .25		
+							t.width += .25
+						)
 							
 						--clear the labels arrays 
 						labels 		= #() 
@@ -2680,6 +2761,7 @@ Rollout flowProjectHelper "Project Manager"
 								
 						)
 							
+						--create labels 
 						if (getNodeByName assetID) != undefined then 
 						(
 							bbObj = #()
@@ -2720,14 +2802,7 @@ Rollout flowProjectHelper "Project Manager"
 							append nameLabels assetNameLabel
 						)	
 							
-						
 							
-						--add buffer to bounds rectangle 
-						for t in bbObj do 
-						(
-							t.length += .25
-							t.width += .25 
-						)
 							
 							
 						completeRedraw() 
@@ -2736,8 +2811,7 @@ Rollout flowProjectHelper "Project Manager"
 					)
 						
 				)
-			
-
+				
 			)
 			
 			for i = 1 to selObjs.count do 
