@@ -22,7 +22,6 @@
 	global Lowpoly		= object
 	global Highpoly		= object
 		
-		
 ----------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------
 		
@@ -36,7 +35,6 @@
 --- LOAD XML DATA ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------
 		
-		
 	--load xml data files
 	GetXMLData()
 		
@@ -47,18 +45,17 @@
 	--getParameters 
 	flowMethods = flowParams() 
 		
-	
 		
 		
 Rollout flowProjectHelper "Project Manager"  
 (
-
+		
 	--tool parameters 
-	
+		
 	--Colors
 	local prefabColor 	= (color 28 89 177 255)
 	local custGeoColor 	= (color 150 89 66 255)
-	
+		
 	local structColor 	= (color 177 89 27 255)
 	local intWallColor 	= (color 66 89 35 255)
 	local intCeiColor 	= (color 66 120 45 255)
@@ -70,10 +67,10 @@ Rollout flowProjectHelper "Project Manager"
 	local mshColColor 	= (color 2 255 255 255)
 	local finalColor 	= (color 28 89 177 255)
 		
-	
+		
 	local assetClassLabel
 	local assetNameLabel
-	
+		
 	local newArr = #()
 	local levels = #()
 	local newLevels = #()
@@ -87,21 +84,21 @@ Rollout flowProjectHelper "Project Manager"
 	local areatag = flowMethods.areatag 
 	local areasuf = flowMethods.areasuf 
 	local arealab = flowMethods.arealab 
-	
+		
 	local originalText = ""
 	local bbObj = #()
 	local prefabLayer 
-	
-	
+		
+		
 	--create an empty select level
 	local selLevel = 1
-	
+		
 	--create an empty select category				
 	local selCat = 1
 	bitmap bitmapBannerUi 						width:340 height:68 fileName:bitmapBannerFile 			align:#center gamma:1.0 
 	local editorMode = #("3DSMax Project", "Asset Creation", "Global Mode", "Unity Projekt")	
 	local origSel = integer
-	
+		
 	subRollout sub_roll_a "" 
 		
 		
@@ -118,7 +115,6 @@ Rollout flowProjectHelper "Project Manager"
 		button 			btn_projSync	"Sync"				align:#right
 		label 			lbl_uniProNam 	""
 	)
-		
 		
 	---------------------------------------------------------------------------------------------------------------
 	-- Group "Project Helper"

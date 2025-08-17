@@ -1,7 +1,37 @@
 @echo off 
 @echo off 
+
+#source_Folder_Structure----------------------------------------------------------------
+
 mkdir "_Data\"
 mkdir "_Merge\"
+mkdir "_DCC\"
+
+mkdir "_DCC\All\"
+mkdir "_DCC\Character\"
+mkdir "_DCC\Character\All"
+mkdir "_DCC\Character\Accessories"
+mkdir "_DCC\Character\Clothing"
+mkdir "_DCC\Decal\"
+mkdir "_DCC\Decal\All"
+mkdir "_DCC\Area\"
+mkdir "_DCC\Area\Exterior\"
+mkdir "_DCC\Area\Exterior\All"
+mkdir "_DCC\Area\Interior\"
+mkdir "_DCC\Area\Interior\All"
+mkdir "_DCC\Prop\"
+mkdir "_DCC\Prop\All"
+mkdir "_DCC\Structure\"
+mkdir "_DCC\Structure\All"
+mkdir "_DCC\Vehicle\"
+mkdir "_DCC\Vehicle\All"
+mkdir "_DCC\Weapon\"
+mkdir "_DCC\Weapon\All"
+mkdir "_DCC\zTestGround\"
+mkdir "_DCC\zTestGround\All"
+
+#geometry_Folder_Structure------------------------------------------------------------
+
 mkdir "Geometry\"
 mkdir "Geometry\All\"
 mkdir "Geometry\Character\"
@@ -10,10 +40,11 @@ mkdir "Geometry\Character\Accessories"
 mkdir "Geometry\Character\Clothing"
 mkdir "Geometry\Decal\"
 mkdir "Geometry\Decal\All"
-mkdir "Geometry\Exterior\"
-mkdir "Geometry\Exterior\All"
-mkdir "Geometry\Interior\"
-mkdir "Geometry\Interior\All"
+mkdir "Geometry\Area\"
+mkdir "Geometry\Area\Exterior\"
+mkdir "Geometry\Area\Exterior\All"
+mkdir "Geometry\Area\Interior\"
+mkdir "Geometry\Area\Interior\All"
 mkdir "Geometry\Prop\"
 mkdir "Geometry\Prop\All"
 mkdir "Geometry\Structure\"
@@ -24,6 +55,3 @@ mkdir "Geometry\Weapon\"
 mkdir "Geometry\Weapon\All"
 mkdir "Geometry\zTestGround\"
 mkdir "Geometry\zTestGround\All"
-hhdhdlakf 
-
-gfdfgssg
